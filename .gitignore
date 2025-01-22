@@ -1,0 +1,11 @@
+.env
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
+.Rproj.user
+**/__pycache__
+data/icatcher_videos
+data/icatcher_annotations
+data/original_videos
+data/metadata/input_lookit_study.json

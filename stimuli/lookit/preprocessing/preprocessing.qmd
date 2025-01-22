@@ -1,0 +1,210 @@
+
+Importing packages 
+
+```{r echo=FALSE}
+library(tidyverse)
+library(here)
+library(reticulate)
+library(dotenv)
+library(readr)
+#devtools::install_github("langcog/wordbankr")
+library(wordbankr)
+library(ggrepel)
+library(jsonlite)
+
+load_dot_env(file=here(".env"))
+conda_env <- Sys.getenv("CONDA_ENVIRONMENT")
+if (conda_env != "") {
+  use_condaenv(conda_env)
+}
+```
+
+## Stimuli selection and formatting
+
+```{r constants}
+STIMULI_PATH = "https://ucsdlearninglabs.org/stimuli/"
+SOURCE_CODE_PATH = here("stimuli", "lookit")
+KIND_INFO = "group"
+SOURCE_PATH <- file.path(SOURCE_CODE_PATH, "preprocessing", "older_stimuli", "exp3_garden")
+DEST_PATH <- file.path(SOURCE_CODE_PATH, "exp1")
+SOURCE_AUDIO_PATH <- file.path(SOURCE_PATH, "audio_final2023-11-09")
+SOURCE_IMAGES_PATH <- file.path(SOURCE_PATH, "images_final2023-11-09")
+DEST_IMAGES_PATH <- file.path(DEST_PATH, "img")
+# Using regular destination path so that our file converter script can convert them and store them in mp3 and ogg folders
+DEST_AUDIO_PATH <- file.path(DEST_PATH)
+```
+
+Loading data from Wordbank. Age-of-acquisitions used for older stimuli appeared to be 'production' related which might not completely line up with the 'understanding' that we are measuring here.  
+```{r}
+# Words and Sentences dataset does not contain any words based on "understands" measure
+english_ws_aoa <- aoa_data("English (American)", "WS", "produces")
+```
+
+Reading older stimuli from category representation experiments conducted on 3-5 year old children. Using stimuli that can be transferred to children from 12 months to 3 years old. 
+
+Experiment 3 stimuli includes the newer list of filtered stimuli that we want to use. However, the experiment 1 stimuli still includes estimated age-of-acquisition (AoA) and correlation information.
+
+```{r}
+stimuli_exp1 <- read.csv(file.path(SOURCE_CODE_PATH, "preprocessing", "older_stimuli", "exp1_all_trials2023-04-11.csv"))
+stimuli_exp3 <- read.csv(file.path(SOURCE_CODE_PATH, "preprocessing", "older_stimuli", "exp3_garden", "all_trials_garden_final2023-11-09.csv"))
+stimuli_metadata <- read_tsv(file.path(SOURCE_CODE_PATH, "preprocessing", "older_stimuli", "_images-metadata_things.tsv"))
+```
+
+Only using the 'high similarity (hard)' and the 'medium similarity (easy)' trials because of the absence of much variation seen between medium similarity and low similarity (distal) trials. Since we're adapting the study for children under the age of 3 and it looks like the est. AoA listed in the Kuperman study are 1.5-2 years too high (more analysis below) we are choosing the lowest est. AoA limit that we can afford to. We are also aiming to use 24 regular trials in total to match Martin's Animal-LWL experiment and use 3 practice trials.
+```{r}
+filtered_stimuli_exp1 <- stimuli_exp1 |>
+  # Using words with higher estimated age-of-acquisition for word 2 since they are primarily distractors; and not using any practice trials
+  filter(AoA_Est_Word1 <= 6.5 & AoA_Est_Word2 <= 7 & !grepl("practice", trial_type)) |>
+  rowwise() |>
+  mutate(Image_Word1 = basename(Word_1_new_path),
+         Image_Word2 = basename(Word_2_new_path),
+         # Using dashes which are compatible for ID names in Lookit
+         item_pair = gsub("_", "-", item_pair),
+         trial_type = gsub("_", "-", trial_type)) |>
+  select(-contains("path", ignore.case=TRUE), -dist_number, -Animacy_Word_2) |>
+  rename(animacy=Animacy_Word_1, est_diff_aoa=diff_aoa)
+```
+
+Merging the experiment 1 and experiment 3 CSV files so that we're only choosing stimuli that are present in the new stimuli CSV
+```{r}
+filtered_stimuli <- filtered_stimuli_exp1 |>
+  inner_join(stimuli_exp3, by = c("Word1", "Word2")) |>
+  select(-source) |>
+  filter(!(Word1 %in% c("cassette", "lollipop", "cornbread", "pitcher", "hopscotch", "milkshake", "skin", "puddle", "wall", "treasure", "pump", "elbow", "ship", "scoop"))) |>
+  filter(!(Word2 %in% c("tadpole", "screwdriver", "sparkler", "dessert", "vegetable", "raspberry", "face", "tongue", "dryer", "stair", "box", "tongue", "pillow", "pizza", "clay", "nose", "chipmunk", "rim", "pinball", "ruby", "toe", "quilt", "asparagus", "bedpost"))) |>
+  # Words removed because of animacy cues
+  filter(!(Word2 %in% c("rooster", "skirt"))) |>
+  # Since Word1 is our primary target but since we're running trials with Word1 as both a target and a distractor, we need to make sure there's a version of Word1 in both the easy and the hard trials after the manual selection of trials to still include it. Since there is no real difference between easy and distal trials, we can substitute one for another.
+  group_by(Word1) |>
+  mutate(count_easy = sum(wordPairing == "easy"),
+            count_hard = sum(wordPairing == "hard"),
+         count_distal = sum(wordPairing == "distal")) |>
+   filter((count_easy == 1 | count_distal == 1) & count_hard == 1) |>
+  # Using distal trials as easy trials if we can't use the easy distractor image 
+  mutate(wordPairing = ifelse(wordPairing == "distal" & count_easy == 0, "easy", wordPairing)) |>
+  filter(wordPairing != "distal") |>
+  select(-count_easy, -count_hard, -count_distal) |>
+    # Words removed for first pilot
+  filter(!(Word1 %in% c("watermelon", "saddle", "silverware")))
+# For the pilot study, we only want to use "easy" trials
+nrow(filter(filtered_stimuli, grepl("easy", wordPairing, fixed=TRUE)))
+```
+
+### Adding nameability metadata 
+```{r}
+filtered_metadata <- stimuli_metadata |>
+  filter(!grepl("/", image)) |>
+  select(-contains("name"), -contains("memorability")) |>
+  rowwise() |>
+  mutate(recognizability = cleaned_recognizability_rating(recognizability))
+
+filtered_stimuli <- filtered_stimuli |>
+  inner_join(filtered_metadata[,c("Word", "recognizability")], by=c("Word1" = "Word")) |>
+  rename(recognizability_word1 = recognizability) |>
+  inner_join(filtered_metadata[,c("Word", "recognizability")], by=c("Word2" = "Word")) |>
+  rename(recognizability_word2 = recognizability)
+```
+
+### Creating pilot study JSONs and moving audio and image files to correct directories
+```{r}
+save_frame_list(filtered_stimuli |>
+  filter(wordPairing == "easy" | wordPairing == "hard"), "pilot_stimuli.json")
+```
+
+Creating CSV to send for initial pilot
+```{r}
+init_stimuli <- merged_aoas(filtered_stimuli, english_ws_aoa) |>
+  arrange(wordPairing, AoA_Est_Word1) |>
+  select(-matches("Audio"), -matches("Image"), -item_pair, -est_diff_aoa, -distractorId, -itemGroup, -trial_type) |>
+  select(-animacy, -cor, -wordPairing, everything())
+
+pilot_stimuli <- init_stimuli |> filter(wordPairing == "easy" | wordPairing == "hard")
+
+write.csv(pilot_stimuli, file.path(SOURCE_CODE_PATH, "pilot_stimuli.csv"))
+
+write.csv(init_stimuli, file.path(SOURCE_CODE_PATH, "stimuli_all.csv"))
+```
+
+
+### Convert WAV files to mp3
+```{python echo=false}
+import os
+import subprocess as sp
+import sys
+
+audioPath = r.DEST_PATH
+mp3_dir = os.path.join(audioPath, 'mp3')
+ogg_dir = os.path.join(audioPath, 'ogg')
+
+os.makedirs(mp3_dir, exist_ok=True)
+os.makedirs(ogg_dir, exist_ok=True)
+
+audioFiles = os.listdir(audioPath)
+os.makedirs(mp3_dir, exist_ok=True)
+
+for audio in audioFiles:
+    (shortname, ext) = os.path.splitext(audio)
+    if not(os.path.isdir(os.path.join(audioPath, audio))) and ext in ['.m4a', '.wav']:
+        sp.call(['ffmpeg', '-y', '-i', os.path.join(audioPath, audio), \
+               os.path.join(mp3_dir, shortname + '.mp3')], 
+               stdout=sp.DEVNULL, stderr=sp.DEVNULL)
+        sp.call(['ffmpeg', '-y', '-i', os.path.join(audioPath, audio), \
+               os.path.join(ogg_dir, shortname + '.ogg')],
+               stdout=sp.DEVNULL, stderr=sp.DEVNULL)
+        os.remove(os.path.join(audioPath, audio))
+```
+
+## Wordbank vs MALD
+
+Exploratory work comparing age-of-acquisitions used for older stimuli, derived from the Kuperman survey, to age-of-acquisitions and words available through Wordbank.
+
+```{r}
+# Words and Gestures dataset, built for younger kids
+english_wg_aoa <- aoa_data("English (American)", "WG", "understands")
+nrow(english_ws_aoa)
+nrow(english_wg_aoa)
+```
+
+Wordbank only contains 245 words for the younger Words & Gestures dataset with AoA data but contains 573 words for older Words & Sentences dataset. Checking both against existing stimuli pairs to see if we can get to 24 varied trials.
+
+```{r}
+aoa_stimuli_ws <- merged_stimuli(new_stimuli, english_ws_aoa)
+aoa_stimuli_wg <- merged_stimuli(new_stimuli, english_wg_aoa)
+filtered_words <- as.list(aoa_stimuli_ws |>
+  select(Word1, Word2) |>
+  unlist() |>
+  unique())
+```
+
+Plotting existing AoA data against new AoA data to look for alignment in correlated pairs
+```{r}
+# Extracting the AoAs for all of the unique words that are present in both Wordbank and the older stimuli dataset
+aoa_aggregated_diff <- aoa_aggregated |>
+  select(Word1, Word2, item_pair, trial_type, cor, AoA_Est_Word1, AoA_Est_Word2, diff_aoa, AoA_Word1, AoA_Word2, aoa_diff_wb) |>
+  pivot_longer(cols=starts_with("Word"),
+               names_to="Word_Type",
+               values_to="Word") |>
+  mutate(AoA_WB = ifelse(Word_Type == "Word1", AoA_Word1, AoA_Word2),
+         AoA_MALD = round((ifelse(Word_Type == "Word1", AoA_Est_Word1, AoA_Est_Word2) - 1.5) * 12)) |>
+  select(Word, AoA_WB, AoA_MALD) |>
+  distinct()
+
+pos <- position_jitter(width = 0.3, seed = 2)
+
+ggplot(aoa_aggregated_diff, aes(x = AoA_MALD, y = AoA_WB)) +
+  geom_smooth(method = "lm", se = TRUE, color = "darkgrey", alpha = 0.5) +  # Linear regression line with transparency
+  geom_label_repel(force = 50, position=pos, aes(label = Word), formula=y~x) +
+  geom_point(color = "lightblue", size = 4, alpha = 0.7, position=pos) + 
+  labs(title = "Age of Acquisition of words based on MALD survey vs WordBank data",
+       x = "MALD AoA (age in months)",
+       y = "WordBank AoA (age in months)") +
+  scale_x_continuous(breaks = seq(min(aoa_aggregated_diff$AoA_MALD)-1, 
+                                    max(aoa_aggregated_diff$AoA_MALD), 
+                                    by = 2)) +  # More ticks on x-axis
+  scale_y_continuous(breaks = seq(min(aoa_aggregated_diff$AoA_WB), 
+                                    max(aoa_aggregated_diff$AoA_WB), 
+                                    by = 2)) +  # More ticks on y-axis 
+  theme_minimal()
+
+ggsave(here("stimuli", "lookit", "plots", "maldWordbank.png"))
+```

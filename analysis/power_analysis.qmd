@@ -1,0 +1,21 @@
+Importing packages
+```{r}
+library(pwr)
+```
+
+Estimating the effect size from Bergelson & Aslin, 2017 that had a similar set up testing the effect of semantic relatedness of distractors in 6-month-olds (https://www.pnas.org/doi/10.1073/pnas.1712966114)
+```{r}
+mean_unrelated = 0.044
+sd_unrelated = 0.108
+mean_related = -0.013
+sd_related = 0.15
+bergelson_aslin_effect_size <- round((mean_unrelated - mean_related) / sqrt((sd_unrelated^2 + sd_related^2) / 2), 2)
+bergelson_aslin_effect_size
+```
+
+Calculating sample size required for an effect size of 0.3 with 80% power. We estimated a relatively small effect size for several reasons. The specificity of our manipulation condition and the asynchronous online nature of our study could introduce variability that diminishes the magnitude of our observed effect. Additionally, we used naturalistic images and a broad range of words in our stimuli set, methodological choices that are atypical in word-recognition research. Moreover, our effect size was chosen to be large enough to be theoretically relevant while accounting for the inherent complexities of the study design.  
+```{r}
+pwr.t.test(d=0.30, sig.level=0.05, power=0.80, type="paired")
+pwr.t.test(d=0.35, sig.level=0.05, power=0.90, type="paired")
+```
+Decided to use n=90 as target sample size based on these power analyses
