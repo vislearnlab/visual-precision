@@ -1,449 +1,449 @@
-,SubjectInfo.subjID,Trials.trialID,absolute_onset,Trials.audio_lag_vs_video_lag,absolute_offset,SubjectInfo.testAge,SubjectInfo.gender,Trials.leftImage,Trials.rightImage,Trials.targetImage,Trials.targetAudio,Trials.trialType,Trials.carrier_onset,Trials.target_onset,Trials.target_offset,Trials.order,SubjectInfo.age_at_birth,SubjectInfo.language_list,SubjectInfo.condition_list,Trials.ordinal
-0,CKRG26,hard-bulldozer-tractor-distractor,2025-01-26 01:29:27.506,383.0,2025-01-26 01:29:35.300,630,f,tractor,bulldozer,tractor,see,hard-distractor,2,2.980748,3.960068,10,40 or more weeks,en,,1
-0,dKKWAR,hard-turkey-goat-distractor,2025-01-23 19:26:07.634,1.0,2025-01-23 19:26:15.214,450,m,goat,turkey,goat,find,hard-distractor,2,2.980748,3.860907,10,40 or more weeks,en,,1
-0,XMJ25D,easy-turkey-swan,2025-01-23 19:44:23.265,188.0,2025-01-23 19:44:30.713,690,m,swan,turkey,turkey,look_at,easy,2,2.980748,3.960068,10,39 weeks,en,,1
-0,GNXMNQ,easy-potato-glasses-distractor,2025-01-24 00:43:51.112,35.0,2025-01-24 00:43:58.400,660,m,potato,glasses,glasses,see,easy-distractor,2,2.980748,3.960068,10,37 weeks,en te ur,,1
-0,d4HUR3,easy-turtle-horse-distractor,2025-01-24 02:47:22.675,392.0,2025-01-24 02:47:30.308,480,f,horse,turtle,horse,where,easy-distractor,2,2.980748,3.860907,10,39 weeks,en,,1
-0,UUQJAd,hard-acorn-coconut-distractor,2025-01-24 13:26:40.711,258.0,2025-01-24 13:26:48.227,570,f,acorn,coconut,coconut,find,hard-distractor,2,2.980748,4.103515,10,38 weeks,en fr,,1
-0,UQBHFH,hard-snail-worm,2025-01-24 14:10:05.593,154.0,2025-01-24 14:10:12.994,510,f,worm,snail,snail,look_at,hard,2,2.980748,3.860907,10,40 or more weeks,en fr es,,1
-0,QWGKVS,easy-turtle-horse,2025-01-24 16:54:06.273,187.0,2025-01-24 16:54:13.728,750,m,horse,turtle,turtle,look_at,easy,2,2.980748,3.960068,10,39 weeks,en,,1
-0,FHRCdd,hard-cheese-butter,2025-01-24 17:27:47.509,196.0,2025-01-24 17:27:54.935,540,m,butter,cheese,cheese,find,hard,2,2.980748,3.960068,10,39 weeks,en ur,,1
-0,QGTESM,hard-squirrel-monkey-distractor,2025-01-25 17:25:06.247,11.0,2025-01-25 17:25:13.600,630,m,monkey,squirrel,monkey,see,hard-distractor,2,2.980748,3.960068,10,39 weeks,en,,1
-0,NPV5EF,easy-acorn-key-distractor,2025-01-23 18:00:21.539,2.0,2025-01-23 18:00:28.796,570,m,acorn,key,key,look_at,easy-distractor,2,2.980748,3.860907,10,39 weeks,en hak cmn ru,,1
-0,6THVBG,easy-cheese-mud,2025-01-12 15:17:51.207,75.0,2025-01-12 15:17:58.515,510,f,mud,cheese,cheese,find,easy,2,2.980748,3.960068,10,39 weeks,en,,1
-0,5QCS4M,easy-turkey-swan-distractor,2025-01-25 20:47:53.513,229.0,2025-01-25 20:48:01.006,750,f,swan,turkey,swan,where,easy-distractor,2,2.980748,3.860907,10,39 weeks,en ko,,1
-0,TUFKTQ,easy-acorn-key,2025-01-25 19:00:45.211,312.0,2025-01-25 19:00:52.790,450,f,key,acorn,acorn,look_at,easy,2,2.980748,3.960068,10,39 weeks,en,,1
-0,TUFKTQ,easy-cheese-mud,2025-01-25 19:00:54.715,225.0,2025-01-25 19:01:02.198,450,f,mud,cheese,cheese,see,easy,2,2.980748,3.960068,11,39 weeks,en,,2
-0,dKKWAR,easy-snail-cow-distractor,2025-01-23 19:26:17.625,1.0,2025-01-23 19:26:24.976,450,m,snail,cow,cow,look_at,easy-distractor,2,2.980748,3.860907,11,40 or more weeks,en,,2
-0,CKRG26,easy-cheese-mud-distractor,2025-01-26 01:29:37.556,359.0,2025-01-26 01:29:45.357,630,f,mud,cheese,mud,find,easy-distractor,2,2.980748,3.860907,11,40 or more weeks,en,,2
-0,XMJ25D,easy-acorn-key-distractor,2025-01-23 19:44:32.635,3.0,2025-01-23 19:44:39.913,690,m,key,acorn,key,where,easy-distractor,2,2.980748,3.860907,11,39 weeks,en,,2
-0,GNXMNQ,hard-snail-worm,2025-01-24 00:43:59.492,53.0,2025-01-24 00:44:06.800,660,m,snail,worm,snail,find,hard,2,2.980748,3.860907,11,37 weeks,en te ur,,2
-0,d4HUR3,easy-cheese-mud,2025-01-24 02:47:31.647,400.0,2025-01-24 02:47:39.291,480,f,cheese,mud,cheese,look_at,easy,2,2.980748,3.960068,11,39 weeks,en,,2
-0,6THVBG,easy-turkey-swan,2025-01-12 15:18:01.039,172.0,2025-01-12 15:18:08.454,510,f,swan,turkey,turkey,see,easy,2,2.980748,3.960068,11,39 weeks,en,,2
-0,UUQJAd,easy-turtle-horse,2025-01-24 13:26:50.440,252.0,2025-01-24 13:26:57.927,570,f,horse,turtle,turtle,look_at,easy,2,2.980748,3.960068,11,38 weeks,en fr,,2
-0,NPV5EF,easy-turtle-horse-distractor,2025-01-23 18:00:31.253,1.0,2025-01-23 18:00:38.514,570,m,horse,turtle,horse,see,easy-distractor,2,2.980748,3.860907,11,39 weeks,en hak cmn ru,,2
-0,5QCS4M,hard-turtle-frog,2025-01-25 20:48:02.615,207.0,2025-01-25 20:48:10.076,750,f,turtle,frog,turtle,see,hard,2,2.980748,3.960068,11,39 weeks,en ko,,2
-0,QWGKVS,hard-acorn-coconut,2025-01-24 16:54:14.704,32.0,2025-01-24 16:54:22.008,750,m,acorn,coconut,acorn,where,hard,2,2.980748,3.960068,11,39 weeks,en,,2
-0,QGTESM,easy-cheese-mud-distractor,2025-01-25 17:25:15.722,13.0,2025-01-25 17:25:23.074,630,m,mud,cheese,mud,look_at,easy-distractor,2,2.980748,3.860907,11,39 weeks,en,,2
-0,FHRCdd,hard-potato-pot-distractor,2025-01-24 17:27:59.282,135.0,2025-01-24 17:28:06.695,540,m,pot,potato,pot,see,hard-distractor,2,2.980748,3.860907,11,39 weeks,en ur,,2
-0,UQBHFH,easy-potato-glasses,2025-01-24 14:10:14.956,102.0,2025-01-24 14:10:22.294,510,f,glasses,potato,potato,see,easy,2,2.980748,4.103515,11,40 or more weeks,en fr es,,2
-0,5QCS4M,easy-cheese-mud-distractor,2025-01-25 20:48:13.455,158.0,2025-01-25 20:48:20.866,750,f,cheese,mud,mud,look_at,easy-distractor,2,2.980748,3.860907,12,39 weeks,en ko,,3
-0,NPV5EF,hard-bulldozer-tractor-distractor,2025-01-23 18:00:40.706,4.0,2025-01-23 18:00:47.973,570,m,bulldozer,tractor,tractor,find,hard-distractor,2,2.980748,3.960068,12,39 weeks,en hak cmn ru,,3
-0,dKKWAR,hard-turtle-frog,2025-01-23 19:26:27.466,3.0,2025-01-23 19:26:34.815,450,m,frog,turtle,turtle,see,hard,2,2.980748,3.960068,12,40 or more weeks,en,,3
-0,QGTESM,hard-acorn-coconut-distractor,2025-01-25 17:25:25.695,8.0,2025-01-25 17:25:33.109,630,m,acorn,coconut,coconut,where,hard-distractor,2,2.980748,4.103515,12,39 weeks,en,,3
-0,FHRCdd,easy-acorn-key-distractor,2025-01-24 17:28:11.466,184.0,2025-01-24 17:28:18.895,540,m,key,acorn,key,look_at,easy-distractor,2,2.980748,3.860907,12,39 weeks,en ur,,3
-0,TUFKTQ,easy-snail-cow-distractor,2025-01-25 19:01:04.456,196.0,2025-01-25 19:01:11.926,450,f,cow,snail,cow,where,easy-distractor,2,2.980748,3.860907,12,39 weeks,en,,3
-0,GNXMNQ,easy-acorn-key-distractor,2025-01-24 00:44:08.017,47.0,2025-01-24 00:44:15.320,660,m,acorn,key,key,where,easy-distractor,2,2.980748,3.860907,12,37 weeks,en te ur,,3
-0,CKRG26,hard-turtle-frog,2025-01-26 01:29:47.435,150.0,2025-01-26 01:29:54.989,630,f,frog,turtle,turtle,where,hard,2,2.980748,3.960068,12,40 or more weeks,en,,3
-0,d4HUR3,easy-acorn-key,2025-01-24 02:47:40.681,392.0,2025-01-24 02:47:48.332,480,f,acorn,key,acorn,see,easy,2,2.980748,3.960068,12,39 weeks,en,,3
-0,QWGKVS,easy-snail-cow-distractor,2025-01-24 16:54:22.812,89.0,2025-01-24 16:54:30.168,750,m,snail,cow,cow,see,easy-distractor,2,2.980748,3.860907,12,39 weeks,en,,3
-0,UUQJAd,hard-potato-pot-distractor,2025-01-24 13:26:59.744,239.0,2025-01-24 13:27:07.257,570,f,pot,potato,pot,where,hard-distractor,2,2.980748,3.860907,12,38 weeks,en fr,,3
-0,XMJ25D,hard-turtle-frog-distractor,2025-01-23 19:44:41.697,21.0,2025-01-23 19:44:48.994,690,m,turtle,frog,frog,find,hard-distractor,2,2.980748,3.860907,12,39 weeks,en,,3
-0,UQBHFH,easy-turkey-swan-distractor,2025-01-24 14:10:24.128,55.0,2025-01-24 14:10:31.420,510,f,swan,turkey,swan,find,easy-distractor,2,2.980748,3.860907,12,40 or more weeks,en fr es,,3
-0,6THVBG,easy-snail-cow,2025-01-12 15:18:10.756,208.0,2025-01-12 15:18:18.225,510,f,snail,cow,snail,where,easy,2,2.980748,3.860907,12,39 weeks,en,,3
-0,NPV5EF,easy-turkey-swan,2025-01-23 18:00:50.402,4.0,2025-01-23 18:00:57.673,570,m,swan,turkey,turkey,where,easy,2,2.980748,3.960068,13,39 weeks,en hak cmn ru,,4
-0,d4HUR3,hard-potato-pot,2025-01-24 02:47:49.528,311.0,2025-01-24 02:47:57.089,480,f,potato,pot,potato,find,hard,2,2.980748,4.103515,13,39 weeks,en,,4
-0,UQBHFH,hard-bulldozer-tractor-distractor,2025-01-24 14:10:33.093,86.0,2025-01-24 14:10:40.425,510,f,bulldozer,tractor,tractor,where,hard-distractor,2,2.980748,3.960068,13,40 or more weeks,en fr es,,4
-0,5QCS4M,easy-squirrel-eagle,2025-01-25 20:48:24.340,152.0,2025-01-25 20:48:31.746,750,f,eagle,squirrel,squirrel,find,easy,2,2.980748,3.960068,13,39 weeks,en ko,,4
-0,XMJ25D,easy-bulldozer-orange-distractor,2025-01-23 19:44:50.903,86.0,2025-01-23 19:44:58.274,690,m,bulldozer,orange,orange,see,easy-distractor,2,2.980748,3.960068,13,39 weeks,en,,4
-0,6THVBG,easy-turtle-horse-distractor,2025-01-12 15:18:20.439,88.0,2025-01-12 15:18:27.785,510,f,turtle,horse,horse,look_at,easy-distractor,2,2.980748,3.860907,13,39 weeks,en,,4
-0,QGTESM,easy-snail-cow-distractor,2025-01-25 17:25:35.003,77.0,2025-01-25 17:25:42.486,630,m,cow,snail,cow,find,easy-distractor,2,2.980748,3.860907,13,39 weeks,en,,4
-0,QWGKVS,easy-turkey-swan-distractor,2025-01-24 16:54:31.095,7.0,2025-01-24 16:54:38.388,750,m,turkey,swan,swan,find,easy-distractor,2,2.980748,3.860907,13,39 weeks,en,,4
-0,FHRCdd,hard-turtle-frog,2025-01-24 17:28:23.913,243.0,2025-01-24 17:28:31.395,540,m,frog,turtle,turtle,where,hard,2,2.980748,3.960068,13,39 weeks,en ur,,4
-0,GNXMNQ,hard-turtle-frog-distractor,2025-01-24 00:44:16.390,30.0,2025-01-24 00:44:23.660,660,m,turtle,frog,frog,look_at,hard-distractor,2,2.980748,3.860907,13,37 weeks,en te ur,,4
-0,CKRG26,hard-potato-pot,2025-01-26 01:29:57.204,86.0,2025-01-26 01:30:04.650,630,f,potato,pot,potato,look_at,hard,2,2.980748,4.103515,13,40 or more weeks,en,,4
-0,TUFKTQ,easy-turtle-horse-distractor,2025-01-25 19:01:14.561,222.0,2025-01-25 19:01:22.038,450,f,turtle,horse,horse,find,easy-distractor,2,2.980748,3.860907,13,39 weeks,en,,4
-0,UUQJAd,easy-cheese-mud,2025-01-24 13:27:09.398,168.0,2025-01-24 13:27:16.807,570,f,mud,cheese,cheese,see,easy,2,2.980748,3.960068,13,38 weeks,en fr,,4
-0,dKKWAR,hard-squirrel-monkey-distractor,2025-01-23 19:26:37.204,2.0,2025-01-23 19:26:44.535,450,m,monkey,squirrel,monkey,where,hard-distractor,2,2.980748,3.960068,13,40 or more weeks,en,,4
-0,QWGKVS,hard-cheese-butter-distractor,2025-01-24 16:54:44.821,60.0,2025-01-24 16:54:52.168,750,m,butter,cheese,butter,where,hard-distractor,2,2.980748,3.960068,15,39 weeks,en,,5
-0,dKKWAR,easy-acorn-key-distractor,2025-01-23 19:26:52.116,4.0,2025-01-23 19:26:59.724,450,m,acorn,key,key,find,easy-distractor,2,2.980748,3.860907,15,40 or more weeks,en,,5
-0,FHRCdd,easy-turkey-swan,2025-01-24 17:28:40.100,94.0,2025-01-24 17:28:47.455,540,m,turkey,swan,turkey,look_at,easy,2,2.980748,3.960068,15,39 weeks,en ur,,5
-0,5QCS4M,easy-snail-cow-distractor,2025-01-25 20:48:40.908,110.0,2025-01-25 20:48:48.306,750,f,snail,cow,cow,where,easy-distractor,2,2.980748,3.860907,15,39 weeks,en ko,,5
-0,TUFKTQ,easy-bulldozer-orange-distractor,2025-01-25 19:01:29.356,192.0,2025-01-25 19:01:36.823,450,f,orange,bulldozer,orange,see,easy-distractor,2,2.980748,3.960068,15,39 weeks,en,,5
-0,6THVBG,hard-acorn-coconut-distractor,2025-01-12 15:18:41.054,3.0,2025-01-12 15:18:48.284,510,f,acorn,coconut,coconut,see,hard-distractor,2,2.980748,4.103515,15,39 weeks,en,,5
-0,UUQJAd,hard-snail-worm,2025-01-24 13:27:23.739,174.0,2025-01-24 13:27:31.147,570,f,worm,snail,snail,look_at,hard,2,2.980748,3.860907,15,38 weeks,en fr,,5
-0,CKRG26,easy-squirrel-eagle,2025-01-26 01:30:13.635,182.0,2025-01-26 01:30:21.188,630,f,squirrel,eagle,squirrel,where,easy,2,2.980748,3.960068,15,40 or more weeks,en,,5
-0,GNXMNQ,easy-bulldozer-orange,2025-01-24 00:44:31.392,58.0,2025-01-24 00:44:38.700,660,m,bulldozer,orange,bulldozer,look_at,easy,2,2.980748,4.103515,15,37 weeks,en te ur,,5
-0,d4HUR3,hard-bulldozer-tractor,2025-01-24 02:48:04.014,282.0,2025-01-24 02:48:11.587,480,f,tractor,bulldozer,bulldozer,find,hard,2,2.980748,4.103515,15,39 weeks,en,,5
-0,XMJ25D,easy-snail-cow,2025-01-23 19:45:05.384,24.0,2025-01-23 19:45:12.675,690,m,cow,snail,snail,see,easy,2,2.980748,3.860907,15,39 weeks,en,,5
-0,UQBHFH,hard-cheese-butter-distractor,2025-01-24 14:10:48.300,64.0,2025-01-24 14:10:55.658,510,f,cheese,butter,butter,look_at,hard-distractor,2,2.980748,3.960068,15,40 or more weeks,en fr es,,5
-0,NPV5EF,easy-cheese-mud,2025-01-23 18:01:05.468,2.0,2025-01-23 18:01:12.734,570,m,cheese,mud,cheese,see,easy,2,2.980748,3.960068,15,39 weeks,en hak cmn ru,,5
-0,QGTESM,easy-turtle-horse,2025-01-25 17:25:50.866,13.0,2025-01-25 17:25:58.282,630,m,horse,turtle,turtle,look_at,easy,2,2.980748,3.960068,15,39 weeks,en,,5
-0,CKRG26,hard-turkey-goat,2025-01-26 01:30:23.486,363.0,2025-01-26 01:30:26.917,630,f,turkey,goat,turkey,find,hard,2,2.980748,3.960068,16,40 or more weeks,en,,6
-0,UUQJAd,easy-squirrel-eagle,2025-01-24 13:27:33.137,158.0,2025-01-24 13:27:40.538,570,f,squirrel,eagle,squirrel,find,easy,2,2.980748,3.960068,16,38 weeks,en fr,,6
-0,XMJ25D,easy-potato-glasses-distractor,2025-01-23 19:45:14.578,44.0,2025-01-23 19:45:21.875,690,m,glasses,potato,glasses,look_at,easy-distractor,2,2.980748,3.960068,16,39 weeks,en,,6
-0,5QCS4M,easy-acorn-key-distractor,2025-01-25 20:48:51.855,151.0,2025-01-25 20:48:59.266,750,f,key,acorn,key,see,easy-distractor,2,2.980748,3.860907,16,39 weeks,en ko,,6
-0,QGTESM,hard-turkey-goat-distractor,2025-01-25 17:26:00.073,12.0,2025-01-25 17:26:07.471,630,m,turkey,goat,goat,see,hard-distractor,2,2.980748,3.860907,16,39 weeks,en,,6
-0,FHRCdd,hard-squirrel-monkey,2025-01-24 17:28:50.320,185.0,2025-01-24 17:28:57.765,540,m,squirrel,monkey,squirrel,find,hard,2,2.980748,3.960068,16,39 weeks,en ur,,6
-0,GNXMNQ,hard-turkey-goat-distractor,2025-01-24 00:44:39.922,46.0,2025-01-24 00:44:47.240,660,m,goat,turkey,goat,where,hard-distractor,2,2.980748,3.860907,16,37 weeks,en te ur,,6
-0,TUFKTQ,easy-squirrel-eagle,2025-01-25 19:01:39.978,220.0,2025-01-25 19:01:47.468,450,f,squirrel,eagle,squirrel,look_at,easy,2,2.980748,3.960068,16,39 weeks,en,,6
-0,QWGKVS,hard-potato-pot,2025-01-24 16:54:52.941,62.0,2025-01-24 16:55:00.269,750,m,pot,potato,potato,look_at,hard,2,2.980748,4.103515,16,39 weeks,en,,6
-0,6THVBG,hard-potato-pot,2025-01-12 15:18:49.267,144.0,2025-01-12 15:18:56.643,510,f,potato,pot,potato,find,hard,2,2.980748,4.103515,16,39 weeks,en,,6
-0,UQBHFH,easy-squirrel-eagle-distractor,2025-01-24 14:10:57.674,77.0,2025-01-24 14:11:05.010,510,f,eagle,squirrel,eagle,where,easy-distractor,2,2.980748,3.960068,16,40 or more weeks,en fr es,,6
-0,d4HUR3,hard-snail-worm,2025-01-24 02:48:12.859,312.0,2025-01-24 02:48:20.427,480,f,worm,snail,snail,see,hard,2,2.980748,3.860907,16,39 weeks,en,,6
-0,NPV5EF,hard-squirrel-monkey,2025-01-23 18:01:14.877,3.0,2025-01-23 18:01:22.154,570,m,monkey,squirrel,squirrel,look_at,hard,2,2.980748,3.960068,16,39 weeks,en hak cmn ru,,6
-0,dKKWAR,hard-cheese-butter-distractor,2025-01-23 19:27:02.031,3.0,2025-01-23 19:27:09.594,450,m,cheese,butter,butter,where,hard-distractor,2,2.980748,3.960068,16,40 or more weeks,en,,6
-0,UQBHFH,hard-turtle-frog-distractor,2025-01-24 14:11:08.686,77.0,2025-01-24 14:11:16.047,510,f,frog,turtle,frog,see,hard-distractor,2,2.980748,3.860907,17,40 or more weeks,en fr es,,7
-0,QGTESM,hard-bulldozer-tractor-distractor,2025-01-25 17:26:09.590,10.0,2025-01-25 17:26:16.944,630,m,tractor,bulldozer,tractor,find,hard-distractor,2,2.980748,3.960068,17,39 weeks,en,,7
-0,dKKWAR,hard-bulldozer-tractor-distractor,2025-01-23 19:27:11.950,1.0,2025-01-23 19:27:19.537,450,m,bulldozer,tractor,tractor,look_at,hard-distractor,2,2.980748,3.960068,17,40 or more weeks,en,,7
-0,5QCS4M,hard-potato-pot-distractor,2025-01-25 20:49:02.720,179.0,2025-01-25 20:49:10.176,750,f,potato,pot,pot,find,hard-distractor,2,2.980748,3.860907,17,39 weeks,en ko,,7
-0,QWGKVS,easy-squirrel-eagle,2025-01-24 16:55:02.404,311.0,2025-01-24 16:55:09.988,750,m,squirrel,eagle,squirrel,see,easy,2,2.980748,3.960068,17,39 weeks,en,,7
-0,UUQJAd,easy-bulldozer-orange-distractor,2025-01-24 13:27:42.506,312.0,2025-01-24 13:27:50.068,570,f,bulldozer,orange,orange,where,easy-distractor,2,2.980748,3.960068,17,38 weeks,en fr,,7
-0,XMJ25D,hard-cheese-butter,2025-01-23 19:45:23.970,92.0,2025-01-23 19:45:31.315,690,m,butter,cheese,cheese,where,hard,2,2.980748,3.960068,17,39 weeks,en,,7
-0,NPV5EF,hard-potato-pot,2025-01-23 18:01:24.639,4.0,2025-01-23 18:01:31.913,570,m,pot,potato,potato,find,hard,2,2.980748,4.103515,17,39 weeks,en hak cmn ru,,7
-0,TUFKTQ,hard-turkey-goat,2025-01-25 19:01:49.151,208.0,2025-01-25 19:01:56.619,450,f,goat,turkey,turkey,where,hard,2,2.980748,3.960068,17,39 weeks,en,,7
-0,CKRG26,easy-acorn-key,2025-01-26 01:30:35.519,231.0,2025-01-26 01:30:43.106,630,f,acorn,key,acorn,see,easy,2,2.980748,3.960068,17,40 or more weeks,en,,7
-0,GNXMNQ,easy-squirrel-eagle,2025-01-24 00:44:48.323,78.0,2025-01-24 00:44:55.660,660,m,eagle,squirrel,squirrel,see,easy,2,2.980748,3.960068,17,37 weeks,en te ur,,7
-0,FHRCdd,easy-bulldozer-orange-distractor,2025-01-24 17:29:01.465,161.0,2025-01-24 17:29:08.895,540,m,orange,bulldozer,orange,see,easy-distractor,2,2.980748,3.960068,17,39 weeks,en ur,,7
-0,6THVBG,hard-squirrel-monkey-distractor,2025-01-12 15:18:57.605,68.0,2025-01-12 15:19:04.924,510,f,squirrel,monkey,monkey,look_at,hard-distractor,2,2.980748,3.960068,17,39 weeks,en,,7
-0,d4HUR3,easy-squirrel-eagle,2025-01-24 02:48:21.568,317.0,2025-01-24 02:48:29.130,480,f,eagle,squirrel,squirrel,where,easy,2,2.980748,3.960068,17,39 weeks,en,,7
-0,XMJ25D,easy-squirrel-eagle,2025-01-23 19:45:33.259,3.0,2025-01-23 19:45:40.535,690,m,eagle,squirrel,squirrel,find,easy,2,2.980748,3.960068,18,39 weeks,en,,8
-0,UUQJAd,easy-turkey-swan,2025-01-24 13:27:52.006,172.0,2025-01-24 13:27:59.438,570,f,swan,turkey,turkey,see,easy,2,2.980748,3.960068,18,38 weeks,en fr,,8
-0,NPV5EF,easy-snail-cow-distractor,2025-01-23 18:01:34.273,3.0,2025-01-23 18:01:41.533,570,m,snail,cow,cow,where,easy-distractor,2,2.980748,3.860907,18,39 weeks,en hak cmn ru,,8
-0,UQBHFH,easy-acorn-key,2025-01-24 14:11:17.591,64.0,2025-01-24 14:11:24.890,510,f,key,acorn,acorn,find,easy,2,2.980748,3.960068,18,40 or more weeks,en fr es,,8
-0,d4HUR3,hard-turkey-goat-distractor,2025-01-24 02:48:30.123,382.0,2025-01-24 02:48:37.767,480,f,goat,turkey,goat,look_at,hard-distractor,2,2.980748,3.860907,18,39 weeks,en,,8
-0,GNXMNQ,hard-cheese-butter-distractor,2025-01-24 00:44:56.886,22.0,2025-01-24 00:45:04.180,660,m,cheese,butter,butter,find,hard-distractor,2,2.980748,3.960068,18,37 weeks,en te ur,,8
-0,TUFKTQ,hard-potato-pot,2025-01-25 19:01:57.990,221.0,2025-01-25 19:02:05.473,450,f,pot,potato,potato,find,hard,2,2.980748,4.103515,18,39 weeks,en,,8
-0,6THVBG,hard-bulldozer-tractor-distractor,2025-01-12 15:19:12.436,205.0,2025-01-12 15:19:19.913,510,f,bulldozer,tractor,tractor,where,hard-distractor,2,2.980748,3.960068,18,39 weeks,en,,8
-0,FHRCdd,easy-snail-cow-distractor,2025-01-24 17:29:13.188,208.0,2025-01-24 17:29:20.635,540,m,cow,snail,cow,where,easy-distractor,2,2.980748,3.860907,18,39 weeks,en ur,,8
-0,CKRG26,easy-snail-cow-distractor,2025-01-26 01:30:45.564,381.0,2025-01-26 01:30:53.329,630,f,snail,cow,cow,look_at,easy-distractor,2,2.980748,3.860907,18,40 or more weeks,en,,8
-0,dKKWAR,hard-potato-pot-distractor,2025-01-23 19:27:21.977,3.0,2025-01-23 19:27:29.533,450,m,potato,pot,pot,see,hard-distractor,2,2.980748,3.860907,18,40 or more weeks,en,,8
-0,5QCS4M,hard-bulldozer-tractor,2025-01-25 20:49:13.549,157.0,2025-01-25 20:49:20.966,750,f,bulldozer,tractor,bulldozer,look_at,hard,2,2.980748,4.103515,18,39 weeks,en ko,,8
-0,QGTESM,hard-potato-pot,2025-01-25 17:26:19.262,12.0,2025-01-25 17:26:26.711,630,m,potato,pot,potato,where,hard,2,2.980748,4.103515,18,39 weeks,en,,8
-0,QWGKVS,hard-bulldozer-tractor,2025-01-24 16:55:10.825,72.0,2025-01-24 16:55:18.168,750,m,bulldozer,tractor,bulldozer,find,hard,2,2.980748,4.103515,18,39 weeks,en,,8
-0,NPV5EF,hard-turkey-goat,2025-01-23 18:01:49.261,3.0,2025-01-23 18:01:56.534,570,m,goat,turkey,turkey,see,hard,2,2.980748,3.960068,20,39 weeks,en hak cmn ru,,9
-0,TUFKTQ,hard-cheese-butter,2025-01-25 19:02:12.724,219.0,2025-01-25 19:02:20.235,450,f,butter,cheese,cheese,find,hard,2,2.980748,3.960068,20,39 weeks,en,,9
-0,CKRG26,easy-potato-glasses,2025-01-26 01:31:02.414,221.0,2025-01-26 01:31:10.046,630,f,potato,glasses,potato,find,easy,2,2.980748,4.103515,20,40 or more weeks,en,,9
-0,UUQJAd,hard-turtle-frog-distractor,2025-01-24 13:28:07.083,168.0,2025-01-24 13:28:14.498,570,f,frog,turtle,frog,see,hard-distractor,2,2.980748,3.860907,20,38 weeks,en fr,,9
-0,FHRCdd,hard-turkey-goat,2025-01-24 17:29:30.652,132.0,2025-01-24 17:29:38.004,540,m,turkey,goat,turkey,see,hard,2,2.980748,3.960068,20,39 weeks,en ur,,9
-0,QGTESM,hard-cheese-butter,2025-01-25 17:26:34.083,11.0,2025-01-25 17:26:41.464,630,m,butter,cheese,cheese,look_at,hard,2,2.980748,3.960068,20,39 weeks,en,,9
-0,XMJ25D,hard-acorn-coconut-distractor,2025-01-23 19:45:48.167,18.0,2025-01-23 19:45:55.456,690,m,acorn,coconut,coconut,look_at,hard-distractor,2,2.980748,4.103515,20,39 weeks,en,,9
-0,QWGKVS,hard-turtle-frog,2025-01-24 16:55:24.533,2.0,2025-01-24 16:55:31.808,750,m,turtle,frog,turtle,where,hard,2,2.980748,3.960068,20,39 weeks,en,,9
-0,dKKWAR,easy-turtle-horse,2025-01-23 19:27:37.271,1.0,2025-01-23 19:27:44.644,450,m,turtle,horse,turtle,where,easy,2,2.980748,3.960068,20,40 or more weeks,en,,9
-0,d4HUR3,hard-turtle-frog,2025-01-24 02:48:44.891,310.0,2025-01-24 02:48:52.454,480,f,frog,turtle,turtle,look_at,hard,2,2.980748,3.960068,20,39 weeks,en,,9
-0,5QCS4M,hard-turkey-goat-distractor,2025-01-25 20:49:29.873,120.0,2025-01-25 20:49:37.266,750,f,turkey,goat,goat,where,hard-distractor,2,2.980748,3.860907,20,39 weeks,en ko,,9
-0,GNXMNQ,hard-squirrel-monkey-distractor,2025-01-24 00:45:10.766,65.0,2025-01-24 00:45:18.080,660,m,squirrel,monkey,monkey,where,hard-distractor,2,2.980748,3.960068,20,37 weeks,en te ur,,9
-0,UQBHFH,hard-turkey-goat,2025-01-24 14:11:32.715,29.0,2025-01-24 14:11:40.009,510,f,goat,turkey,turkey,look_at,hard,2,2.980748,3.960068,20,40 or more weeks,en fr es,,9
-0,6THVBG,hard-turkey-goat,2025-01-12 15:19:27.958,4.0,2025-01-12 15:19:35.212,510,f,goat,turkey,turkey,find,hard,2,2.980748,3.960068,20,39 weeks,en,,9
-0,FHRCdd,easy-potato-glasses,2025-01-24 17:29:43.025,165.0,2025-01-24 17:29:50.454,540,m,potato,glasses,potato,find,easy,2,2.980748,4.103515,21,39 weeks,en ur,,10
-0,d4HUR3,easy-turkey-swan-distractor,2025-01-24 02:48:53.590,283.0,2025-01-24 02:49:01.128,480,f,swan,turkey,swan,where,easy-distractor,2,2.980748,3.860907,21,39 weeks,en,,10
-0,CKRG26,hard-snail-worm-distractor,2025-01-26 01:31:12.390,76.0,2025-01-26 01:31:19.896,630,f,snail,worm,worm,look_at,hard-distractor,2,2.980748,3.860907,21,40 or more weeks,en,,10
-0,XMJ25D,hard-bulldozer-tractor,2025-01-23 19:45:57.330,16.0,2025-01-23 19:46:04.636,690,m,tractor,bulldozer,bulldozer,see,hard,2,2.980748,4.103515,21,39 weeks,en,,10
-0,6THVBG,easy-acorn-key,2025-01-12 15:19:37.543,72.0,2025-01-12 15:19:44.872,510,f,key,acorn,acorn,see,easy,2,2.980748,3.960068,21,39 weeks,en,,10
-0,QGTESM,hard-turtle-frog-distractor,2025-01-25 17:26:44.295,9.0,2025-01-25 17:26:51.682,630,m,frog,turtle,frog,see,hard-distractor,2,2.980748,3.860907,21,39 weeks,en,,10
-0,dKKWAR,easy-turkey-swan-distractor,2025-01-23 19:27:46.962,3.0,2025-01-23 19:27:54.304,450,m,swan,turkey,swan,find,easy-distractor,2,2.980748,3.860907,21,40 or more weeks,en,,10
-0,UUQJAd,easy-potato-glasses,2025-01-24 13:28:16.129,161.0,2025-01-24 13:28:23.568,570,f,glasses,potato,potato,where,easy,2,2.980748,4.103515,21,38 weeks,en fr,,10
-0,TUFKTQ,hard-snail-worm,2025-01-25 19:02:22.103,188.0,2025-01-25 19:02:29.580,450,f,worm,snail,snail,see,hard,2,2.980748,3.860907,21,39 weeks,en,,10
-0,QWGKVS,easy-potato-glasses,2025-01-24 16:55:32.687,2.0,2025-01-24 16:55:39.968,750,m,potato,glasses,potato,find,easy,2,2.980748,4.103515,21,39 weeks,en,,10
-0,UQBHFH,hard-squirrel-monkey,2025-01-24 14:11:41.900,65.0,2025-01-24 14:11:49.209,510,f,monkey,squirrel,squirrel,find,hard,2,2.980748,3.960068,21,40 or more weeks,en fr es,,10
-0,5QCS4M,hard-acorn-coconut-distractor,2025-01-25 20:49:40.734,183.0,2025-01-25 20:49:48.186,750,f,acorn,coconut,coconut,see,hard-distractor,2,2.980748,4.103515,21,39 weeks,en ko,,10
-0,NPV5EF,hard-acorn-coconut,2025-01-23 18:01:58.884,6.0,2025-01-23 18:02:06.174,570,m,acorn,coconut,acorn,look_at,hard,2,2.980748,3.960068,21,39 weeks,en hak cmn ru,,10
-0,GNXMNQ,easy-snail-cow-distractor,2025-01-24 00:45:19.225,77.0,2025-01-24 00:45:26.560,660,m,snail,cow,cow,look_at,easy-distractor,2,2.980748,3.860907,21,37 weeks,en te ur,,10
-0,GNXMNQ,hard-potato-pot-distractor,2025-01-24 00:45:27.655,42.0,2025-01-24 00:45:34.960,660,m,potato,pot,pot,find,hard-distractor,2,2.980748,3.860907,22,37 weeks,en te ur,,11
-0,TUFKTQ,hard-bulldozer-tractor,2025-01-25 19:02:30.741,205.0,2025-01-25 19:02:38.219,450,f,tractor,bulldozer,bulldozer,look_at,hard,2,2.980748,4.103515,22,39 weeks,en,,11
-0,FHRCdd,easy-cheese-mud,2025-01-24 17:29:55.366,193.0,2025-01-24 17:30:02.814,540,m,mud,cheese,cheese,look_at,easy,2,2.980748,3.960068,22,39 weeks,en ur,,11
-0,NPV5EF,easy-bulldozer-orange,2025-01-23 18:02:08.387,5.0,2025-01-23 18:02:15.654,570,m,bulldozer,orange,bulldozer,where,easy,2,2.980748,4.103515,22,39 weeks,en hak cmn ru,,11
-0,5QCS4M,easy-bulldozer-orange,2025-01-25 20:49:51.816,8.0,2025-01-25 20:49:59.086,750,f,orange,bulldozer,bulldozer,find,easy,2,2.980748,4.103515,22,39 weeks,en ko,,11
-0,dKKWAR,easy-cheese-mud-distractor,2025-01-23 19:27:56.559,1.0,2025-01-23 19:28:03.904,450,m,mud,cheese,mud,look_at,easy-distractor,2,2.980748,3.860907,22,40 or more weeks,en,,11
-0,QWGKVS,hard-turkey-goat-distractor,2025-01-24 16:55:40.811,2.0,2025-01-24 16:55:48.089,750,m,turkey,goat,goat,see,hard-distractor,2,2.980748,3.860907,22,39 weeks,en,,11
-0,d4HUR3,easy-potato-glasses-distractor,2025-01-24 02:49:02.199,353.0,2025-01-24 02:49:09.810,480,f,glasses,potato,glasses,see,easy-distractor,2,2.980748,3.960068,22,39 weeks,en,,11
-0,QGTESM,easy-turkey-swan,2025-01-25 17:26:53.396,10.0,2025-01-25 17:27:00.784,630,m,turkey,swan,turkey,find,easy,2,2.980748,3.960068,22,39 weeks,en,,11
-0,CKRG26,easy-bulldozer-orange,2025-01-26 01:31:22.357,280.0,2025-01-26 01:31:30.006,630,f,orange,bulldozer,bulldozer,where,easy,2,2.980748,4.103515,22,40 or more weeks,en,,11
-0,UUQJAd,hard-turkey-goat-distractor,2025-01-24 13:28:25.285,162.0,2025-01-24 13:28:32.698,570,f,turkey,goat,goat,find,hard-distractor,2,2.980748,3.860907,22,38 weeks,en fr,,11
-0,XMJ25D,easy-cheese-mud,2025-01-23 19:46:06.446,24.0,2025-01-23 19:46:13.717,690,m,mud,cheese,cheese,find,easy,2,2.980748,3.960068,22,39 weeks,en,,11
-0,UQBHFH,easy-bulldozer-orange-distractor,2025-01-24 14:11:51.353,84.0,2025-01-24 14:11:58.698,510,f,orange,bulldozer,orange,where,easy-distractor,2,2.980748,3.960068,22,40 or more weeks,en fr es,,11
-0,6THVBG,hard-cheese-butter-distractor,2025-01-12 15:19:52.380,192.0,2025-01-12 15:19:59.832,510,f,butter,cheese,butter,look_at,hard-distractor,2,2.980748,3.960068,22,39 weeks,en,,11
-0,d4HUR3,hard-cheese-butter-distractor,2025-01-24 02:49:10.765,316.0,2025-01-24 02:49:18.347,480,f,cheese,butter,butter,find,hard-distractor,2,2.980748,3.960068,23,39 weeks,en,,12
-0,TUFKTQ,hard-squirrel-monkey,2025-01-25 19:02:40.099,284.0,2025-01-25 19:02:47.649,450,f,squirrel,monkey,squirrel,where,hard,2,2.980748,3.960068,23,39 weeks,en,,12
-0,FHRCdd,hard-snail-worm,2025-01-24 17:30:08.802,39.0,2025-01-24 17:30:16.085,540,m,snail,worm,snail,where,hard,2,2.980748,3.860907,23,39 weeks,en ur,,12
-0,6THVBG,hard-turtle-frog,2025-01-12 15:20:02.150,72.0,2025-01-12 15:20:09.473,510,f,frog,turtle,turtle,where,hard,2,2.980748,3.960068,23,39 weeks,en,,12
-0,QWGKVS,easy-bulldozer-orange,2025-01-24 16:55:48.909,45.0,2025-01-24 16:55:56.228,750,m,bulldozer,orange,bulldozer,look_at,easy,2,2.980748,4.103515,23,39 weeks,en,,12
-0,UQBHFH,easy-turtle-horse,2025-01-24 14:12:00.354,49.0,2025-01-24 14:12:07.678,510,f,horse,turtle,turtle,see,easy,2,2.980748,3.960068,23,40 or more weeks,en fr es,,12
-0,5QCS4M,hard-snail-worm-distractor,2025-01-25 20:50:02.459,164.0,2025-01-25 20:50:09.887,750,f,snail,worm,worm,look_at,hard-distractor,2,2.980748,3.860907,23,39 weeks,en ko,,12
-0,QGTESM,easy-bulldozer-orange-distractor,2025-01-25 17:27:02.740,16.0,2025-01-25 17:27:10.165,630,m,orange,bulldozer,orange,where,easy-distractor,2,2.980748,3.960068,23,39 weeks,en,,12
-0,UUQJAd,hard-bulldozer-tractor-distractor,2025-01-24 13:28:34.347,181.0,2025-01-24 13:28:41.808,570,f,tractor,bulldozer,tractor,look_at,hard-distractor,2,2.980748,3.960068,23,38 weeks,en fr,,12
-0,NPV5EF,hard-turtle-frog-distractor,2025-01-23 18:02:18.010,6.0,2025-01-23 18:02:25.293,570,m,turtle,frog,frog,find,hard-distractor,2,2.980748,3.860907,23,39 weeks,en hak cmn ru,,12
-0,XMJ25D,hard-turkey-goat-distractor,2025-01-23 19:46:16.326,48.0,2025-01-23 19:46:23.617,690,m,goat,turkey,goat,where,hard-distractor,2,2.980748,3.860907,23,39 weeks,en,,12
-0,dKKWAR,hard-acorn-coconut-distractor,2025-01-23 19:28:06.135,3.0,2025-01-23 19:28:13.735,450,m,coconut,acorn,coconut,see,hard-distractor,2,2.980748,4.103515,23,40 or more weeks,en,,12
-0,GNXMNQ,easy-cheese-mud-distractor,2025-01-24 00:45:36.006,26.0,2025-01-24 00:45:43.280,660,m,cheese,mud,mud,see,easy-distractor,2,2.980748,3.860907,23,37 weeks,en te ur,,12
-0,CKRG26,easy-turtle-horse-distractor,2025-01-26 01:31:32.696,304.0,2025-01-26 01:31:40.420,630,f,turtle,horse,horse,see,easy-distractor,2,2.980748,3.860907,23,40 or more weeks,en,,12
-0,TUFKTQ,easy-turkey-swan,2025-01-25 19:02:54.363,233.0,2025-01-25 19:03:01.857,450,f,turkey,swan,turkey,see,easy,2,2.980748,3.960068,25,39 weeks,en,,13
-0,CKRG26,hard-squirrel-monkey,2025-01-26 01:31:49.185,153.0,2025-01-26 01:31:56.756,630,f,squirrel,monkey,squirrel,see,hard,2,2.980748,3.960068,25,40 or more weeks,en,,13
-0,NPV5EF,easy-squirrel-eagle-distractor,2025-01-23 18:02:33.214,6.0,2025-01-23 18:02:40.493,570,m,squirrel,eagle,eagle,where,easy-distractor,2,2.980748,3.960068,25,39 weeks,en hak cmn ru,,13
-0,FHRCdd,easy-turtle-horse,2025-01-24 17:30:28.043,64.0,2025-01-24 17:30:35.324,540,m,turtle,horse,turtle,where,easy,2,2.980748,3.960068,25,39 weeks,en ur,,13
-0,dKKWAR,easy-bulldozer-orange-distractor,2025-01-23 19:28:21.484,3.0,2025-01-23 19:28:28.834,450,m,bulldozer,orange,orange,see,easy-distractor,2,2.980748,3.960068,25,40 or more weeks,en,,13
-0,d4HUR3,easy-snail-cow-distractor,2025-01-24 02:49:25.269,291.0,2025-01-24 02:49:32.827,480,f,cow,snail,cow,where,easy-distractor,2,2.980748,3.860907,25,39 weeks,en,,13
-0,QWGKVS,easy-cheese-mud-distractor,2025-01-24 16:56:02.500,7.0,2025-01-24 16:56:09.789,750,m,cheese,mud,mud,look_at,easy-distractor,2,2.980748,3.860907,25,39 weeks,en,,13
-0,6THVBG,easy-squirrel-eagle-distractor,2025-01-12 15:20:17.576,3.0,2025-01-12 15:20:24.832,510,f,eagle,squirrel,eagle,see,easy-distractor,2,2.980748,3.960068,25,39 weeks,en,,13
-0,QGTESM,easy-potato-glasses,2025-01-25 17:27:18.176,13.0,2025-01-25 17:27:25.583,630,m,glasses,potato,potato,where,easy,2,2.980748,4.103515,25,39 weeks,en,,13
-0,XMJ25D,easy-turtle-horse-distractor,2025-01-23 19:46:30.965,72.0,2025-01-23 19:46:38.317,690,m,horse,turtle,horse,find,easy-distractor,2,2.980748,3.860907,25,39 weeks,en,,13
-0,UQBHFH,hard-potato-pot,2025-01-24 14:12:14.512,92.0,2025-01-24 14:12:21.852,510,f,pot,potato,potato,look_at,hard,2,2.980748,4.103515,25,40 or more weeks,en fr es,,13
-0,5QCS4M,hard-squirrel-monkey,2025-01-25 20:50:18.980,114.0,2025-01-25 20:50:26.356,750,f,squirrel,monkey,squirrel,where,hard,2,2.980748,3.960068,25,39 weeks,en ko,,13
-0,GNXMNQ,easy-turtle-horse-distractor,2025-01-24 00:45:50.106,79.0,2025-01-24 00:45:57.441,660,m,horse,turtle,horse,where,easy-distractor,2,2.980748,3.860907,25,37 weeks,en te ur,,13
-0,UUQJAd,easy-snail-cow,2025-01-24 13:28:49.321,173.0,2025-01-24 13:28:56.738,570,f,snail,cow,snail,where,easy,2,2.980748,3.860907,25,38 weeks,en fr,,13
-0,XMJ25D,hard-snail-worm,2025-01-23 19:46:40.183,88.0,2025-01-23 19:46:47.518,690,m,worm,snail,snail,look_at,hard,2,2.980748,3.860907,26,39 weeks,en,,14
-0,6THVBG,hard-snail-worm-distractor,2025-01-12 15:20:27.289,79.0,2025-01-12 15:20:34.602,510,f,worm,snail,worm,where,hard-distractor,2,2.980748,3.860907,26,39 weeks,en,,14
-0,QGTESM,easy-squirrel-eagle,2025-01-25 17:27:27.968,11.0,2025-01-25 17:27:35.335,630,m,eagle,squirrel,squirrel,find,easy,2,2.980748,3.960068,26,39 weeks,en,,14
-0,5QCS4M,easy-potato-glasses-distractor,2025-01-25 20:50:29.967,141.0,2025-01-25 20:50:37.386,750,f,glasses,potato,glasses,look_at,easy-distractor,2,2.980748,3.960068,26,39 weeks,en ko,,14
-0,UUQJAd,hard-squirrel-monkey-distractor,2025-01-24 13:28:58.452,174.0,2025-01-24 13:29:05.868,570,f,squirrel,monkey,monkey,see,hard-distractor,2,2.980748,3.960068,26,38 weeks,en fr,,14
-0,UQBHFH,hard-acorn-coconut,2025-01-24 14:12:23.712,52.0,2025-01-24 14:12:31.037,510,f,coconut,acorn,acorn,find,hard,2,2.980748,3.960068,26,40 or more weeks,en fr es,,14
-0,GNXMNQ,hard-acorn-coconut,2025-01-24 00:45:58.638,7.0,2025-01-24 00:46:05.920,660,m,acorn,coconut,acorn,look_at,hard,2,2.980748,3.960068,26,37 weeks,en te ur,,14
-0,CKRG26,hard-cheese-butter-distractor,2025-01-26 01:31:58.992,311.0,2025-01-26 01:32:06.704,630,f,butter,cheese,butter,look_at,hard-distractor,2,2.980748,3.960068,26,40 or more weeks,en,,14
-0,NPV5EF,hard-snail-worm,2025-01-23 18:02:42.828,7.0,2025-01-23 18:02:50.113,570,m,snail,worm,snail,look_at,hard,2,2.980748,3.860907,26,39 weeks,en hak cmn ru,,14
-0,FHRCdd,hard-acorn-coconut-distractor,2025-01-24 17:30:38.377,165.0,2025-01-24 17:30:45.774,540,m,acorn,coconut,coconut,see,hard-distractor,2,2.980748,4.103515,26,39 weeks,en ur,,14
-0,TUFKTQ,hard-acorn-coconut-distractor,2025-01-25 19:03:03.372,202.0,2025-01-25 19:03:10.859,450,f,acorn,coconut,coconut,find,hard-distractor,2,2.980748,4.103515,26,39 weeks,en,,14
-0,QWGKVS,hard-squirrel-monkey-distractor,2025-01-24 16:56:10.611,39.0,2025-01-24 16:56:17.908,750,m,monkey,squirrel,monkey,where,hard-distractor,2,2.980748,3.960068,26,39 weeks,en,,14
-0,d4HUR3,hard-squirrel-monkey-distractor,2025-01-24 02:49:33.978,343.0,2025-01-24 02:49:41.569,480,f,squirrel,monkey,monkey,see,hard-distractor,2,2.980748,3.960068,26,39 weeks,en,,14
-0,dKKWAR,easy-potato-glasses,2025-01-23 19:28:31.234,1.0,2025-01-23 19:28:38.615,450,m,glasses,potato,potato,look_at,easy,2,2.980748,4.103515,26,40 or more weeks,en,,14
-0,d4HUR3,easy-bulldozer-orange-distractor,2025-01-24 02:49:42.781,370.0,2025-01-24 02:49:50.408,480,f,bulldozer,orange,orange,look_at,easy-distractor,2,2.980748,3.960068,27,39 weeks,en,,15
-0,GNXMNQ,hard-bulldozer-tractor-distractor,2025-01-24 00:46:07.167,68.0,2025-01-24 00:46:14.500,660,m,bulldozer,tractor,tractor,see,hard-distractor,2,2.980748,3.960068,27,37 weeks,en te ur,,15
-0,UQBHFH,easy-snail-cow-distractor,2025-01-24 14:12:32.851,87.0,2025-01-24 14:12:40.196,510,f,snail,cow,cow,where,easy-distractor,2,2.980748,3.860907,27,40 or more weeks,en fr es,,15
-0,6THVBG,easy-bulldozer-orange,2025-01-12 15:20:36.861,60.0,2025-01-12 15:20:44.162,510,f,bulldozer,orange,bulldozer,look_at,easy,2,2.980748,4.103515,27,39 weeks,en,,15
-0,QGTESM,easy-acorn-key-distractor,2025-01-25 17:27:37.080,11.0,2025-01-25 17:27:44.530,630,m,acorn,key,key,look_at,easy-distractor,2,2.980748,3.860907,27,39 weeks,en,,15
-0,XMJ25D,hard-squirrel-monkey-distractor,2025-01-23 19:46:50.159,44.0,2025-01-23 19:46:57.458,690,m,monkey,squirrel,monkey,see,hard-distractor,2,2.980748,3.960068,27,39 weeks,en,,15
-0,QWGKVS,hard-snail-worm,2025-01-24 16:56:19.046,86.0,2025-01-24 16:56:26.408,750,m,worm,snail,snail,find,hard,2,2.980748,3.860907,27,39 weeks,en,,15
-0,TUFKTQ,hard-turtle-frog-distractor,2025-01-25 19:03:12.554,208.0,2025-01-25 19:03:20.033,450,f,frog,turtle,frog,where,hard-distractor,2,2.980748,3.860907,27,39 weeks,en,,15
-0,FHRCdd,hard-bulldozer-tractor-distractor,2025-01-24 17:30:48.892,192.0,2025-01-24 17:30:56.334,540,m,tractor,bulldozer,tractor,find,hard-distractor,2,2.980748,3.960068,27,39 weeks,en ur,,15
-0,5QCS4M,easy-turtle-horse,2025-01-25 20:50:40.786,161.0,2025-01-25 20:50:48.196,750,f,turtle,horse,turtle,find,easy,2,2.980748,3.960068,27,39 weeks,en ko,,15
-0,dKKWAR,hard-snail-worm,2025-01-23 19:28:41.218,3.0,2025-01-23 19:28:48.816,450,m,worm,snail,snail,find,hard,2,2.980748,3.860907,27,40 or more weeks,en,,15
-0,CKRG26,easy-turkey-swan-distractor,2025-01-26 01:32:08.674,258.0,2025-01-26 01:32:16.361,630,f,swan,turkey,swan,where,easy-distractor,2,2.980748,3.860907,27,40 or more weeks,en,,15
-0,UUQJAd,easy-acorn-key,2025-01-24 13:29:07.526,163.0,2025-01-24 13:29:14.938,570,f,acorn,key,acorn,look_at,easy,2,2.980748,3.960068,27,38 weeks,en fr,,15
-0,NPV5EF,easy-potato-glasses-distractor,2025-01-23 18:02:52.630,6.0,2025-01-23 18:02:59.913,570,m,glasses,potato,glasses,find,easy-distractor,2,2.980748,3.960068,27,39 weeks,en hak cmn ru,,15
-0,UQBHFH,easy-cheese-mud,2025-01-24 14:12:41.784,83.0,2025-01-24 14:12:49.126,510,f,cheese,mud,cheese,see,easy,2,2.980748,3.960068,28,40 or more weeks,en fr es,,16
-0,TUFKTQ,easy-potato-glasses,2025-01-25 19:03:21.377,213.0,2025-01-25 19:03:28.843,450,f,glasses,potato,potato,look_at,easy,2,2.980748,4.103515,28,39 weeks,en,,16
-0,6THVBG,easy-potato-glasses,2025-01-12 15:20:46.433,184.0,2025-01-12 15:20:53.871,510,f,glasses,potato,potato,find,easy,2,2.980748,4.103515,28,39 weeks,en,,16
-0,CKRG26,hard-acorn-coconut-distractor,2025-01-26 01:32:18.721,369.0,2025-01-26 01:32:26.488,630,f,coconut,acorn,coconut,find,hard-distractor,2,2.980748,4.103515,28,40 or more weeks,en,,16
-0,QWGKVS,easy-acorn-key-distractor,2025-01-24 16:56:27.225,39.0,2025-01-24 16:56:34.528,750,m,acorn,key,key,see,easy-distractor,2,2.980748,3.860907,28,39 weeks,en,,16
-0,5QCS4M,hard-cheese-butter-distractor,2025-01-25 20:50:51.659,152.0,2025-01-25 20:50:59.076,750,f,cheese,butter,butter,see,hard-distractor,2,2.980748,3.960068,28,39 weeks,en ko,,16
-0,NPV5EF,hard-cheese-butter-distractor,2025-01-23 18:03:02.209,3.0,2025-01-23 18:03:09.473,570,m,cheese,butter,butter,see,hard-distractor,2,2.980748,3.960068,28,39 weeks,en hak cmn ru,,16
-0,QGTESM,hard-snail-worm-distractor,2025-01-25 17:27:46.688,12.0,2025-01-25 17:27:54.097,630,m,snail,worm,worm,see,hard-distractor,2,2.980748,3.860907,28,39 weeks,en,,16
-0,FHRCdd,easy-squirrel-eagle-distractor,2025-01-24 17:30:59.235,200.0,2025-01-24 17:31:06.683,540,m,eagle,squirrel,eagle,look_at,easy-distractor,2,2.980748,3.960068,28,39 weeks,en ur,,16
-0,XMJ25D,hard-potato-pot,2025-01-23 19:46:59.221,43.0,2025-01-23 19:47:06.518,690,m,pot,potato,potato,where,hard,2,2.980748,4.103515,28,39 weeks,en,,16
-0,UUQJAd,hard-cheese-butter,2025-01-24 13:29:16.596,156.0,2025-01-24 13:29:23.998,570,f,butter,cheese,cheese,find,hard,2,2.980748,3.960068,28,38 weeks,en fr,,16
-0,dKKWAR,easy-squirrel-eagle-distractor,2025-01-23 19:28:51.491,2.0,2025-01-23 19:28:59.076,450,m,eagle,squirrel,eagle,where,easy-distractor,2,2.980748,3.960068,28,40 or more weeks,en,,16
-0,GNXMNQ,easy-turkey-swan-distractor,2025-01-24 00:46:15.665,55.0,2025-01-24 00:46:22.980,660,m,turkey,swan,swan,find,easy-distractor,2,2.980748,3.860907,28,37 weeks,en te ur,,16
-0,d4HUR3,hard-acorn-coconut,2025-01-24 02:49:51.606,312.0,2025-01-24 02:49:59.167,480,f,coconut,acorn,acorn,find,hard,2,2.980748,3.960068,28,39 weeks,en,,16
-0,FHRCdd,easy-acorn-key,2025-01-24 17:31:16.331,80.0,2025-01-24 17:31:23.663,540,m,acorn,key,acorn,find,easy,2,2.980748,3.960068,30,39 weeks,en ur,,17
-0,XMJ25D,easy-snail-cow-distractor,2025-01-23 19:47:13.309,55.0,2025-01-23 19:47:20.618,690,m,snail,cow,cow,where,easy-distractor,2,2.980748,3.860907,30,39 weeks,en,,17
-0,5QCS4M,easy-turkey-swan,2025-01-25 20:51:08.189,96.0,2025-01-25 20:51:15.546,750,f,turkey,swan,turkey,where,easy,2,2.980748,3.960068,30,39 weeks,en ko,,17
-0,QGTESM,easy-cheese-mud,2025-01-25 17:28:01.413,14.0,2025-01-25 17:28:08.772,630,m,cheese,mud,cheese,find,easy,2,2.980748,3.960068,30,39 weeks,en,,17
-0,UQBHFH,hard-snail-worm-distractor,2025-01-24 14:12:56.362,80.0,2025-01-24 14:13:03.705,510,f,snail,worm,worm,where,hard-distractor,2,2.980748,3.860907,30,40 or more weeks,en fr es,,17
-0,QWGKVS,easy-squirrel-eagle-distractor,2025-01-24 16:56:40.905,67.0,2025-01-24 16:56:48.249,750,m,squirrel,eagle,eagle,where,easy-distractor,2,2.980748,3.960068,30,39 weeks,en,,17
-0,dKKWAR,hard-turkey-goat,2025-01-23 19:29:06.757,4.0,2025-01-23 19:29:14.355,450,m,turkey,goat,turkey,look_at,hard,2,2.980748,3.960068,30,40 or more weeks,en,,17
-0,6THVBG,easy-cheese-mud-distractor,2025-01-12 15:21:01.666,15.0,2025-01-12 15:21:08.930,510,f,cheese,mud,mud,look_at,easy-distractor,2,2.980748,3.860907,30,39 weeks,en,,17
-0,NPV5EF,easy-snail-cow,2025-01-23 18:03:17.142,3.0,2025-01-23 18:03:24.433,570,m,cow,snail,snail,look_at,easy,2,2.980748,3.860907,30,39 weeks,en hak cmn ru,,17
-0,CKRG26,easy-cheese-mud,2025-01-26 01:32:35.378,8.0,2025-01-26 01:32:42.833,630,f,mud,cheese,cheese,find,easy,2,2.980748,3.960068,30,40 or more weeks,en,,17
-0,d4HUR3,easy-squirrel-eagle-distractor,2025-01-24 02:50:06.462,290.0,2025-01-24 02:50:14.007,480,f,eagle,squirrel,eagle,look_at,easy-distractor,2,2.980748,3.960068,30,39 weeks,en,,17
-0,GNXMNQ,easy-squirrel-eagle-distractor,2025-01-24 00:46:29.465,38.0,2025-01-24 00:46:36.760,660,m,squirrel,eagle,eagle,find,easy-distractor,2,2.980748,3.960068,30,37 weeks,en te ur,,17
-0,TUFKTQ,easy-acorn-key-distractor,2025-01-25 19:03:37.153,160.0,2025-01-25 19:03:44.587,450,f,key,acorn,key,where,easy-distractor,2,2.980748,3.860907,30,39 weeks,en,,17
-0,UUQJAd,easy-squirrel-eagle-distractor,2025-01-24 13:29:31.487,172.0,2025-01-24 13:29:38.939,570,f,squirrel,eagle,eagle,find,easy-distractor,2,2.980748,3.960068,30,38 weeks,en fr,,17
-0,6THVBG,hard-bulldozer-tractor,2025-01-12 15:21:11.320,64.0,2025-01-12 15:21:18.651,510,f,tractor,bulldozer,bulldozer,where,hard,2,2.980748,4.103515,31,39 weeks,en,,18
-0,UUQJAd,easy-bulldozer-orange,2025-01-24 13:29:40.835,167.0,2025-01-24 13:29:48.239,570,f,orange,bulldozer,bulldozer,see,easy,2,2.980748,4.103515,31,38 weeks,en fr,,18
-0,XMJ25D,easy-potato-glasses,2025-01-23 19:47:22.469,3.0,2025-01-23 19:47:29.738,690,m,potato,glasses,potato,look_at,easy,2,2.980748,4.103515,31,39 weeks,en,,18
-0,QGTESM,hard-bulldozer-tractor,2025-01-25 17:28:11.284,11.0,2025-01-25 17:28:18.709,630,m,bulldozer,tractor,bulldozer,where,hard,2,2.980748,4.103515,31,39 weeks,en,,18
-0,dKKWAR,hard-squirrel-monkey,2025-01-23 19:29:16.773,6.0,2025-01-23 19:29:24.345,450,m,monkey,squirrel,squirrel,see,hard,2,2.980748,3.960068,31,40 or more weeks,en,,18
-0,5QCS4M,easy-squirrel-eagle-distractor,2025-01-25 20:51:18.906,147.0,2025-01-25 20:51:26.326,750,f,eagle,squirrel,eagle,see,easy-distractor,2,2.980748,3.960068,31,39 weeks,en ko,,18
-0,GNXMNQ,easy-acorn-key,2025-01-24 00:46:37.865,57.0,2025-01-24 00:46:45.180,660,m,acorn,key,acorn,where,easy,2,2.980748,3.960068,31,37 weeks,en te ur,,18
-0,QWGKVS,hard-bulldozer-tractor-distractor,2025-01-24 16:56:49.044,6.0,2025-01-24 16:56:56.328,750,m,tractor,bulldozer,tractor,look_at,hard-distractor,2,2.980748,3.960068,31,39 weeks,en,,18
-0,d4HUR3,hard-turkey-goat,2025-01-24 02:50:15.312,366.0,2025-01-24 02:50:22.927,480,f,turkey,goat,turkey,where,hard,2,2.980748,3.960068,31,39 weeks,en,,18
-0,UQBHFH,hard-bulldozer-tractor,2025-01-24 14:13:05.434,69.0,2025-01-24 14:13:12.745,510,f,bulldozer,tractor,bulldozer,find,hard,2,2.980748,4.103515,31,40 or more weeks,en fr es,,18
-0,CKRG26,hard-bulldozer-tractor,2025-01-26 01:32:44.791,18.0,2025-01-26 01:32:52.208,630,f,tractor,bulldozer,bulldozer,where,hard,2,2.980748,4.103515,31,40 or more weeks,en,,18
-0,TUFKTQ,easy-bulldozer-orange,2025-01-25 19:03:46.397,221.0,2025-01-25 19:03:53.889,450,f,bulldozer,orange,bulldozer,find,easy,2,2.980748,4.103515,31,39 weeks,en,,18
-0,FHRCdd,hard-turtle-frog-distractor,2025-01-24 17:31:29.043,190.0,2025-01-24 17:31:36.483,540,m,frog,turtle,frog,where,hard-distractor,2,2.980748,3.860907,31,39 weeks,en ur,,18
-0,NPV5EF,hard-potato-pot-distractor,2025-01-23 18:03:26.795,5.0,2025-01-23 18:03:34.073,570,m,potato,pot,pot,see,hard-distractor,2,2.980748,3.860907,31,39 weeks,en hak cmn ru,,18
-0,QWGKVS,hard-potato-pot-distractor,2025-01-24 16:56:57.094,2.0,2025-01-24 16:57:04.388,750,m,potato,pot,pot,find,hard-distractor,2,2.980748,3.860907,32,39 weeks,en,,19
-0,GNXMNQ,hard-turtle-frog,2025-01-24 00:46:46.274,61.0,2025-01-24 00:46:53.580,660,m,turtle,frog,turtle,see,hard,2,2.980748,3.960068,32,37 weeks,en te ur,,19
-0,dKKWAR,easy-snail-cow,2025-01-23 19:29:26.714,2.0,2025-01-23 19:29:34.075,450,m,cow,snail,snail,find,easy,2,2.980748,3.860907,32,40 or more weeks,en,,19
-0,FHRCdd,hard-potato-pot,2025-01-24 17:31:40.101,166.0,2025-01-24 17:31:47.513,540,m,potato,pot,potato,see,hard,2,2.980748,4.103515,32,39 weeks,en ur,,19
-0,TUFKTQ,hard-potato-pot-distractor,2025-01-25 19:03:55.595,218.0,2025-01-25 19:04:03.083,450,f,pot,potato,pot,look_at,hard-distractor,2,2.980748,3.860907,32,39 weeks,en,,19
-0,QGTESM,hard-turkey-goat,2025-01-25 17:28:21.345,13.0,2025-01-25 17:28:28.741,630,m,goat,turkey,turkey,look_at,hard,2,2.980748,3.960068,32,39 weeks,en,,19
-0,5QCS4M,hard-bulldozer-tractor-distractor,2025-01-25 20:51:29.736,158.0,2025-01-25 20:51:37.156,750,f,bulldozer,tractor,tractor,look_at,hard-distractor,2,2.980748,3.960068,32,39 weeks,en ko,,19
-0,UUQJAd,hard-snail-worm-distractor,2025-01-24 13:29:50.198,167.0,2025-01-24 13:29:57.599,570,f,worm,snail,worm,look_at,hard-distractor,2,2.980748,3.860907,32,38 weeks,en fr,,19
-0,XMJ25D,hard-turtle-frog,2025-01-23 19:47:31.464,25.0,2025-01-23 19:47:38.739,690,m,frog,turtle,turtle,see,hard,2,2.980748,3.960068,32,39 weeks,en,,19
-0,CKRG26,easy-acorn-key-distractor,2025-01-26 01:32:54.105,313.0,2025-01-26 01:33:01.772,630,f,acorn,key,key,see,easy-distractor,2,2.980748,3.860907,32,40 or more weeks,en,,19
-0,UQBHFH,easy-acorn-key-distractor,2025-01-24 14:13:14.583,57.0,2025-01-24 14:13:21.894,510,f,acorn,key,key,look_at,easy-distractor,2,2.980748,3.860907,32,40 or more weeks,en fr es,,19
-0,NPV5EF,easy-acorn-key,2025-01-23 18:03:36.337,5.0,2025-01-23 18:03:43.613,570,m,acorn,key,acorn,where,easy,2,2.980748,3.960068,32,39 weeks,en hak cmn ru,,19
-0,d4HUR3,easy-turtle-horse,2025-01-24 02:50:24.661,4.0,2025-01-24 02:50:32.167,480,f,turtle,horse,turtle,find,easy,2,2.980748,3.960068,32,39 weeks,en,,19
-0,6THVBG,hard-squirrel-monkey,2025-01-12 15:21:20.767,79.0,2025-01-12 15:21:28.111,510,f,squirrel,monkey,squirrel,find,hard,2,2.980748,3.960068,32,39 weeks,en,,19
-0,XMJ25D,easy-acorn-key,2025-01-23 19:47:40.550,2.0,2025-01-23 19:47:47.819,690,m,acorn,key,acorn,find,easy,2,2.980748,3.960068,33,39 weeks,en,,20
-0,NPV5EF,hard-bulldozer-tractor,2025-01-23 18:03:45.811,5.0,2025-01-23 18:03:53.093,570,m,bulldozer,tractor,bulldozer,find,hard,2,2.980748,4.103515,33,39 weeks,en hak cmn ru,,20
-0,GNXMNQ,easy-bulldozer-orange-distractor,2025-01-24 00:46:54.703,55.0,2025-01-24 00:47:02.000,660,m,orange,bulldozer,orange,look_at,easy-distractor,2,2.980748,3.960068,33,37 weeks,en te ur,,20
-0,UQBHFH,easy-squirrel-eagle,2025-01-24 14:13:23.575,42.0,2025-01-24 14:13:27.111,510,f,squirrel,eagle,squirrel,see,easy,2,2.980748,3.960068,33,40 or more weeks,en fr es,,20
-0,FHRCdd,easy-turkey-swan-distractor,2025-01-24 17:31:52.896,170.0,2025-01-24 17:32:00.313,540,m,swan,turkey,swan,look_at,easy-distractor,2,2.980748,3.860907,33,39 weeks,en ur,,20
-0,6THVBG,hard-potato-pot-distractor,2025-01-12 15:21:30.419,82.0,2025-01-12 15:21:37.750,510,f,pot,potato,pot,see,hard-distractor,2,2.980748,3.860907,33,39 weeks,en,,20
-0,5QCS4M,easy-acorn-key,2025-01-25 20:51:40.766,143.0,2025-01-25 20:51:48.166,750,f,key,acorn,acorn,find,easy,2,2.980748,3.960068,33,39 weeks,en ko,,20
-0,TUFKTQ,easy-snail-cow,2025-01-25 19:04:05.307,3.0,2025-01-25 19:04:12.598,450,f,cow,snail,snail,see,easy,2,2.980748,3.860907,33,39 weeks,en,,20
-0,QGTESM,hard-squirrel-monkey,2025-01-25 17:28:30.311,15.0,2025-01-25 17:28:37.750,630,m,squirrel,monkey,squirrel,see,hard,2,2.980748,3.960068,33,39 weeks,en,,20
-0,d4HUR3,easy-acorn-key-distractor,2025-01-24 02:50:34.045,275.0,2025-01-24 02:50:41.569,480,f,acorn,key,key,see,easy-distractor,2,2.980748,3.860907,33,39 weeks,en,,20
-0,CKRG26,hard-turtle-frog-distractor,2025-01-26 01:33:04.082,245.0,2025-01-26 01:33:11.719,630,f,frog,turtle,frog,look_at,hard-distractor,2,2.980748,3.860907,33,40 or more weeks,en,,20
-0,dKKWAR,hard-cheese-butter,2025-01-23 19:29:36.527,1.0,2025-01-23 19:29:44.055,450,m,cheese,butter,cheese,where,hard,2,2.980748,3.960068,33,40 or more weeks,en,,20
-0,UUQJAd,easy-cheese-mud-distractor,2025-01-24 13:29:59.258,124.0,2025-01-24 13:30:06.629,570,f,mud,cheese,mud,where,easy-distractor,2,2.980748,3.860907,33,38 weeks,en fr,,20
-0,QWGKVS,hard-acorn-coconut-distractor,2025-01-24 16:57:05.234,72.0,2025-01-24 16:57:12.568,750,m,acorn,coconut,coconut,see,hard-distractor,2,2.980748,4.103515,33,39 weeks,en,,20
-0,FHRCdd,hard-cheese-butter-distractor,2025-01-24 17:32:12.019,68.0,2025-01-24 17:32:19.303,540,m,butter,cheese,butter,look_at,hard-distractor,2,2.980748,3.960068,35,39 weeks,en ur,,21
-0,CKRG26,easy-snail-cow,2025-01-26 01:33:19.951,204.0,2025-01-26 01:33:27.499,630,f,snail,cow,snail,find,easy,2,2.980748,3.860907,35,40 or more weeks,en,,21
-0,d4HUR3,easy-cheese-mud-distractor,2025-01-24 02:50:49.021,284.0,2025-01-24 02:50:56.547,480,f,cheese,mud,mud,look_at,easy-distractor,2,2.980748,3.860907,35,39 weeks,en,,21
-0,NPV5EF,hard-squirrel-monkey-distractor,2025-01-23 18:04:00.622,10.0,2025-01-23 18:04:07.933,570,m,squirrel,monkey,monkey,find,hard-distractor,2,2.980748,3.960068,35,39 weeks,en hak cmn ru,,21
-0,QWGKVS,easy-turtle-horse-distractor,2025-01-24 16:57:18.558,55.0,2025-01-24 16:57:25.889,750,m,turtle,horse,horse,see,easy-distractor,2,2.980748,3.860907,35,39 weeks,en,,21
-0,QGTESM,easy-turtle-horse-distractor,2025-01-25 17:28:46.312,11.0,2025-01-25 17:28:53.727,630,m,horse,turtle,horse,find,easy-distractor,2,2.980748,3.860907,35,39 weeks,en,,21
-0,5QCS4M,easy-snail-cow,2025-01-25 20:51:57.175,134.0,2025-01-25 20:52:04.576,750,f,snail,cow,snail,look_at,easy,2,2.980748,3.860907,35,39 weeks,en ko,,21
-0,XMJ25D,easy-bulldozer-orange,2025-01-23 19:47:54.808,43.0,2025-01-23 19:48:02.100,690,m,bulldozer,orange,bulldozer,where,easy,2,2.980748,4.103515,35,39 weeks,en,,21
-0,6THVBG,hard-acorn-coconut,2025-01-12 15:21:45.440,3.0,2025-01-12 15:21:52.720,510,f,coconut,acorn,acorn,find,hard,2,2.980748,3.960068,35,39 weeks,en,,21
-0,UUQJAd,hard-acorn-coconut,2025-01-24 13:30:13.812,167.0,2025-01-24 13:30:21.219,570,f,coconut,acorn,acorn,find,hard,2,2.980748,3.960068,35,38 weeks,en fr,,21
-0,TUFKTQ,easy-squirrel-eagle-distractor,2025-01-25 19:04:18.973,225.0,2025-01-25 19:04:26.465,450,f,eagle,squirrel,eagle,see,easy-distractor,2,2.980748,3.960068,35,39 weeks,en,,21
-0,UQBHFH,easy-turkey-swan,2025-01-24 14:13:42.343,4.0,2025-01-24 14:13:49.577,510,f,swan,turkey,turkey,see,easy,2,2.980748,3.960068,35,40 or more weeks,en fr es,,21
-0,dKKWAR,hard-bulldozer-tractor,2025-01-23 19:29:51.689,1.0,2025-01-23 19:29:59.254,450,m,tractor,bulldozer,bulldozer,find,hard,2,2.980748,4.103515,35,40 or more weeks,en,,21
-0,GNXMNQ,hard-turkey-goat,2025-01-24 00:47:08.174,6.0,2025-01-24 00:47:15.440,660,m,goat,turkey,turkey,look_at,hard,2,2.980748,3.960068,35,37 weeks,en te ur,,21
-0,UQBHFH,hard-cheese-butter,2025-01-24 14:13:51.137,75.0,2025-01-24 14:13:58.482,510,f,butter,cheese,cheese,find,hard,2,2.980748,3.960068,36,40 or more weeks,en fr es,,22
-0,6THVBG,easy-turkey-swan-distractor,2025-01-12 15:21:55.067,69.0,2025-01-12 15:22:02.390,510,f,swan,turkey,swan,where,easy-distractor,2,2.980748,3.860907,36,39 weeks,en,,22
-0,5QCS4M,hard-potato-pot,2025-01-25 20:52:07.978,172.0,2025-01-25 20:52:15.406,750,f,potato,pot,potato,find,hard,2,2.980748,4.103515,36,39 weeks,en ko,,22
-0,d4HUR3,hard-bulldozer-tractor-distractor,2025-01-24 02:50:57.826,396.0,2025-01-24 02:51:05.468,480,f,bulldozer,tractor,tractor,see,hard-distractor,2,2.980748,3.960068,36,39 weeks,en,,22
-0,UUQJAd,easy-turtle-horse-distractor,2025-01-24 13:30:23.187,176.0,2025-01-24 13:30:30.609,570,f,horse,turtle,horse,look_at,easy-distractor,2,2.980748,3.860907,36,38 weeks,en fr,,22
-0,TUFKTQ,hard-turkey-goat-distractor,2025-01-25 19:04:29.016,225.0,2025-01-25 19:04:36.512,450,f,turkey,goat,goat,look_at,hard-distractor,2,2.980748,3.860907,36,39 weeks,en,,22
-0,GNXMNQ,hard-cheese-butter,2025-01-24 00:47:16.633,20.0,2025-01-24 00:47:23.900,660,m,cheese,butter,cheese,where,hard,2,2.980748,3.960068,36,37 weeks,en te ur,,22
-0,FHRCdd,easy-snail-cow,2025-01-24 17:32:25.496,184.0,2025-01-24 17:32:32.933,540,m,snail,cow,snail,find,easy,2,2.980748,3.860907,36,39 weeks,en ur,,22
-0,CKRG26,hard-turkey-goat-distractor,2025-01-26 01:33:29.250,263.0,2025-01-26 01:33:36.894,630,f,goat,turkey,goat,see,hard-distractor,2,2.980748,3.860907,36,40 or more weeks,en,,22
-0,dKKWAR,easy-acorn-key,2025-01-23 19:30:01.830,1.0,2025-01-23 19:30:09.394,450,m,acorn,key,acorn,see,easy,2,2.980748,3.960068,36,40 or more weeks,en,,22
-0,QGTESM,easy-snail-cow,2025-01-25 17:28:55.682,11.0,2025-01-25 17:29:03.108,630,m,cow,snail,snail,look_at,easy,2,2.980748,3.860907,36,39 weeks,en,,22
-0,NPV5EF,easy-cheese-mud-distractor,2025-01-23 18:04:10.377,4.0,2025-01-23 18:04:17.652,570,m,cheese,mud,mud,where,easy-distractor,2,2.980748,3.860907,36,39 weeks,en hak cmn ru,,22
-0,QWGKVS,easy-snail-cow,2025-01-24 16:57:26.681,27.0,2025-01-24 16:57:33.972,750,m,cow,snail,snail,look_at,easy,2,2.980748,3.860907,36,39 weeks,en,,22
-0,XMJ25D,easy-turkey-swan-distractor,2025-01-23 19:48:03.964,24.0,2025-01-23 19:48:11.240,690,m,turkey,swan,swan,look_at,easy-distractor,2,2.980748,3.860907,36,39 weeks,en,,22
-0,NPV5EF,easy-turtle-horse,2025-01-23 18:04:19.761,3.0,2025-01-23 18:04:27.033,570,m,horse,turtle,turtle,see,easy,2,2.980748,3.960068,37,39 weeks,en hak cmn ru,,23
-0,TUFKTQ,easy-cheese-mud-distractor,2025-01-25 19:04:38.816,212.0,2025-01-25 19:04:46.283,450,f,mud,cheese,mud,where,easy-distractor,2,2.980748,3.860907,37,39 weeks,en,,23
-0,CKRG26,easy-squirrel-eagle-distractor,2025-01-26 01:33:39.182,280.0,2025-01-26 01:33:46.822,630,f,squirrel,eagle,eagle,look_at,easy-distractor,2,2.980748,3.960068,37,40 or more weeks,en,,23
-0,QGTESM,hard-acorn-coconut,2025-01-25 17:29:04.978,12.0,2025-01-25 17:29:12.396,630,m,acorn,coconut,acorn,where,hard,2,2.980748,3.960068,37,39 weeks,en,,23
-0,dKKWAR,hard-turtle-frog-distractor,2025-01-23 19:30:11.802,2.0,2025-01-23 19:30:19.134,450,m,turtle,frog,frog,look_at,hard-distractor,2,2.980748,3.860907,37,40 or more weeks,en,,23
-0,FHRCdd,easy-bulldozer-orange,2025-01-24 17:32:37.564,163.0,2025-01-24 17:32:44.962,540,m,orange,bulldozer,bulldozer,see,easy,2,2.980748,4.103515,37,39 weeks,en ur,,23
-0,UQBHFH,hard-turtle-frog,2025-01-24 14:14:00.177,73.0,2025-01-24 14:14:07.492,510,f,frog,turtle,turtle,where,hard,2,2.980748,3.960068,37,40 or more weeks,en fr es,,23
-0,UUQJAd,easy-turkey-swan-distractor,2025-01-24 13:30:32.348,167.0,2025-01-24 13:30:39.759,570,f,turkey,swan,swan,see,easy-distractor,2,2.980748,3.860907,37,38 weeks,en fr,,23
-0,6THVBG,easy-snail-cow-distractor,2025-01-12 15:22:04.663,72.0,2025-01-12 15:22:11.990,510,f,snail,cow,cow,look_at,easy-distractor,2,2.980748,3.860907,37,39 weeks,en,,23
-0,XMJ25D,hard-cheese-butter-distractor,2025-01-23 19:48:13.810,168.0,2025-01-23 19:48:21.220,690,m,butter,cheese,butter,find,hard-distractor,2,2.980748,3.960068,37,39 weeks,en,,23
-0,d4HUR3,hard-snail-worm-distractor,2025-01-24 02:51:06.960,282.0,2025-01-24 02:51:14.489,480,f,worm,snail,worm,where,hard-distractor,2,2.980748,3.860907,37,39 weeks,en,,23
-0,QWGKVS,easy-turkey-swan,2025-01-24 16:57:34.780,19.0,2025-01-24 16:57:42.068,750,m,turkey,swan,turkey,find,easy,2,2.980748,3.960068,37,39 weeks,en,,23
-0,GNXMNQ,hard-snail-worm-distractor,2025-01-24 00:47:25.043,46.0,2025-01-24 00:47:32.340,660,m,snail,worm,worm,find,hard-distractor,2,2.980748,3.860907,37,37 weeks,en te ur,,23
-0,5QCS4M,hard-turtle-frog-distractor,2025-01-25 20:52:19.030,86.0,2025-01-25 20:52:26.376,750,f,turtle,frog,frog,see,hard-distractor,2,2.980748,3.860907,37,39 weeks,en ko,,23
-0,UQBHFH,easy-potato-glasses-distractor,2025-01-24 14:14:09.542,54.0,2025-01-24 14:14:11.956,510,f,potato,glasses,glasses,look_at,easy-distractor,2,2.980748,3.960068,38,40 or more weeks,en fr es,,24
-0,QGTESM,hard-potato-pot-distractor,2025-01-25 17:29:14.161,11.0,2025-01-25 17:29:21.592,630,m,pot,potato,pot,see,hard-distractor,2,2.980748,3.860907,38,39 weeks,en,,24
-0,TUFKTQ,easy-turtle-horse,2025-01-25 19:04:48.079,185.0,2025-01-25 19:04:55.520,450,f,horse,turtle,turtle,find,easy,2,2.980748,3.960068,38,39 weeks,en,,24
-0,5QCS4M,easy-cheese-mud,2025-01-25 20:52:29.857,130.0,2025-01-25 20:52:37.256,750,f,cheese,mud,cheese,where,easy,2,2.980748,3.960068,38,39 weeks,en ko,,24
-0,QWGKVS,hard-cheese-butter,2025-01-24 16:57:42.913,3.0,2025-01-24 16:57:50.189,750,m,butter,cheese,cheese,where,hard,2,2.980748,3.960068,38,39 weeks,en,,24
-0,CKRG26,hard-potato-pot-distractor,2025-01-26 01:33:49.299,235.0,2025-01-26 01:33:56.941,630,f,potato,pot,pot,where,hard-distractor,2,2.980748,3.860907,38,40 or more weeks,en,,24
-0,6THVBG,easy-turtle-horse,2025-01-12 15:22:12.981,70.0,2025-01-12 15:22:20.309,510,f,horse,turtle,turtle,see,easy,2,2.980748,3.960068,38,39 weeks,en,,24
-0,GNXMNQ,easy-potato-glasses,2025-01-24 00:47:33.670,56.0,2025-01-24 00:47:40.980,660,m,glasses,potato,potato,see,easy,2,2.980748,4.103515,38,37 weeks,en te ur,,24
-0,d4HUR3,hard-potato-pot-distractor,2025-01-24 02:51:17.595,287.0,2025-01-24 02:51:25.126,480,f,pot,potato,pot,find,hard-distractor,2,2.980748,3.860907,38,39 weeks,en,,24
-0,XMJ25D,easy-squirrel-eagle-distractor,2025-01-23 19:48:23.012,94.0,2025-01-23 19:48:30.361,690,m,eagle,squirrel,eagle,see,easy-distractor,2,2.980748,3.960068,38,39 weeks,en,,24
-0,NPV5EF,easy-turkey-swan-distractor,2025-01-23 18:04:29.187,5.0,2025-01-23 18:04:36.453,570,m,swan,turkey,swan,look_at,easy-distractor,2,2.980748,3.860907,38,39 weeks,en hak cmn ru,,24
-0,FHRCdd,hard-squirrel-monkey-distractor,2025-01-24 17:32:48.789,163.0,2025-01-24 17:32:56.222,540,m,squirrel,monkey,monkey,where,hard-distractor,2,2.980748,3.960068,38,39 weeks,en ur,,24
-0,dKKWAR,hard-potato-pot,2025-01-23 19:30:21.568,3.0,2025-01-23 19:30:29.144,450,m,pot,potato,potato,where,hard,2,2.980748,4.103515,38,40 or more weeks,en,,24
-0,UUQJAd,hard-potato-pot,2025-01-24 13:30:41.767,1.0,2025-01-24 13:30:49.019,570,f,pot,potato,potato,where,hard,2,2.980748,4.103515,38,38 weeks,en fr,,24
-0,5QCS4M,easy-bulldozer-orange-distractor,2025-01-25 20:52:46.272,139.0,2025-01-25 20:52:53.668,750,f,orange,bulldozer,orange,see,easy-distractor,2,2.980748,3.960068,40,39 weeks,en ko,,25
-0,UUQJAd,hard-cheese-butter-distractor,2025-01-24 13:30:55.717,178.0,2025-01-24 13:31:03.139,570,f,butter,cheese,butter,look_at,hard-distractor,2,2.980748,3.960068,40,38 weeks,en fr,,25
-0,GNXMNQ,easy-turkey-swan,2025-01-24 00:47:47.652,38.0,2025-01-24 00:47:54.940,660,m,turkey,swan,turkey,find,easy,2,2.980748,3.960068,40,37 weeks,en te ur,,25
-0,QGTESM,hard-cheese-butter-distractor,2025-01-25 17:29:28.763,14.0,2025-01-25 17:29:36.170,630,m,butter,cheese,butter,find,hard-distractor,2,2.980748,3.960068,40,39 weeks,en,,25
-0,UQBHFH,hard-acorn-coconut-distractor,2025-01-24 14:14:32.032,4.0,2025-01-24 14:14:39.260,510,f,coconut,acorn,coconut,see,hard-distractor,2,2.980748,4.103515,40,40 or more weeks,en fr es,,25
-0,CKRG26,hard-cheese-butter,2025-01-26 01:34:05.829,25.0,2025-01-26 01:34:13.299,630,f,cheese,butter,cheese,see,hard,2,2.980748,3.960068,40,40 or more weeks,en,,25
-0,dKKWAR,easy-turtle-horse-distractor,2025-01-23 19:30:36.904,2.0,2025-01-23 19:30:44.274,450,m,horse,turtle,horse,where,easy-distractor,2,2.980748,3.860907,40,40 or more weeks,en,,25
-0,6THVBG,easy-acorn-key-distractor,2025-01-12 15:22:27.737,5.0,2025-01-12 15:22:35.009,510,f,key,acorn,key,see,easy-distractor,2,2.980748,3.860907,40,39 weeks,en,,25
-0,QWGKVS,hard-turtle-frog-distractor,2025-01-24 16:57:56.257,85.0,2025-01-24 16:58:03.609,750,m,frog,turtle,frog,see,hard-distractor,2,2.980748,3.860907,40,39 weeks,en,,25
-0,TUFKTQ,hard-snail-worm-distractor,2025-01-25 19:05:02.618,216.0,2025-01-25 19:05:10.091,450,f,snail,worm,worm,see,hard-distractor,2,2.980748,3.860907,40,39 weeks,en,,25
-0,NPV5EF,easy-potato-glasses,2025-01-23 18:04:45.429,4.0,2025-01-23 18:04:52.692,570,m,potato,glasses,potato,find,easy,2,2.980748,4.103515,40,39 weeks,en hak cmn ru,,25
-0,d4HUR3,easy-turkey-swan,2025-01-24 02:51:32.305,34.0,2025-01-24 02:51:39.629,480,f,turkey,swan,turkey,find,easy,2,2.980748,3.960068,40,39 weeks,en,,25
-0,FHRCdd,hard-bulldozer-tractor,2025-01-24 17:33:05.970,49.0,2025-01-24 17:33:13.252,540,m,tractor,bulldozer,bulldozer,find,hard,2,2.980748,4.103515,40,39 weeks,en ur,,25
-0,XMJ25D,hard-bulldozer-tractor-distractor,2025-01-23 19:48:37.691,42.0,2025-01-23 19:48:44.981,690,m,tractor,bulldozer,tractor,see,hard-distractor,2,2.980748,3.960068,40,39 weeks,en,,25
-0,d4HUR3,hard-acorn-coconut-distractor,2025-01-24 02:51:41.180,298.0,2025-01-24 02:51:48.729,480,f,acorn,coconut,coconut,where,hard-distractor,2,2.980748,4.103515,41,39 weeks,en,,26
-0,CKRG26,hard-acorn-coconut,2025-01-26 01:34:15.839,274.0,2025-01-26 01:34:23.505,630,f,acorn,coconut,acorn,find,hard,2,2.980748,3.960068,41,40 or more weeks,en,,26
-0,GNXMNQ,easy-snail-cow,2025-01-24 00:47:56.118,61.0,2025-01-24 00:48:03.420,660,m,snail,cow,snail,look_at,easy,2,2.980748,3.860907,41,37 weeks,en te ur,,26
-0,UUQJAd,easy-acorn-key-distractor,2025-01-24 13:31:04.712,163.0,2025-01-24 13:31:12.119,570,f,key,acorn,key,see,easy-distractor,2,2.980748,3.860907,41,38 weeks,en fr,,26
-0,TUFKTQ,hard-acorn-coconut,2025-01-25 19:05:12.054,2.0,2025-01-25 19:05:19.350,450,f,acorn,coconut,acorn,look_at,hard,2,2.980748,3.960068,41,39 weeks,en,,26
-0,FHRCdd,easy-cheese-mud-distractor,2025-01-24 17:33:17.043,169.0,2025-01-24 17:33:24.452,540,m,mud,cheese,mud,where,easy-distractor,2,2.980748,3.860907,41,39 weeks,en ur,,26
-0,NPV5EF,easy-bulldozer-orange-distractor,2025-01-23 18:04:54.767,3.0,2025-01-23 18:05:02.032,570,m,bulldozer,orange,orange,see,easy-distractor,2,2.980748,3.960068,41,39 weeks,en hak cmn ru,,26
-0,UQBHFH,easy-cheese-mud-distractor,2025-01-24 14:14:41.146,113.0,2025-01-24 14:14:48.540,510,f,mud,cheese,mud,where,easy-distractor,2,2.980748,3.860907,41,40 or more weeks,en fr es,,26
-0,6THVBG,hard-snail-worm,2025-01-12 15:22:37.125,1.0,2025-01-12 15:22:44.388,510,f,snail,worm,snail,where,hard,2,2.980748,3.860907,41,39 weeks,en,,26
-0,QGTESM,easy-bulldozer-orange,2025-01-25 17:29:37.823,10.0,2025-01-25 17:29:45.181,630,m,bulldozer,orange,bulldozer,look_at,easy,2,2.980748,4.103515,41,39 weeks,en,,26
-0,XMJ25D,easy-turtle-horse,2025-01-23 19:48:46.812,24.0,2025-01-23 19:48:54.082,690,m,turtle,horse,turtle,look_at,easy,2,2.980748,3.960068,41,39 weeks,en,,26
-0,dKKWAR,easy-squirrel-eagle,2025-01-23 19:30:46.655,3.0,2025-01-23 19:30:54.055,450,m,squirrel,eagle,squirrel,find,easy,2,2.980748,3.960068,41,40 or more weeks,en,,26
-0,5QCS4M,easy-turtle-horse-distractor,2025-01-25 20:52:57.045,148.0,2025-01-25 20:53:04.468,750,f,horse,turtle,horse,find,easy-distractor,2,2.980748,3.860907,41,39 weeks,en ko,,26
-0,QWGKVS,easy-bulldozer-orange-distractor,2025-01-24 16:58:04.379,71.0,2025-01-24 16:58:11.728,750,m,bulldozer,orange,orange,where,easy-distractor,2,2.980748,3.960068,41,39 weeks,en,,26
-0,TUFKTQ,hard-cheese-butter-distractor,2025-01-25 19:05:21.330,3.0,2025-01-25 19:05:28.609,450,f,butter,cheese,butter,where,hard-distractor,2,2.980748,3.960068,42,39 weeks,en,,27
-0,FHRCdd,hard-acorn-coconut,2025-01-24 17:33:27.692,191.0,2025-01-24 17:33:35.142,540,m,acorn,coconut,acorn,see,hard,2,2.980748,3.960068,42,39 weeks,en ur,,27
-0,dKKWAR,hard-acorn-coconut,2025-01-23 19:30:56.427,1.0,2025-01-23 19:31:03.796,450,m,coconut,acorn,acorn,look_at,hard,2,2.980748,3.960068,42,40 or more weeks,en,,27
-0,d4HUR3,hard-cheese-butter,2025-01-24 02:51:50.707,251.0,2025-01-24 02:51:58.206,480,f,butter,cheese,cheese,see,hard,2,2.980748,3.960068,42,39 weeks,en,,27
-0,GNXMNQ,hard-acorn-coconut-distractor,2025-01-24 00:48:04.543,65.0,2025-01-24 00:48:11.860,660,m,acorn,coconut,coconut,where,hard-distractor,2,2.980748,4.103515,42,37 weeks,en te ur,,27
-0,5QCS4M,hard-turkey-goat,2025-01-25 20:53:07.907,9.0,2025-01-25 20:53:15.198,750,f,turkey,goat,turkey,where,hard,2,2.980748,3.960068,42,39 weeks,en ko,,27
-0,QGTESM,easy-squirrel-eagle-distractor,2025-01-25 17:29:46.702,14.0,2025-01-25 17:29:54.097,630,m,eagle,squirrel,eagle,where,easy-distractor,2,2.980748,3.960068,42,39 weeks,en,,27
-0,CKRG26,hard-squirrel-monkey-distractor,2025-01-26 01:34:26.472,182.0,2025-01-26 01:34:34.011,630,f,monkey,squirrel,monkey,look_at,hard-distractor,2,2.980748,3.960068,42,40 or more weeks,en,,27
-0,NPV5EF,hard-acorn-coconut-distractor,2025-01-23 18:05:04.517,2.0,2025-01-23 18:05:11.792,570,m,coconut,acorn,coconut,look_at,hard-distractor,2,2.980748,4.103515,42,39 weeks,en hak cmn ru,,27
-0,UQBHFH,easy-turtle-horse-distractor,2025-01-24 14:14:50.377,38.0,2025-01-24 14:14:57.670,510,f,turtle,horse,horse,look_at,easy-distractor,2,2.980748,3.860907,42,40 or more weeks,en fr es,,27
-0,XMJ25D,easy-cheese-mud-distractor,2025-01-23 19:48:55.942,26.0,2025-01-23 19:49:03.222,690,m,cheese,mud,mud,where,easy-distractor,2,2.980748,3.860907,42,39 weeks,en,,27
-0,6THVBG,easy-squirrel-eagle,2025-01-12 15:22:46.550,3.0,2025-01-12 15:22:53.798,510,f,squirrel,eagle,squirrel,find,easy,2,2.980748,3.960068,42,39 weeks,en,,27
-0,UUQJAd,hard-turtle-frog,2025-01-24 13:31:13.773,174.0,2025-01-24 13:31:21.189,570,f,turtle,frog,turtle,find,hard,2,2.980748,3.960068,42,38 weeks,en fr,,27
-0,QWGKVS,easy-potato-glasses-distractor,2025-01-24 16:58:12.575,4.0,2025-01-24 16:58:19.849,750,m,glasses,potato,glasses,find,easy-distractor,2,2.980748,3.960068,42,39 weeks,en,,27
-0,TUFKTQ,hard-bulldozer-tractor-distractor,2025-01-25 19:05:30.503,219.0,2025-01-25 19:05:37.995,450,f,bulldozer,tractor,tractor,find,hard-distractor,2,2.980748,3.960068,43,39 weeks,en,,28
-0,5QCS4M,hard-cheese-butter,2025-01-25 20:53:18.616,142.0,2025-01-25 20:53:26.019,750,f,cheese,butter,cheese,look_at,hard,2,2.980748,3.960068,43,39 weeks,en ko,,28
-0,CKRG26,easy-turkey-swan,2025-01-26 01:34:36.474,350.0,2025-01-26 01:34:44.227,630,f,swan,turkey,turkey,where,easy,2,2.980748,3.960068,43,40 or more weeks,en,,28
-0,NPV5EF,hard-cheese-butter,2025-01-23 18:05:13.999,3.0,2025-01-23 18:05:21.275,570,m,cheese,butter,cheese,where,hard,2,2.980748,3.960068,43,39 weeks,en hak cmn ru,,28
-0,UQBHFH,hard-potato-pot-distractor,2025-01-24 14:14:59.830,63.0,2025-01-24 14:15:08.684,510,f,pot,potato,pot,find,hard-distractor,2,2.980748,3.860907,43,40 or more weeks,en fr es,,28
-0,FHRCdd,easy-squirrel-eagle,2025-01-24 17:33:40.614,66.0,2025-01-24 17:33:47.942,540,m,eagle,squirrel,squirrel,look_at,easy,2,2.980748,3.960068,43,39 weeks,en ur,,28
-0,6THVBG,hard-turkey-goat-distractor,2025-01-12 15:22:56.221,343.0,2025-01-12 15:23:03.808,510,f,turkey,goat,goat,look_at,hard-distractor,2,2.980748,3.860907,43,39 weeks,en,,28
-0,UUQJAd,easy-potato-glasses-distractor,2025-01-24 13:31:23.261,162.0,2025-01-24 13:31:30.660,570,f,glasses,potato,glasses,where,easy-distractor,2,2.980748,3.960068,43,38 weeks,en fr,,28
-0,d4HUR3,hard-squirrel-monkey,2025-01-24 02:51:59.642,285.0,2025-01-24 02:52:07.186,480,f,monkey,squirrel,squirrel,look_at,hard,2,2.980748,3.960068,43,39 weeks,en,,28
-0,GNXMNQ,hard-squirrel-monkey,2025-01-24 00:48:13.041,5.0,2025-01-24 00:48:20.321,660,m,monkey,squirrel,squirrel,see,hard,2,2.980748,3.960068,43,37 weeks,en te ur,,28
-0,QGTESM,hard-turtle-frog,2025-01-25 17:29:55.671,11.0,2025-01-25 17:30:03.111,630,m,frog,turtle,turtle,see,hard,2,2.980748,3.960068,43,39 weeks,en,,28
-0,QWGKVS,easy-cheese-mud,2025-01-24 16:58:20.645,149.0,2025-01-24 16:58:28.068,750,m,mud,cheese,cheese,look_at,easy,2,2.980748,3.960068,43,39 weeks,en,,28
-0,XMJ25D,hard-squirrel-monkey,2025-01-23 19:49:05.442,3.0,2025-01-23 19:49:12.722,690,m,squirrel,monkey,squirrel,find,hard,2,2.980748,3.960068,43,39 weeks,en,,28
-0,dKKWAR,easy-cheese-mud,2025-01-23 19:31:06.039,3.0,2025-01-23 19:31:13.616,450,m,mud,cheese,cheese,see,easy,2,2.980748,3.960068,43,40 or more weeks,en,,28
-0,UQBHFH,hard-turkey-goat-distractor,2025-01-24 14:15:35.142,47.0,2025-01-24 14:15:42.407,510,f,turkey,goat,goat,look_at,hard-distractor,2,2.980748,3.860907,45,40 or more weeks,en fr es,,29
-0,d4HUR3,easy-potato-glasses,2025-01-24 02:52:14.690,3.0,2025-01-24 02:52:21.954,480,f,glasses,potato,potato,find,easy,2,2.980748,4.103515,45,39 weeks,en,,29
-0,XMJ25D,hard-turkey-goat,2025-01-23 19:49:19.630,3.0,2025-01-23 19:49:26.902,690,m,turkey,goat,turkey,see,hard,2,2.980748,3.960068,45,39 weeks,en,,29
-0,TUFKTQ,hard-squirrel-monkey-distractor,2025-01-25 19:05:45.256,3.0,2025-01-25 19:05:52.544,450,f,squirrel,monkey,monkey,see,hard-distractor,2,2.980748,3.960068,45,39 weeks,en,,29
-0,6THVBG,hard-turtle-frog-distractor,2025-01-12 15:23:11.325,3.0,2025-01-12 15:23:18.588,510,f,frog,turtle,frog,where,hard-distractor,2,2.980748,3.860907,45,39 weeks,en,,29
-0,dKKWAR,easy-potato-glasses-distractor,2025-01-23 19:31:21.139,3.0,2025-01-23 19:31:28.504,450,m,glasses,potato,glasses,find,easy-distractor,2,2.980748,3.960068,45,40 or more weeks,en,,29
-0,NPV5EF,hard-turtle-frog,2025-01-23 18:05:28.728,5.0,2025-01-23 18:05:35.992,570,m,frog,turtle,turtle,find,hard,2,2.980748,3.960068,45,39 weeks,en hak cmn ru,,29
-0,GNXMNQ,easy-cheese-mud,2025-01-24 00:48:26.551,63.0,2025-01-24 00:48:33.860,660,m,cheese,mud,cheese,look_at,easy,2,2.980748,3.960068,45,37 weeks,en te ur,,29
-0,CKRG26,easy-turtle-horse,2025-01-26 01:34:53.505,275.0,2025-01-26 01:35:01.124,630,f,horse,turtle,turtle,look_at,easy,2,2.980748,3.960068,45,40 or more weeks,en,,29
-0,UUQJAd,hard-bulldozer-tractor,2025-01-24 13:31:37.772,150.0,2025-01-24 13:31:45.170,570,f,bulldozer,tractor,bulldozer,find,hard,2,2.980748,4.103515,45,38 weeks,en fr,,29
-0,QGTESM,easy-acorn-key,2025-01-25 17:30:09.963,11.0,2025-01-25 17:30:17.316,630,m,key,acorn,acorn,look_at,easy,2,2.980748,3.960068,45,39 weeks,en,,29
-0,QWGKVS,hard-turkey-goat,2025-01-24 16:58:34.013,30.0,2025-01-24 16:58:41.309,750,m,turkey,goat,turkey,where,hard,2,2.980748,3.960068,45,39 weeks,en,,29
-0,5QCS4M,easy-potato-glasses,2025-01-25 20:53:34.448,14.0,2025-01-25 20:53:41.730,750,f,glasses,potato,potato,find,easy,2,2.980748,4.103515,45,39 weeks,en ko,,29
-0,FHRCdd,hard-turkey-goat-distractor,2025-01-24 17:33:58.966,91.0,2025-01-24 17:34:06.272,540,m,turkey,goat,goat,see,hard-distractor,2,2.980748,3.860907,45,39 weeks,en ur,,29
-0,NPV5EF,hard-turkey-goat-distractor,2025-01-23 18:05:38.274,3.0,2025-01-23 18:05:45.532,570,m,goat,turkey,goat,where,hard-distractor,2,2.980748,3.860907,46,39 weeks,en hak cmn ru,,30
-0,TUFKTQ,easy-turkey-swan-distractor,2025-01-25 19:05:54.764,215.0,2025-01-25 19:06:02.251,450,f,swan,turkey,swan,where,easy-distractor,2,2.980748,3.860907,46,39 weeks,en,,30
-0,UQBHFH,easy-snail-cow,2025-01-24 14:15:45.081,67.0,2025-01-24 14:15:52.389,510,f,snail,cow,snail,where,easy,2,2.980748,3.860907,46,40 or more weeks,en fr es,,30
-0,dKKWAR,easy-turkey-swan,2025-01-23 19:31:30.826,1.0,2025-01-23 19:31:38.384,450,m,turkey,swan,turkey,look_at,easy,2,2.980748,3.960068,46,40 or more weeks,en,,30
-0,CKRG26,easy-potato-glasses-distractor,2025-01-26 01:35:03.552,268.0,2025-01-26 01:35:11.152,630,f,glasses,potato,glasses,where,easy-distractor,2,2.980748,3.960068,46,40 or more weeks,en,,30
-0,FHRCdd,easy-turtle-horse-distractor,2025-01-24 17:34:12.058,172.0,2025-01-24 17:34:19.471,540,m,turtle,horse,horse,where,easy-distractor,2,2.980748,3.860907,46,39 weeks,en ur,,30
-0,d4HUR3,easy-snail-cow,2025-01-24 02:52:23.697,263.0,2025-01-24 02:52:31.206,480,f,cow,snail,snail,see,easy,2,2.980748,3.860907,46,39 weeks,en,,30
-0,6THVBG,easy-potato-glasses-distractor,2025-01-12 15:23:26.074,7.0,2025-01-12 15:23:33.348,510,f,potato,glasses,glasses,find,easy-distractor,2,2.980748,3.960068,46,39 weeks,en,,30
-0,5QCS4M,hard-acorn-coconut,2025-01-25 20:53:45.145,147.0,2025-01-25 20:53:52.560,750,f,acorn,coconut,acorn,look_at,hard,2,2.980748,3.960068,46,39 weeks,en ko,,30
-0,XMJ25D,hard-acorn-coconut,2025-01-23 19:49:29.135,2.0,2025-01-23 19:49:36.403,690,m,acorn,coconut,acorn,look_at,hard,2,2.980748,3.960068,46,39 weeks,en,,30
-0,UUQJAd,hard-turkey-goat,2025-01-24 13:31:47.770,1.0,2025-01-24 13:31:55.020,570,f,goat,turkey,turkey,see,hard,2,2.980748,3.960068,46,38 weeks,en fr,,30
-0,QGTESM,easy-turkey-swan-distractor,2025-01-25 17:30:18.900,12.0,2025-01-25 17:30:26.327,630,m,turkey,swan,swan,find,easy-distractor,2,2.980748,3.860907,46,39 weeks,en,,30
-0,QWGKVS,hard-snail-worm-distractor,2025-01-24 16:58:42.121,64.0,2025-01-24 16:58:49.449,750,m,worm,snail,worm,see,hard-distractor,2,2.980748,3.860907,46,39 weeks,en,,30
-0,GNXMNQ,hard-potato-pot,2025-01-24 00:48:34.972,4.0,2025-01-24 00:48:42.240,660,m,potato,pot,potato,see,hard,2,2.980748,4.103515,46,37 weeks,en te ur,,30
-0,GNXMNQ,easy-turtle-horse,2025-01-24 00:48:43.386,44.0,2025-01-24 00:48:50.680,660,m,turtle,horse,turtle,where,easy,2,2.980748,3.960068,47,37 weeks,en te ur,,31
-0,6THVBG,hard-cheese-butter,2025-01-12 15:23:35.618,66.0,2025-01-12 15:23:42.948,510,f,butter,cheese,cheese,look_at,hard,2,2.980748,3.960068,47,39 weeks,en,,31
-0,dKKWAR,easy-bulldozer-orange,2025-01-23 19:31:40.867,2.0,2025-01-23 19:31:48.225,450,m,orange,bulldozer,bulldozer,where,easy,2,2.980748,4.103515,47,40 or more weeks,en,,31
-0,NPV5EF,easy-squirrel-eagle,2025-01-23 18:05:47.954,4.0,2025-01-23 18:05:55.213,570,m,squirrel,eagle,squirrel,look_at,easy,2,2.980748,3.960068,47,39 weeks,en hak cmn ru,,31
-0,XMJ25D,hard-snail-worm-distractor,2025-01-23 19:49:38.183,60.0,2025-01-23 19:49:45.503,690,m,worm,snail,worm,where,hard-distractor,2,2.980748,3.860907,47,39 weeks,en,,31
-0,QGTESM,hard-snail-worm,2025-01-25 17:30:28.402,11.0,2025-01-25 17:30:35.801,630,m,worm,snail,snail,where,hard,2,2.980748,3.860907,47,39 weeks,en,,31
-0,QWGKVS,hard-squirrel-monkey,2025-01-24 16:58:50.350,21.0,2025-01-24 16:58:57.648,750,m,monkey,squirrel,squirrel,look_at,hard,2,2.980748,3.960068,47,39 weeks,en,,31
-0,TUFKTQ,easy-potato-glasses-distractor,2025-01-25 19:06:04.701,214.0,2025-01-25 19:06:12.171,450,f,glasses,potato,glasses,find,easy-distractor,2,2.980748,3.960068,47,39 weeks,en,,31
-0,UQBHFH,easy-bulldozer-orange,2025-01-24 14:15:53.739,81.0,2025-01-24 14:16:01.086,510,f,orange,bulldozer,bulldozer,see,easy,2,2.980748,4.103515,47,40 or more weeks,en fr es,,31
-0,d4HUR3,easy-bulldozer-orange,2025-01-24 02:52:32.668,332.0,2025-01-24 02:52:40.246,480,f,bulldozer,orange,bulldozer,where,easy,2,2.980748,4.103515,47,39 weeks,en,,31
-0,FHRCdd,hard-snail-worm-distractor,2025-01-24 17:34:22.422,154.0,2025-01-24 17:34:29.821,540,m,snail,worm,worm,look_at,hard-distractor,2,2.980748,3.860907,47,39 weeks,en ur,,31
-0,CKRG26,easy-bulldozer-orange-distractor,2025-01-26 01:35:13.785,266.0,2025-01-26 01:35:21.465,630,f,orange,bulldozer,orange,find,easy-distractor,2,2.980748,3.960068,47,40 or more weeks,en,,31
-0,5QCS4M,hard-squirrel-monkey-distractor,2025-01-25 20:53:55.743,144.0,2025-01-25 20:54:03.150,750,f,squirrel,monkey,monkey,see,hard-distractor,2,2.980748,3.960068,47,39 weeks,en ko,,31
-0,UUQJAd,easy-snail-cow-distractor,2025-01-24 13:31:56.673,154.0,2025-01-24 13:32:04.070,570,f,snail,cow,cow,where,easy-distractor,2,2.980748,3.860907,47,38 weeks,en fr,,31
-0,QWGKVS,easy-acorn-key,2025-01-24 16:58:58.570,29.0,2025-01-24 16:59:05.869,750,m,acorn,key,acorn,find,easy,2,2.980748,3.960068,48,39 weeks,en,,32
-0,UQBHFH,hard-squirrel-monkey-distractor,2025-01-24 14:16:02.935,78.0,2025-01-24 14:16:07.461,510,f,squirrel,monkey,monkey,find,hard-distractor,2,2.980748,3.960068,48,40 or more weeks,en fr es,,32
-0,NPV5EF,hard-snail-worm-distractor,2025-01-23 18:05:57.549,5.0,2025-01-23 18:06:04.813,570,m,worm,snail,worm,see,hard-distractor,2,2.980748,3.860907,48,39 weeks,en hak cmn ru,,32
-0,TUFKTQ,hard-turtle-frog,2025-01-25 19:06:13.965,200.0,2025-01-25 19:06:21.430,450,f,turtle,frog,turtle,look_at,hard,2,2.980748,3.960068,48,39 weeks,en,,32
-0,6THVBG,easy-bulldozer-orange-distractor,2025-01-12 15:23:45.339,43.0,2025-01-12 15:23:52.618,510,f,bulldozer,orange,orange,see,easy-distractor,2,2.980748,3.960068,48,39 weeks,en,,32
-0,QGTESM,easy-potato-glasses-distractor,2025-01-25 17:30:37.783,10.0,2025-01-25 17:30:45.183,630,m,potato,glasses,glasses,see,easy-distractor,2,2.980748,3.960068,48,39 weeks,en,,32
-0,UUQJAd,hard-squirrel-monkey,2025-01-24 13:32:06.445,168.0,2025-01-24 13:32:13.860,570,f,squirrel,monkey,squirrel,look_at,hard,2,2.980748,3.960068,48,38 weeks,en fr,,32
-0,d4HUR3,hard-turtle-frog-distractor,2025-01-24 02:52:41.541,283.0,2025-01-24 02:52:49.068,480,f,frog,turtle,frog,look_at,hard-distractor,2,2.980748,3.860907,48,39 weeks,en,,32
-0,XMJ25D,hard-potato-pot-distractor,2025-01-23 19:49:47.322,27.0,2025-01-23 19:49:54.603,690,m,pot,potato,pot,find,hard-distractor,2,2.980748,3.860907,48,39 weeks,en,,32
-0,5QCS4M,hard-snail-worm,2025-01-25 20:54:06.501,115.0,2025-01-25 20:54:13.881,750,f,worm,snail,snail,where,hard,2,2.980748,3.860907,48,39 weeks,en ko,,32
-0,CKRG26,hard-snail-worm,2025-01-26 01:35:23.116,306.0,2025-01-26 01:35:30.749,630,f,worm,snail,snail,see,hard,2,2.980748,3.860907,48,40 or more weeks,en,,32
-0,FHRCdd,easy-potato-glasses-distractor,2025-01-24 17:34:32.680,167.0,2025-01-24 17:34:40.082,540,m,potato,glasses,glasses,find,easy-distractor,2,2.980748,3.960068,48,39 weeks,en ur,,32
-0,GNXMNQ,hard-bulldozer-tractor,2025-01-24 00:48:51.853,37.0,2025-01-24 00:48:59.140,660,m,tractor,bulldozer,bulldozer,find,hard,2,2.980748,4.103515,48,37 weeks,en te ur,,32
-0,dKKWAR,hard-snail-worm-distractor,2025-01-23 19:31:50.711,1.0,2025-01-23 19:31:58.075,450,m,snail,worm,worm,see,hard-distractor,2,2.980748,3.860907,48,40 or more weeks,en,,32
+,SubjectInfo.subjID,Trials.trialID,absolute_onset,Trials.audio_lag_vs_video_lag,absolute_offset,SubjectInfo.testAge,SubjectInfo.gender,Trials.leftImage,Trials.rightImage,Trials.targetImage,Trials.targetAudio,Trials.trialType,Trials.carrier_onset,Trials.target_onset,Trials.target_offset,Trials.article_length,Trials.order,SubjectInfo.age_at_birth,SubjectInfo.language_list,SubjectInfo.condition_list,Trials.ordinal
+0,CKRG26,hard-bulldozer-tractor-distractor,2025-01-26 01:29:27.506,383.0,2025-01-26 01:29:35.300,630,f,tractor,bulldozer,tractor,see,hard-distractor,2,3.1647480000000003,4.144068000000001,0.184,10,40 or more weeks,en,,1
+0,dKKWAR,hard-turkey-goat-distractor,2025-01-23 19:26:07.634,1.0,2025-01-23 19:26:15.214,450,m,goat,turkey,goat,find,hard-distractor,2,3.167748,4.047907,0.187,10,40 or more weeks,en,,1
+0,XMJ25D,easy-turkey-swan,2025-01-23 19:44:23.265,188.0,2025-01-23 19:44:30.713,690,m,swan,turkey,turkey,look_at,easy,2,3.224748,4.2040679999999995,0.244,10,39 weeks,en,,1
+0,GNXMNQ,easy-potato-glasses-distractor,2025-01-24 00:43:51.112,35.0,2025-01-24 00:43:58.400,660,m,potato,glasses,glasses,see,easy-distractor,2,3.1607480000000003,4.140068,0.18,10,37 weeks,en te ur,,1
+0,d4HUR3,easy-turtle-horse-distractor,2025-01-24 02:47:22.675,392.0,2025-01-24 02:47:30.308,480,f,horse,turtle,horse,where,easy-distractor,2,3.149748,4.029907000000001,0.169,10,39 weeks,en,,1
+0,UUQJAd,hard-acorn-coconut-distractor,2025-01-24 13:26:40.711,258.0,2025-01-24 13:26:48.227,570,f,acorn,coconut,coconut,find,hard-distractor,2,3.258748,4.381515,0.278,10,38 weeks,en fr,,1
+0,UQBHFH,hard-snail-worm,2025-01-24 14:10:05.593,154.0,2025-01-24 14:10:12.994,510,f,worm,snail,snail,look_at,hard,2,3.1367480000000003,4.016907000000001,0.156,10,40 or more weeks,en fr es,,1
+0,QWGKVS,easy-turtle-horse,2025-01-24 16:54:06.273,187.0,2025-01-24 16:54:13.728,750,m,horse,turtle,turtle,look_at,easy,2,3.231748,4.211068,0.251,10,39 weeks,en,,1
+0,FHRCdd,hard-cheese-butter,2025-01-24 17:27:47.509,196.0,2025-01-24 17:27:54.935,540,m,butter,cheese,cheese,find,hard,2,3.1487480000000003,4.128068000000001,0.168,10,39 weeks,en ur,,1
+0,QGTESM,hard-squirrel-monkey-distractor,2025-01-25 17:25:06.247,11.0,2025-01-25 17:25:13.600,630,m,monkey,squirrel,monkey,see,hard-distractor,2,3.1697480000000002,4.149068,0.189,10,39 weeks,en,,1
+0,NPV5EF,easy-acorn-key-distractor,2025-01-23 18:00:21.539,2.0,2025-01-23 18:00:28.796,570,m,acorn,key,key,look_at,easy-distractor,2,3.275748,4.155907,0.295,10,39 weeks,en hak cmn ru,,1
+0,6THVBG,easy-cheese-mud,2025-01-12 15:17:51.207,75.0,2025-01-12 15:17:58.515,510,f,mud,cheese,cheese,find,easy,2,3.1487480000000003,4.128068000000001,0.168,10,39 weeks,en,,1
+0,5QCS4M,easy-turkey-swan-distractor,2025-01-25 20:47:53.513,229.0,2025-01-25 20:48:01.006,750,f,swan,turkey,swan,where,easy-distractor,2,3.145748,4.025907,0.165,10,39 weeks,en ko,,1
+0,TUFKTQ,easy-acorn-key,2025-01-25 19:00:45.211,312.0,2025-01-25 19:00:52.790,450,f,key,acorn,acorn,look_at,easy,2,3.1567480000000003,4.136068,0.176,10,39 weeks,en,,1
+0,TUFKTQ,easy-cheese-mud,2025-01-25 19:00:54.715,225.0,2025-01-25 19:01:02.198,450,f,mud,cheese,cheese,see,easy,2,3.1487480000000003,4.128068000000001,0.168,11,39 weeks,en,,2
+0,dKKWAR,easy-snail-cow-distractor,2025-01-23 19:26:17.625,1.0,2025-01-23 19:26:24.976,450,m,snail,cow,cow,look_at,easy-distractor,2,3.1607480000000003,4.040907000000001,0.18,11,40 or more weeks,en,,2
+0,CKRG26,easy-cheese-mud-distractor,2025-01-26 01:29:37.556,359.0,2025-01-26 01:29:45.357,630,f,mud,cheese,mud,find,easy-distractor,2,3.125748,4.0059070000000006,0.145,11,40 or more weeks,en,,2
+0,XMJ25D,easy-acorn-key-distractor,2025-01-23 19:44:32.635,3.0,2025-01-23 19:44:39.913,690,m,key,acorn,key,where,easy-distractor,2,3.275748,4.155907,0.295,11,39 weeks,en,,2
+0,GNXMNQ,hard-snail-worm,2025-01-24 00:43:59.492,53.0,2025-01-24 00:44:06.800,660,m,snail,worm,snail,find,hard,2,3.1087480000000003,3.988907,0.128,11,37 weeks,en te ur,,2
+0,d4HUR3,easy-cheese-mud,2025-01-24 02:47:31.647,400.0,2025-01-24 02:47:39.291,480,f,cheese,mud,cheese,look_at,easy,2,3.146748,4.126068,0.166,11,39 weeks,en,,2
+0,6THVBG,easy-turkey-swan,2025-01-12 15:18:01.039,172.0,2025-01-12 15:18:08.454,510,f,swan,turkey,turkey,see,easy,2,3.2257480000000003,4.205068000000001,0.245,11,39 weeks,en,,2
+0,UUQJAd,easy-turtle-horse,2025-01-24 13:26:50.440,252.0,2025-01-24 13:26:57.927,570,f,horse,turtle,turtle,look_at,easy,2,3.231748,4.211068,0.251,11,38 weeks,en fr,,2
+0,NPV5EF,easy-turtle-horse-distractor,2025-01-23 18:00:31.253,1.0,2025-01-23 18:00:38.514,570,m,horse,turtle,horse,see,easy-distractor,2,3.175748,4.055907,0.195,11,39 weeks,en hak cmn ru,,2
+0,5QCS4M,hard-turtle-frog,2025-01-25 20:48:02.615,207.0,2025-01-25 20:48:10.076,750,f,turtle,frog,turtle,see,hard,2,3.2497480000000003,4.229068,0.269,11,39 weeks,en ko,,2
+0,QWGKVS,hard-acorn-coconut,2025-01-24 16:54:14.704,32.0,2025-01-24 16:54:22.008,750,m,acorn,coconut,acorn,where,hard,2,3.1567480000000003,4.136068,0.176,11,39 weeks,en,,2
+0,QGTESM,easy-cheese-mud-distractor,2025-01-25 17:25:15.722,13.0,2025-01-25 17:25:23.074,630,m,mud,cheese,mud,look_at,easy-distractor,2,3.135748,4.015907,0.155,11,39 weeks,en,,2
+0,FHRCdd,hard-potato-pot-distractor,2025-01-24 17:27:59.282,135.0,2025-01-24 17:28:06.695,540,m,pot,potato,pot,see,hard-distractor,2,3.238748,4.118907,0.258,11,39 weeks,en ur,,2
+0,UQBHFH,easy-potato-glasses,2025-01-24 14:10:14.956,102.0,2025-01-24 14:10:22.294,510,f,glasses,potato,potato,see,easy,2,3.222748,4.345515000000001,0.242,11,40 or more weeks,en fr es,,2
+0,5QCS4M,easy-cheese-mud-distractor,2025-01-25 20:48:13.455,158.0,2025-01-25 20:48:20.866,750,f,cheese,mud,mud,look_at,easy-distractor,2,3.135748,4.015907,0.155,12,39 weeks,en ko,,3
+0,NPV5EF,hard-bulldozer-tractor-distractor,2025-01-23 18:00:40.706,4.0,2025-01-23 18:00:47.973,570,m,bulldozer,tractor,tractor,find,hard-distractor,2,3.1647480000000003,4.144068000000001,0.184,12,39 weeks,en hak cmn ru,,3
+0,dKKWAR,hard-turtle-frog,2025-01-23 19:26:27.466,3.0,2025-01-23 19:26:34.815,450,m,frog,turtle,turtle,see,hard,2,3.2497480000000003,4.229068,0.269,12,40 or more weeks,en,,3
+0,QGTESM,hard-acorn-coconut-distractor,2025-01-25 17:25:25.695,8.0,2025-01-25 17:25:33.109,630,m,acorn,coconut,coconut,where,hard-distractor,2,3.271748,4.394515,0.291,12,39 weeks,en,,3
+0,FHRCdd,easy-acorn-key-distractor,2025-01-24 17:28:11.466,184.0,2025-01-24 17:28:18.895,540,m,key,acorn,key,look_at,easy-distractor,2,3.275748,4.155907,0.295,12,39 weeks,en ur,,3
+0,TUFKTQ,easy-snail-cow-distractor,2025-01-25 19:01:04.456,196.0,2025-01-25 19:01:11.926,450,f,cow,snail,cow,where,easy-distractor,2,3.1607480000000003,4.040907000000001,0.18,12,39 weeks,en,,3
+0,GNXMNQ,easy-acorn-key-distractor,2025-01-24 00:44:08.017,47.0,2025-01-24 00:44:15.320,660,m,acorn,key,key,where,easy-distractor,2,3.275748,4.155907,0.295,12,37 weeks,en te ur,,3
+0,CKRG26,hard-turtle-frog,2025-01-26 01:29:47.435,150.0,2025-01-26 01:29:54.989,630,f,frog,turtle,turtle,where,hard,2,3.231748,4.211068,0.251,12,40 or more weeks,en,,3
+0,d4HUR3,easy-acorn-key,2025-01-24 02:47:40.681,392.0,2025-01-24 02:47:48.332,480,f,acorn,key,acorn,see,easy,2,3.216748,4.196068,0.236,12,39 weeks,en,,3
+0,QWGKVS,easy-snail-cow-distractor,2025-01-24 16:54:22.812,89.0,2025-01-24 16:54:30.168,750,m,snail,cow,cow,see,easy-distractor,2,3.1847480000000004,4.064907000000001,0.204,12,39 weeks,en,,3
+0,UUQJAd,hard-potato-pot-distractor,2025-01-24 13:26:59.744,239.0,2025-01-24 13:27:07.257,570,f,pot,potato,pot,where,hard-distractor,2,3.308748,4.188907,0.328,12,38 weeks,en fr,,3
+0,XMJ25D,hard-turtle-frog-distractor,2025-01-23 19:44:41.697,21.0,2025-01-23 19:44:48.994,690,m,turtle,frog,frog,find,hard-distractor,2,3.127748,4.007907,0.147,12,39 weeks,en,,3
+0,UQBHFH,easy-turkey-swan-distractor,2025-01-24 14:10:24.128,55.0,2025-01-24 14:10:31.420,510,f,swan,turkey,swan,find,easy-distractor,2,3.110748,3.990907,0.13,12,40 or more weeks,en fr es,,3
+0,6THVBG,easy-snail-cow,2025-01-12 15:18:10.756,208.0,2025-01-12 15:18:18.225,510,f,snail,cow,snail,where,easy,2,3.1367480000000003,4.016907000000001,0.156,12,39 weeks,en,,3
+0,NPV5EF,easy-turkey-swan,2025-01-23 18:00:50.402,4.0,2025-01-23 18:00:57.673,570,m,swan,turkey,turkey,where,easy,2,3.224748,4.2040679999999995,0.244,13,39 weeks,en hak cmn ru,,4
+0,d4HUR3,hard-potato-pot,2025-01-24 02:47:49.528,311.0,2025-01-24 02:47:57.089,480,f,potato,pot,potato,find,hard,2,3.222748,4.345515000000001,0.242,13,39 weeks,en,,4
+0,UQBHFH,hard-bulldozer-tractor-distractor,2025-01-24 14:10:33.093,86.0,2025-01-24 14:10:40.425,510,f,bulldozer,tractor,tractor,where,hard-distractor,2,3.1727480000000003,4.152068,0.192,13,40 or more weeks,en fr es,,4
+0,5QCS4M,easy-squirrel-eagle,2025-01-25 20:48:24.340,152.0,2025-01-25 20:48:31.746,750,f,eagle,squirrel,squirrel,find,easy,2,3.127748,4.107068,0.147,13,39 weeks,en ko,,4
+0,XMJ25D,easy-bulldozer-orange-distractor,2025-01-23 19:44:50.903,86.0,2025-01-23 19:44:58.274,690,m,bulldozer,orange,orange,see,easy-distractor,2,3.1967480000000004,4.176068000000001,0.216,13,39 weeks,en,,4
+0,6THVBG,easy-turtle-horse-distractor,2025-01-12 15:18:20.439,88.0,2025-01-12 15:18:27.785,510,f,turtle,horse,horse,look_at,easy-distractor,2,3.149748,4.029907000000001,0.169,13,39 weeks,en,,4
+0,QGTESM,easy-snail-cow-distractor,2025-01-25 17:25:35.003,77.0,2025-01-25 17:25:42.486,630,m,cow,snail,cow,find,easy-distractor,2,3.1847480000000004,4.064907000000001,0.204,13,39 weeks,en,,4
+0,QWGKVS,easy-turkey-swan-distractor,2025-01-24 16:54:31.095,7.0,2025-01-24 16:54:38.388,750,m,turkey,swan,swan,find,easy-distractor,2,3.110748,3.990907,0.13,13,39 weeks,en,,4
+0,FHRCdd,hard-turtle-frog,2025-01-24 17:28:23.913,243.0,2025-01-24 17:28:31.395,540,m,frog,turtle,turtle,where,hard,2,3.231748,4.211068,0.251,13,39 weeks,en ur,,4
+0,GNXMNQ,hard-turtle-frog-distractor,2025-01-24 00:44:16.390,30.0,2025-01-24 00:44:23.660,660,m,turtle,frog,frog,look_at,hard-distractor,2,3.182748,4.062907,0.202,13,37 weeks,en te ur,,4
+0,CKRG26,hard-potato-pot,2025-01-26 01:29:57.204,86.0,2025-01-26 01:30:04.650,630,f,potato,pot,potato,look_at,hard,2,3.210748,4.333515,0.23,13,40 or more weeks,en,,4
+0,TUFKTQ,easy-turtle-horse-distractor,2025-01-25 19:01:14.561,222.0,2025-01-25 19:01:22.038,450,f,turtle,horse,horse,find,easy-distractor,2,3.175748,4.055907,0.195,13,39 weeks,en,,4
+0,UUQJAd,easy-cheese-mud,2025-01-24 13:27:09.398,168.0,2025-01-24 13:27:16.807,570,f,mud,cheese,cheese,see,easy,2,3.1487480000000003,4.128068000000001,0.168,13,38 weeks,en fr,,4
+0,dKKWAR,hard-squirrel-monkey-distractor,2025-01-23 19:26:37.204,2.0,2025-01-23 19:26:44.535,450,m,monkey,squirrel,monkey,where,hard-distractor,2,3.114748,4.094068,0.134,13,40 or more weeks,en,,4
+0,QWGKVS,hard-cheese-butter-distractor,2025-01-24 16:54:44.821,60.0,2025-01-24 16:54:52.168,750,m,butter,cheese,butter,where,hard-distractor,2,3.2607480000000004,4.240068000000001,0.28,15,39 weeks,en,,5
+0,dKKWAR,easy-acorn-key-distractor,2025-01-23 19:26:52.116,4.0,2025-01-23 19:26:59.724,450,m,acorn,key,key,find,easy-distractor,2,3.2817480000000003,4.161907,0.301,15,40 or more weeks,en,,5
+0,FHRCdd,easy-turkey-swan,2025-01-24 17:28:40.100,94.0,2025-01-24 17:28:47.455,540,m,turkey,swan,turkey,look_at,easy,2,3.224748,4.2040679999999995,0.244,15,39 weeks,en ur,,5
+0,5QCS4M,easy-snail-cow-distractor,2025-01-25 20:48:40.908,110.0,2025-01-25 20:48:48.306,750,f,snail,cow,cow,where,easy-distractor,2,3.1607480000000003,4.040907000000001,0.18,15,39 weeks,en ko,,5
+0,TUFKTQ,easy-bulldozer-orange-distractor,2025-01-25 19:01:29.356,192.0,2025-01-25 19:01:36.823,450,f,orange,bulldozer,orange,see,easy-distractor,2,3.1967480000000004,4.176068000000001,0.216,15,39 weeks,en,,5
+0,6THVBG,hard-acorn-coconut-distractor,2025-01-12 15:18:41.054,3.0,2025-01-12 15:18:48.284,510,f,acorn,coconut,coconut,see,hard-distractor,2,3.258748,4.381515,0.278,15,39 weeks,en,,5
+0,UUQJAd,hard-snail-worm,2025-01-24 13:27:23.739,174.0,2025-01-24 13:27:31.147,570,f,worm,snail,snail,look_at,hard,2,3.1367480000000003,4.016907000000001,0.156,15,38 weeks,en fr,,5
+0,CKRG26,easy-squirrel-eagle,2025-01-26 01:30:13.635,182.0,2025-01-26 01:30:21.188,630,f,squirrel,eagle,squirrel,where,easy,2,3.090748,4.070068,0.11,15,40 or more weeks,en,,5
+0,GNXMNQ,easy-bulldozer-orange,2025-01-24 00:44:31.392,58.0,2025-01-24 00:44:38.700,660,m,bulldozer,orange,bulldozer,look_at,easy,2,3.210748,4.333515,0.23,15,37 weeks,en te ur,,5
+0,d4HUR3,hard-bulldozer-tractor,2025-01-24 02:48:04.014,282.0,2025-01-24 02:48:11.587,480,f,tractor,bulldozer,bulldozer,find,hard,2,3.163748,4.286515,0.183,15,39 weeks,en,,5
+0,XMJ25D,easy-snail-cow,2025-01-23 19:45:05.384,24.0,2025-01-23 19:45:12.675,690,m,cow,snail,snail,see,easy,2,3.1087480000000003,3.988907,0.128,15,39 weeks,en,,5
+0,UQBHFH,hard-cheese-butter-distractor,2025-01-24 14:10:48.300,64.0,2025-01-24 14:10:55.658,510,f,cheese,butter,butter,look_at,hard-distractor,2,3.2607480000000004,4.240068000000001,0.28,15,40 or more weeks,en fr es,,5
+0,NPV5EF,easy-cheese-mud,2025-01-23 18:01:05.468,2.0,2025-01-23 18:01:12.734,570,m,cheese,mud,cheese,see,easy,2,3.1487480000000003,4.128068000000001,0.168,15,39 weeks,en hak cmn ru,,5
+0,QGTESM,easy-turtle-horse,2025-01-25 17:25:50.866,13.0,2025-01-25 17:25:58.282,630,m,horse,turtle,turtle,look_at,easy,2,3.231748,4.211068,0.251,15,39 weeks,en,,5
+0,CKRG26,hard-turkey-goat,2025-01-26 01:30:23.486,363.0,2025-01-26 01:30:26.917,630,f,turkey,goat,turkey,find,hard,2,3.2257480000000003,4.205068000000001,0.245,16,40 or more weeks,en,,6
+0,UUQJAd,easy-squirrel-eagle,2025-01-24 13:27:33.137,158.0,2025-01-24 13:27:40.538,570,f,squirrel,eagle,squirrel,find,easy,2,3.127748,4.107068,0.147,16,38 weeks,en fr,,6
+0,XMJ25D,easy-potato-glasses-distractor,2025-01-23 19:45:14.578,44.0,2025-01-23 19:45:21.875,690,m,glasses,potato,glasses,look_at,easy-distractor,2,3.1207480000000003,4.100068,0.14,16,39 weeks,en,,6
+0,5QCS4M,easy-acorn-key-distractor,2025-01-25 20:48:51.855,151.0,2025-01-25 20:48:59.266,750,f,key,acorn,key,see,easy-distractor,2,3.2817480000000003,4.161907,0.301,16,39 weeks,en ko,,6
+0,QGTESM,hard-turkey-goat-distractor,2025-01-25 17:26:00.073,12.0,2025-01-25 17:26:07.471,630,m,turkey,goat,goat,see,hard-distractor,2,3.167748,4.047907,0.187,16,39 weeks,en,,6
+0,FHRCdd,hard-squirrel-monkey,2025-01-24 17:28:50.320,185.0,2025-01-24 17:28:57.765,540,m,squirrel,monkey,squirrel,find,hard,2,3.127748,4.107068,0.147,16,39 weeks,en ur,,6
+0,GNXMNQ,hard-turkey-goat-distractor,2025-01-24 00:44:39.922,46.0,2025-01-24 00:44:47.240,660,m,goat,turkey,goat,where,hard-distractor,2,3.183748,4.063907,0.203,16,37 weeks,en te ur,,6
+0,TUFKTQ,easy-squirrel-eagle,2025-01-25 19:01:39.978,220.0,2025-01-25 19:01:47.468,450,f,squirrel,eagle,squirrel,look_at,easy,2,3.090748,4.070068,0.11,16,39 weeks,en,,6
+0,QWGKVS,hard-potato-pot,2025-01-24 16:54:52.941,62.0,2025-01-24 16:55:00.269,750,m,pot,potato,potato,look_at,hard,2,3.210748,4.333515,0.23,16,39 weeks,en,,6
+0,6THVBG,hard-potato-pot,2025-01-12 15:18:49.267,144.0,2025-01-12 15:18:56.643,510,f,potato,pot,potato,find,hard,2,3.222748,4.345515000000001,0.242,16,39 weeks,en,,6
+0,UQBHFH,easy-squirrel-eagle-distractor,2025-01-24 14:10:57.674,77.0,2025-01-24 14:11:05.010,510,f,eagle,squirrel,eagle,where,easy-distractor,2,3.303748,4.283068,0.323,16,40 or more weeks,en fr es,,6
+0,d4HUR3,hard-snail-worm,2025-01-24 02:48:12.859,312.0,2025-01-24 02:48:20.427,480,f,worm,snail,snail,see,hard,2,3.1087480000000003,3.988907,0.128,16,39 weeks,en,,6
+0,NPV5EF,hard-squirrel-monkey,2025-01-23 18:01:14.877,3.0,2025-01-23 18:01:22.154,570,m,monkey,squirrel,squirrel,look_at,hard,2,3.090748,4.070068,0.11,16,39 weeks,en hak cmn ru,,6
+0,dKKWAR,hard-cheese-butter-distractor,2025-01-23 19:27:02.031,3.0,2025-01-23 19:27:09.594,450,m,cheese,butter,butter,where,hard-distractor,2,3.2607480000000004,4.240068000000001,0.28,16,40 or more weeks,en,,6
+0,UQBHFH,hard-turtle-frog-distractor,2025-01-24 14:11:08.686,77.0,2025-01-24 14:11:16.047,510,f,frog,turtle,frog,see,hard-distractor,2,3.127748,4.007907,0.147,17,40 or more weeks,en fr es,,7
+0,QGTESM,hard-bulldozer-tractor-distractor,2025-01-25 17:26:09.590,10.0,2025-01-25 17:26:16.944,630,m,tractor,bulldozer,tractor,find,hard-distractor,2,3.1647480000000003,4.144068000000001,0.184,17,39 weeks,en,,7
+0,dKKWAR,hard-bulldozer-tractor-distractor,2025-01-23 19:27:11.950,1.0,2025-01-23 19:27:19.537,450,m,bulldozer,tractor,tractor,look_at,hard-distractor,2,3.1727480000000003,4.152068,0.192,17,40 or more weeks,en,,7
+0,5QCS4M,hard-potato-pot-distractor,2025-01-25 20:49:02.720,179.0,2025-01-25 20:49:10.176,750,f,potato,pot,pot,find,hard-distractor,2,3.238748,4.118907,0.258,17,39 weeks,en ko,,7
+0,QWGKVS,easy-squirrel-eagle,2025-01-24 16:55:02.404,311.0,2025-01-24 16:55:09.988,750,m,squirrel,eagle,squirrel,see,easy,2,3.127748,4.107068,0.147,17,39 weeks,en,,7
+0,UUQJAd,easy-bulldozer-orange-distractor,2025-01-24 13:27:42.506,312.0,2025-01-24 13:27:50.068,570,f,bulldozer,orange,orange,where,easy-distractor,2,3.175748,4.155068,0.195,17,38 weeks,en fr,,7
+0,XMJ25D,hard-cheese-butter,2025-01-23 19:45:23.970,92.0,2025-01-23 19:45:31.315,690,m,butter,cheese,cheese,where,hard,2,3.146748,4.126068,0.166,17,39 weeks,en,,7
+0,NPV5EF,hard-potato-pot,2025-01-23 18:01:24.639,4.0,2025-01-23 18:01:31.913,570,m,pot,potato,potato,find,hard,2,3.222748,4.345515000000001,0.242,17,39 weeks,en hak cmn ru,,7
+0,TUFKTQ,hard-turkey-goat,2025-01-25 19:01:49.151,208.0,2025-01-25 19:01:56.619,450,f,goat,turkey,turkey,where,hard,2,3.224748,4.2040679999999995,0.244,17,39 weeks,en,,7
+0,CKRG26,easy-acorn-key,2025-01-26 01:30:35.519,231.0,2025-01-26 01:30:43.106,630,f,acorn,key,acorn,see,easy,2,3.216748,4.196068,0.236,17,40 or more weeks,en,,7
+0,GNXMNQ,easy-squirrel-eagle,2025-01-24 00:44:48.323,78.0,2025-01-24 00:44:55.660,660,m,eagle,squirrel,squirrel,see,easy,2,3.127748,4.107068,0.147,17,37 weeks,en te ur,,7
+0,FHRCdd,easy-bulldozer-orange-distractor,2025-01-24 17:29:01.465,161.0,2025-01-24 17:29:08.895,540,m,orange,bulldozer,orange,see,easy-distractor,2,3.1967480000000004,4.176068000000001,0.216,17,39 weeks,en ur,,7
+0,6THVBG,hard-squirrel-monkey-distractor,2025-01-12 15:18:57.605,68.0,2025-01-12 15:19:04.924,510,f,squirrel,monkey,monkey,look_at,hard-distractor,2,3.114748,4.094068,0.134,17,39 weeks,en,,7
+0,d4HUR3,easy-squirrel-eagle,2025-01-24 02:48:21.568,317.0,2025-01-24 02:48:29.130,480,f,eagle,squirrel,squirrel,where,easy,2,3.090748,4.070068,0.11,17,39 weeks,en,,7
+0,XMJ25D,easy-squirrel-eagle,2025-01-23 19:45:33.259,3.0,2025-01-23 19:45:40.535,690,m,eagle,squirrel,squirrel,find,easy,2,3.127748,4.107068,0.147,18,39 weeks,en,,8
+0,UUQJAd,easy-turkey-swan,2025-01-24 13:27:52.006,172.0,2025-01-24 13:27:59.438,570,f,swan,turkey,turkey,see,easy,2,3.2257480000000003,4.205068000000001,0.245,18,38 weeks,en fr,,8
+0,NPV5EF,easy-snail-cow-distractor,2025-01-23 18:01:34.273,3.0,2025-01-23 18:01:41.533,570,m,snail,cow,cow,where,easy-distractor,2,3.1607480000000003,4.040907000000001,0.18,18,39 weeks,en hak cmn ru,,8
+0,UQBHFH,easy-acorn-key,2025-01-24 14:11:17.591,64.0,2025-01-24 14:11:24.890,510,f,key,acorn,acorn,find,easy,2,3.216748,4.196068,0.236,18,40 or more weeks,en fr es,,8
+0,d4HUR3,hard-turkey-goat-distractor,2025-01-24 02:48:30.123,382.0,2025-01-24 02:48:37.767,480,f,goat,turkey,goat,look_at,hard-distractor,2,3.183748,4.063907,0.203,18,39 weeks,en,,8
+0,GNXMNQ,hard-cheese-butter-distractor,2025-01-24 00:44:56.886,22.0,2025-01-24 00:45:04.180,660,m,cheese,butter,butter,find,hard-distractor,2,3.234748,4.214068,0.254,18,37 weeks,en te ur,,8
+0,TUFKTQ,hard-potato-pot,2025-01-25 19:01:57.990,221.0,2025-01-25 19:02:05.473,450,f,pot,potato,potato,find,hard,2,3.222748,4.345515000000001,0.242,18,39 weeks,en,,8
+0,6THVBG,hard-bulldozer-tractor-distractor,2025-01-12 15:19:12.436,205.0,2025-01-12 15:19:19.913,510,f,bulldozer,tractor,tractor,where,hard-distractor,2,3.1727480000000003,4.152068,0.192,18,39 weeks,en,,8
+0,FHRCdd,easy-snail-cow-distractor,2025-01-24 17:29:13.188,208.0,2025-01-24 17:29:20.635,540,m,cow,snail,cow,where,easy-distractor,2,3.1607480000000003,4.040907000000001,0.18,18,39 weeks,en ur,,8
+0,CKRG26,easy-snail-cow-distractor,2025-01-26 01:30:45.564,381.0,2025-01-26 01:30:53.329,630,f,snail,cow,cow,look_at,easy-distractor,2,3.1607480000000003,4.040907000000001,0.18,18,40 or more weeks,en,,8
+0,dKKWAR,hard-potato-pot-distractor,2025-01-23 19:27:21.977,3.0,2025-01-23 19:27:29.533,450,m,potato,pot,pot,see,hard-distractor,2,3.238748,4.118907,0.258,18,40 or more weeks,en,,8
+0,5QCS4M,hard-bulldozer-tractor,2025-01-25 20:49:13.549,157.0,2025-01-25 20:49:20.966,750,f,bulldozer,tractor,bulldozer,look_at,hard,2,3.210748,4.333515,0.23,18,39 weeks,en ko,,8
+0,QGTESM,hard-potato-pot,2025-01-25 17:26:19.262,12.0,2025-01-25 17:26:26.711,630,m,potato,pot,potato,where,hard,2,3.210748,4.333515,0.23,18,39 weeks,en,,8
+0,QWGKVS,hard-bulldozer-tractor,2025-01-24 16:55:10.825,72.0,2025-01-24 16:55:18.168,750,m,bulldozer,tractor,bulldozer,find,hard,2,3.163748,4.286515,0.183,18,39 weeks,en,,8
+0,NPV5EF,hard-turkey-goat,2025-01-23 18:01:49.261,3.0,2025-01-23 18:01:56.534,570,m,goat,turkey,turkey,see,hard,2,3.2257480000000003,4.205068000000001,0.245,20,39 weeks,en hak cmn ru,,9
+0,TUFKTQ,hard-cheese-butter,2025-01-25 19:02:12.724,219.0,2025-01-25 19:02:20.235,450,f,butter,cheese,cheese,find,hard,2,3.1487480000000003,4.128068000000001,0.168,20,39 weeks,en,,9
+0,CKRG26,easy-potato-glasses,2025-01-26 01:31:02.414,221.0,2025-01-26 01:31:10.046,630,f,potato,glasses,potato,find,easy,2,3.222748,4.345515000000001,0.242,20,40 or more weeks,en,,9
+0,UUQJAd,hard-turtle-frog-distractor,2025-01-24 13:28:07.083,168.0,2025-01-24 13:28:14.498,570,f,frog,turtle,frog,see,hard-distractor,2,3.127748,4.007907,0.147,20,38 weeks,en fr,,9
+0,FHRCdd,hard-turkey-goat,2025-01-24 17:29:30.652,132.0,2025-01-24 17:29:38.004,540,m,turkey,goat,turkey,see,hard,2,3.2257480000000003,4.205068000000001,0.245,20,39 weeks,en ur,,9
+0,QGTESM,hard-cheese-butter,2025-01-25 17:26:34.083,11.0,2025-01-25 17:26:41.464,630,m,butter,cheese,cheese,look_at,hard,2,3.146748,4.126068,0.166,20,39 weeks,en,,9
+0,XMJ25D,hard-acorn-coconut-distractor,2025-01-23 19:45:48.167,18.0,2025-01-23 19:45:55.456,690,m,acorn,coconut,coconut,look_at,hard-distractor,2,3.271748,4.394515,0.291,20,39 weeks,en,,9
+0,QWGKVS,hard-turtle-frog,2025-01-24 16:55:24.533,2.0,2025-01-24 16:55:31.808,750,m,turtle,frog,turtle,where,hard,2,3.231748,4.211068,0.251,20,39 weeks,en,,9
+0,dKKWAR,easy-turtle-horse,2025-01-23 19:27:37.271,1.0,2025-01-23 19:27:44.644,450,m,turtle,horse,turtle,where,easy,2,3.231748,4.211068,0.251,20,40 or more weeks,en,,9
+0,d4HUR3,hard-turtle-frog,2025-01-24 02:48:44.891,310.0,2025-01-24 02:48:52.454,480,f,frog,turtle,turtle,look_at,hard,2,3.231748,4.211068,0.251,20,39 weeks,en,,9
+0,5QCS4M,hard-turkey-goat-distractor,2025-01-25 20:49:29.873,120.0,2025-01-25 20:49:37.266,750,f,turkey,goat,goat,where,hard-distractor,2,3.183748,4.063907,0.203,20,39 weeks,en ko,,9
+0,GNXMNQ,hard-squirrel-monkey-distractor,2025-01-24 00:45:10.766,65.0,2025-01-24 00:45:18.080,660,m,squirrel,monkey,monkey,where,hard-distractor,2,3.114748,4.094068,0.134,20,37 weeks,en te ur,,9
+0,UQBHFH,hard-turkey-goat,2025-01-24 14:11:32.715,29.0,2025-01-24 14:11:40.009,510,f,goat,turkey,turkey,look_at,hard,2,3.224748,4.2040679999999995,0.244,20,40 or more weeks,en fr es,,9
+0,6THVBG,hard-turkey-goat,2025-01-12 15:19:27.958,4.0,2025-01-12 15:19:35.212,510,f,goat,turkey,turkey,find,hard,2,3.2257480000000003,4.205068000000001,0.245,20,39 weeks,en,,9
+0,FHRCdd,easy-potato-glasses,2025-01-24 17:29:43.025,165.0,2025-01-24 17:29:50.454,540,m,potato,glasses,potato,find,easy,2,3.222748,4.345515000000001,0.242,21,39 weeks,en ur,,10
+0,d4HUR3,easy-turkey-swan-distractor,2025-01-24 02:48:53.590,283.0,2025-01-24 02:49:01.128,480,f,swan,turkey,swan,where,easy-distractor,2,3.145748,4.025907,0.165,21,39 weeks,en,,10
+0,CKRG26,hard-snail-worm-distractor,2025-01-26 01:31:12.390,76.0,2025-01-26 01:31:19.896,630,f,snail,worm,worm,look_at,hard-distractor,2,3.1197480000000004,3.9999070000000003,0.139,21,40 or more weeks,en,,10
+0,XMJ25D,hard-bulldozer-tractor,2025-01-23 19:45:57.330,16.0,2025-01-23 19:46:04.636,690,m,tractor,bulldozer,bulldozer,see,hard,2,3.163748,4.286515,0.183,21,39 weeks,en,,10
+0,6THVBG,easy-acorn-key,2025-01-12 15:19:37.543,72.0,2025-01-12 15:19:44.872,510,f,key,acorn,acorn,see,easy,2,3.216748,4.196068,0.236,21,39 weeks,en,,10
+0,QGTESM,hard-turtle-frog-distractor,2025-01-25 17:26:44.295,9.0,2025-01-25 17:26:51.682,630,m,frog,turtle,frog,see,hard-distractor,2,3.127748,4.007907,0.147,21,39 weeks,en,,10
+0,dKKWAR,easy-turkey-swan-distractor,2025-01-23 19:27:46.962,3.0,2025-01-23 19:27:54.304,450,m,swan,turkey,swan,find,easy-distractor,2,3.110748,3.990907,0.13,21,40 or more weeks,en,,10
+0,UUQJAd,easy-potato-glasses,2025-01-24 13:28:16.129,161.0,2025-01-24 13:28:23.568,570,f,glasses,potato,potato,where,easy,2,3.210748,4.333515,0.23,21,38 weeks,en fr,,10
+0,TUFKTQ,hard-snail-worm,2025-01-25 19:02:22.103,188.0,2025-01-25 19:02:29.580,450,f,worm,snail,snail,see,hard,2,3.1087480000000003,3.988907,0.128,21,39 weeks,en,,10
+0,QWGKVS,easy-potato-glasses,2025-01-24 16:55:32.687,2.0,2025-01-24 16:55:39.968,750,m,potato,glasses,potato,find,easy,2,3.222748,4.345515000000001,0.242,21,39 weeks,en,,10
+0,UQBHFH,hard-squirrel-monkey,2025-01-24 14:11:41.900,65.0,2025-01-24 14:11:49.209,510,f,monkey,squirrel,squirrel,find,hard,2,3.127748,4.107068,0.147,21,40 or more weeks,en fr es,,10
+0,5QCS4M,hard-acorn-coconut-distractor,2025-01-25 20:49:40.734,183.0,2025-01-25 20:49:48.186,750,f,acorn,coconut,coconut,see,hard-distractor,2,3.258748,4.381515,0.278,21,39 weeks,en ko,,10
+0,NPV5EF,hard-acorn-coconut,2025-01-23 18:01:58.884,6.0,2025-01-23 18:02:06.174,570,m,acorn,coconut,acorn,look_at,hard,2,3.1567480000000003,4.136068,0.176,21,39 weeks,en hak cmn ru,,10
+0,GNXMNQ,easy-snail-cow-distractor,2025-01-24 00:45:19.225,77.0,2025-01-24 00:45:26.560,660,m,snail,cow,cow,look_at,easy-distractor,2,3.1607480000000003,4.040907000000001,0.18,21,37 weeks,en te ur,,10
+0,GNXMNQ,hard-potato-pot-distractor,2025-01-24 00:45:27.655,42.0,2025-01-24 00:45:34.960,660,m,potato,pot,pot,find,hard-distractor,2,3.238748,4.118907,0.258,22,37 weeks,en te ur,,11
+0,TUFKTQ,hard-bulldozer-tractor,2025-01-25 19:02:30.741,205.0,2025-01-25 19:02:38.219,450,f,tractor,bulldozer,bulldozer,look_at,hard,2,3.210748,4.333515,0.23,22,39 weeks,en,,11
+0,FHRCdd,easy-cheese-mud,2025-01-24 17:29:55.366,193.0,2025-01-24 17:30:02.814,540,m,mud,cheese,cheese,look_at,easy,2,3.146748,4.126068,0.166,22,39 weeks,en ur,,11
+0,NPV5EF,easy-bulldozer-orange,2025-01-23 18:02:08.387,5.0,2025-01-23 18:02:15.654,570,m,bulldozer,orange,bulldozer,where,easy,2,3.210748,4.333515,0.23,22,39 weeks,en hak cmn ru,,11
+0,5QCS4M,easy-bulldozer-orange,2025-01-25 20:49:51.816,8.0,2025-01-25 20:49:59.086,750,f,orange,bulldozer,bulldozer,find,easy,2,3.163748,4.286515,0.183,22,39 weeks,en ko,,11
+0,dKKWAR,easy-cheese-mud-distractor,2025-01-23 19:27:56.559,1.0,2025-01-23 19:28:03.904,450,m,mud,cheese,mud,look_at,easy-distractor,2,3.135748,4.015907,0.155,22,40 or more weeks,en,,11
+0,QWGKVS,hard-turkey-goat-distractor,2025-01-24 16:55:40.811,2.0,2025-01-24 16:55:48.089,750,m,turkey,goat,goat,see,hard-distractor,2,3.167748,4.047907,0.187,22,39 weeks,en,,11
+0,d4HUR3,easy-potato-glasses-distractor,2025-01-24 02:49:02.199,353.0,2025-01-24 02:49:09.810,480,f,glasses,potato,glasses,see,easy-distractor,2,3.1607480000000003,4.140068,0.18,22,39 weeks,en,,11
+0,QGTESM,easy-turkey-swan,2025-01-25 17:26:53.396,10.0,2025-01-25 17:27:00.784,630,m,turkey,swan,turkey,find,easy,2,3.2257480000000003,4.205068000000001,0.245,22,39 weeks,en,,11
+0,CKRG26,easy-bulldozer-orange,2025-01-26 01:31:22.357,280.0,2025-01-26 01:31:30.006,630,f,orange,bulldozer,bulldozer,where,easy,2,3.210748,4.333515,0.23,22,40 or more weeks,en,,11
+0,UUQJAd,hard-turkey-goat-distractor,2025-01-24 13:28:25.285,162.0,2025-01-24 13:28:32.698,570,f,turkey,goat,goat,find,hard-distractor,2,3.167748,4.047907,0.187,22,38 weeks,en fr,,11
+0,XMJ25D,easy-cheese-mud,2025-01-23 19:46:06.446,24.0,2025-01-23 19:46:13.717,690,m,mud,cheese,cheese,find,easy,2,3.1487480000000003,4.128068000000001,0.168,22,39 weeks,en,,11
+0,UQBHFH,easy-bulldozer-orange-distractor,2025-01-24 14:11:51.353,84.0,2025-01-24 14:11:58.698,510,f,orange,bulldozer,orange,where,easy-distractor,2,3.175748,4.155068,0.195,22,40 or more weeks,en fr es,,11
+0,6THVBG,hard-cheese-butter-distractor,2025-01-12 15:19:52.380,192.0,2025-01-12 15:19:59.832,510,f,butter,cheese,butter,look_at,hard-distractor,2,3.2607480000000004,4.240068000000001,0.28,22,39 weeks,en,,11
+0,d4HUR3,hard-cheese-butter-distractor,2025-01-24 02:49:10.765,316.0,2025-01-24 02:49:18.347,480,f,cheese,butter,butter,find,hard-distractor,2,3.234748,4.214068,0.254,23,39 weeks,en,,12
+0,TUFKTQ,hard-squirrel-monkey,2025-01-25 19:02:40.099,284.0,2025-01-25 19:02:47.649,450,f,squirrel,monkey,squirrel,where,hard,2,3.090748,4.070068,0.11,23,39 weeks,en,,12
+0,FHRCdd,hard-snail-worm,2025-01-24 17:30:08.802,39.0,2025-01-24 17:30:16.085,540,m,snail,worm,snail,where,hard,2,3.1367480000000003,4.016907000000001,0.156,23,39 weeks,en ur,,12
+0,6THVBG,hard-turtle-frog,2025-01-12 15:20:02.150,72.0,2025-01-12 15:20:09.473,510,f,frog,turtle,turtle,where,hard,2,3.231748,4.211068,0.251,23,39 weeks,en,,12
+0,QWGKVS,easy-bulldozer-orange,2025-01-24 16:55:48.909,45.0,2025-01-24 16:55:56.228,750,m,bulldozer,orange,bulldozer,look_at,easy,2,3.210748,4.333515,0.23,23,39 weeks,en,,12
+0,UQBHFH,easy-turtle-horse,2025-01-24 14:12:00.354,49.0,2025-01-24 14:12:07.678,510,f,horse,turtle,turtle,see,easy,2,3.2497480000000003,4.229068,0.269,23,40 or more weeks,en fr es,,12
+0,5QCS4M,hard-snail-worm-distractor,2025-01-25 20:50:02.459,164.0,2025-01-25 20:50:09.887,750,f,snail,worm,worm,look_at,hard-distractor,2,3.1197480000000004,3.9999070000000003,0.139,23,39 weeks,en ko,,12
+0,QGTESM,easy-bulldozer-orange-distractor,2025-01-25 17:27:02.740,16.0,2025-01-25 17:27:10.165,630,m,orange,bulldozer,orange,where,easy-distractor,2,3.175748,4.155068,0.195,23,39 weeks,en,,12
+0,UUQJAd,hard-bulldozer-tractor-distractor,2025-01-24 13:28:34.347,181.0,2025-01-24 13:28:41.808,570,f,tractor,bulldozer,tractor,look_at,hard-distractor,2,3.1727480000000003,4.152068,0.192,23,38 weeks,en fr,,12
+0,NPV5EF,hard-turtle-frog-distractor,2025-01-23 18:02:18.010,6.0,2025-01-23 18:02:25.293,570,m,turtle,frog,frog,find,hard-distractor,2,3.127748,4.007907,0.147,23,39 weeks,en hak cmn ru,,12
+0,XMJ25D,hard-turkey-goat-distractor,2025-01-23 19:46:16.326,48.0,2025-01-23 19:46:23.617,690,m,goat,turkey,goat,where,hard-distractor,2,3.183748,4.063907,0.203,23,39 weeks,en,,12
+0,dKKWAR,hard-acorn-coconut-distractor,2025-01-23 19:28:06.135,3.0,2025-01-23 19:28:13.735,450,m,coconut,acorn,coconut,see,hard-distractor,2,3.258748,4.381515,0.278,23,40 or more weeks,en,,12
+0,GNXMNQ,easy-cheese-mud-distractor,2025-01-24 00:45:36.006,26.0,2025-01-24 00:45:43.280,660,m,cheese,mud,mud,see,easy-distractor,2,3.125748,4.0059070000000006,0.145,23,37 weeks,en te ur,,12
+0,CKRG26,easy-turtle-horse-distractor,2025-01-26 01:31:32.696,304.0,2025-01-26 01:31:40.420,630,f,turtle,horse,horse,see,easy-distractor,2,3.175748,4.055907,0.195,23,40 or more weeks,en,,12
+0,TUFKTQ,easy-turkey-swan,2025-01-25 19:02:54.363,233.0,2025-01-25 19:03:01.857,450,f,turkey,swan,turkey,see,easy,2,3.2257480000000003,4.205068000000001,0.245,25,39 weeks,en,,13
+0,CKRG26,hard-squirrel-monkey,2025-01-26 01:31:49.185,153.0,2025-01-26 01:31:56.756,630,f,squirrel,monkey,squirrel,see,hard,2,3.127748,4.107068,0.147,25,40 or more weeks,en,,13
+0,NPV5EF,easy-squirrel-eagle-distractor,2025-01-23 18:02:33.214,6.0,2025-01-23 18:02:40.493,570,m,squirrel,eagle,eagle,where,easy-distractor,2,3.303748,4.283068,0.323,25,39 weeks,en hak cmn ru,,13
+0,FHRCdd,easy-turtle-horse,2025-01-24 17:30:28.043,64.0,2025-01-24 17:30:35.324,540,m,turtle,horse,turtle,where,easy,2,3.231748,4.211068,0.251,25,39 weeks,en ur,,13
+0,dKKWAR,easy-bulldozer-orange-distractor,2025-01-23 19:28:21.484,3.0,2025-01-23 19:28:28.834,450,m,bulldozer,orange,orange,see,easy-distractor,2,3.1967480000000004,4.176068000000001,0.216,25,40 or more weeks,en,,13
+0,d4HUR3,easy-snail-cow-distractor,2025-01-24 02:49:25.269,291.0,2025-01-24 02:49:32.827,480,f,cow,snail,cow,where,easy-distractor,2,3.1607480000000003,4.040907000000001,0.18,25,39 weeks,en,,13
+0,QWGKVS,easy-cheese-mud-distractor,2025-01-24 16:56:02.500,7.0,2025-01-24 16:56:09.789,750,m,cheese,mud,mud,look_at,easy-distractor,2,3.135748,4.015907,0.155,25,39 weeks,en,,13
+0,6THVBG,easy-squirrel-eagle-distractor,2025-01-12 15:20:17.576,3.0,2025-01-12 15:20:24.832,510,f,eagle,squirrel,eagle,see,easy-distractor,2,3.283748,4.2630680000000005,0.303,25,39 weeks,en,,13
+0,QGTESM,easy-potato-glasses,2025-01-25 17:27:18.176,13.0,2025-01-25 17:27:25.583,630,m,glasses,potato,potato,where,easy,2,3.210748,4.333515,0.23,25,39 weeks,en,,13
+0,XMJ25D,easy-turtle-horse-distractor,2025-01-23 19:46:30.965,72.0,2025-01-23 19:46:38.317,690,m,horse,turtle,horse,find,easy-distractor,2,3.175748,4.055907,0.195,25,39 weeks,en,,13
+0,UQBHFH,hard-potato-pot,2025-01-24 14:12:14.512,92.0,2025-01-24 14:12:21.852,510,f,pot,potato,potato,look_at,hard,2,3.210748,4.333515,0.23,25,40 or more weeks,en fr es,,13
+0,5QCS4M,hard-squirrel-monkey,2025-01-25 20:50:18.980,114.0,2025-01-25 20:50:26.356,750,f,squirrel,monkey,squirrel,where,hard,2,3.090748,4.070068,0.11,25,39 weeks,en ko,,13
+0,GNXMNQ,easy-turtle-horse-distractor,2025-01-24 00:45:50.106,79.0,2025-01-24 00:45:57.441,660,m,horse,turtle,horse,where,easy-distractor,2,3.149748,4.029907000000001,0.169,25,37 weeks,en te ur,,13
+0,UUQJAd,easy-snail-cow,2025-01-24 13:28:49.321,173.0,2025-01-24 13:28:56.738,570,f,snail,cow,snail,where,easy,2,3.1367480000000003,4.016907000000001,0.156,25,38 weeks,en fr,,13
+0,XMJ25D,hard-snail-worm,2025-01-23 19:46:40.183,88.0,2025-01-23 19:46:47.518,690,m,worm,snail,snail,look_at,hard,2,3.1367480000000003,4.016907000000001,0.156,26,39 weeks,en,,14
+0,6THVBG,hard-snail-worm-distractor,2025-01-12 15:20:27.289,79.0,2025-01-12 15:20:34.602,510,f,worm,snail,worm,where,hard-distractor,2,3.1197480000000004,3.9999070000000003,0.139,26,39 weeks,en,,14
+0,QGTESM,easy-squirrel-eagle,2025-01-25 17:27:27.968,11.0,2025-01-25 17:27:35.335,630,m,eagle,squirrel,squirrel,find,easy,2,3.127748,4.107068,0.147,26,39 weeks,en,,14
+0,5QCS4M,easy-potato-glasses-distractor,2025-01-25 20:50:29.967,141.0,2025-01-25 20:50:37.386,750,f,glasses,potato,glasses,look_at,easy-distractor,2,3.1207480000000003,4.100068,0.14,26,39 weeks,en ko,,14
+0,UUQJAd,hard-squirrel-monkey-distractor,2025-01-24 13:28:58.452,174.0,2025-01-24 13:29:05.868,570,f,squirrel,monkey,monkey,see,hard-distractor,2,3.1697480000000002,4.149068,0.189,26,38 weeks,en fr,,14
+0,UQBHFH,hard-acorn-coconut,2025-01-24 14:12:23.712,52.0,2025-01-24 14:12:31.037,510,f,coconut,acorn,acorn,find,hard,2,3.216748,4.196068,0.236,26,40 or more weeks,en fr es,,14
+0,GNXMNQ,hard-acorn-coconut,2025-01-24 00:45:58.638,7.0,2025-01-24 00:46:05.920,660,m,acorn,coconut,acorn,look_at,hard,2,3.1567480000000003,4.136068,0.176,26,37 weeks,en te ur,,14
+0,CKRG26,hard-cheese-butter-distractor,2025-01-26 01:31:58.992,311.0,2025-01-26 01:32:06.704,630,f,butter,cheese,butter,look_at,hard-distractor,2,3.2607480000000004,4.240068000000001,0.28,26,40 or more weeks,en,,14
+0,NPV5EF,hard-snail-worm,2025-01-23 18:02:42.828,7.0,2025-01-23 18:02:50.113,570,m,snail,worm,snail,look_at,hard,2,3.1367480000000003,4.016907000000001,0.156,26,39 weeks,en hak cmn ru,,14
+0,FHRCdd,hard-acorn-coconut-distractor,2025-01-24 17:30:38.377,165.0,2025-01-24 17:30:45.774,540,m,acorn,coconut,coconut,see,hard-distractor,2,3.258748,4.381515,0.278,26,39 weeks,en ur,,14
+0,TUFKTQ,hard-acorn-coconut-distractor,2025-01-25 19:03:03.372,202.0,2025-01-25 19:03:10.859,450,f,acorn,coconut,coconut,find,hard-distractor,2,3.258748,4.381515,0.278,26,39 weeks,en,,14
+0,QWGKVS,hard-squirrel-monkey-distractor,2025-01-24 16:56:10.611,39.0,2025-01-24 16:56:17.908,750,m,monkey,squirrel,monkey,where,hard-distractor,2,3.114748,4.094068,0.134,26,39 weeks,en,,14
+0,d4HUR3,hard-squirrel-monkey-distractor,2025-01-24 02:49:33.978,343.0,2025-01-24 02:49:41.569,480,f,squirrel,monkey,monkey,see,hard-distractor,2,3.1697480000000002,4.149068,0.189,26,39 weeks,en,,14
+0,dKKWAR,easy-potato-glasses,2025-01-23 19:28:31.234,1.0,2025-01-23 19:28:38.615,450,m,glasses,potato,potato,look_at,easy,2,3.210748,4.333515,0.23,26,40 or more weeks,en,,14
+0,d4HUR3,easy-bulldozer-orange-distractor,2025-01-24 02:49:42.781,370.0,2025-01-24 02:49:50.408,480,f,bulldozer,orange,orange,look_at,easy-distractor,2,3.175748,4.155068,0.195,27,39 weeks,en,,15
+0,GNXMNQ,hard-bulldozer-tractor-distractor,2025-01-24 00:46:07.167,68.0,2025-01-24 00:46:14.500,660,m,bulldozer,tractor,tractor,see,hard-distractor,2,3.1647480000000003,4.144068000000001,0.184,27,37 weeks,en te ur,,15
+0,UQBHFH,easy-snail-cow-distractor,2025-01-24 14:12:32.851,87.0,2025-01-24 14:12:40.196,510,f,snail,cow,cow,where,easy-distractor,2,3.1607480000000003,4.040907000000001,0.18,27,40 or more weeks,en fr es,,15
+0,6THVBG,easy-bulldozer-orange,2025-01-12 15:20:36.861,60.0,2025-01-12 15:20:44.162,510,f,bulldozer,orange,bulldozer,look_at,easy,2,3.210748,4.333515,0.23,27,39 weeks,en,,15
+0,QGTESM,easy-acorn-key-distractor,2025-01-25 17:27:37.080,11.0,2025-01-25 17:27:44.530,630,m,acorn,key,key,look_at,easy-distractor,2,3.275748,4.155907,0.295,27,39 weeks,en,,15
+0,XMJ25D,hard-squirrel-monkey-distractor,2025-01-23 19:46:50.159,44.0,2025-01-23 19:46:57.458,690,m,monkey,squirrel,monkey,see,hard-distractor,2,3.1697480000000002,4.149068,0.189,27,39 weeks,en,,15
+0,QWGKVS,hard-snail-worm,2025-01-24 16:56:19.046,86.0,2025-01-24 16:56:26.408,750,m,worm,snail,snail,find,hard,2,3.1087480000000003,3.988907,0.128,27,39 weeks,en,,15
+0,TUFKTQ,hard-turtle-frog-distractor,2025-01-25 19:03:12.554,208.0,2025-01-25 19:03:20.033,450,f,frog,turtle,frog,where,hard-distractor,2,3.182748,4.062907,0.202,27,39 weeks,en,,15
+0,FHRCdd,hard-bulldozer-tractor-distractor,2025-01-24 17:30:48.892,192.0,2025-01-24 17:30:56.334,540,m,tractor,bulldozer,tractor,find,hard-distractor,2,3.1647480000000003,4.144068000000001,0.184,27,39 weeks,en ur,,15
+0,5QCS4M,easy-turtle-horse,2025-01-25 20:50:40.786,161.0,2025-01-25 20:50:48.196,750,f,turtle,horse,turtle,find,easy,2,3.2497480000000003,4.229068,0.269,27,39 weeks,en ko,,15
+0,dKKWAR,hard-snail-worm,2025-01-23 19:28:41.218,3.0,2025-01-23 19:28:48.816,450,m,worm,snail,snail,find,hard,2,3.1087480000000003,3.988907,0.128,27,40 or more weeks,en,,15
+0,CKRG26,easy-turkey-swan-distractor,2025-01-26 01:32:08.674,258.0,2025-01-26 01:32:16.361,630,f,swan,turkey,swan,where,easy-distractor,2,3.145748,4.025907,0.165,27,40 or more weeks,en,,15
+0,UUQJAd,easy-acorn-key,2025-01-24 13:29:07.526,163.0,2025-01-24 13:29:14.938,570,f,acorn,key,acorn,look_at,easy,2,3.1567480000000003,4.136068,0.176,27,38 weeks,en fr,,15
+0,NPV5EF,easy-potato-glasses-distractor,2025-01-23 18:02:52.630,6.0,2025-01-23 18:02:59.913,570,m,glasses,potato,glasses,find,easy-distractor,2,3.1607480000000003,4.140068,0.18,27,39 weeks,en hak cmn ru,,15
+0,UQBHFH,easy-cheese-mud,2025-01-24 14:12:41.784,83.0,2025-01-24 14:12:49.126,510,f,cheese,mud,cheese,see,easy,2,3.1487480000000003,4.128068000000001,0.168,28,40 or more weeks,en fr es,,16
+0,TUFKTQ,easy-potato-glasses,2025-01-25 19:03:21.377,213.0,2025-01-25 19:03:28.843,450,f,glasses,potato,potato,look_at,easy,2,3.210748,4.333515,0.23,28,39 weeks,en,,16
+0,6THVBG,easy-potato-glasses,2025-01-12 15:20:46.433,184.0,2025-01-12 15:20:53.871,510,f,glasses,potato,potato,find,easy,2,3.222748,4.345515000000001,0.242,28,39 weeks,en,,16
+0,CKRG26,hard-acorn-coconut-distractor,2025-01-26 01:32:18.721,369.0,2025-01-26 01:32:26.488,630,f,coconut,acorn,coconut,find,hard-distractor,2,3.258748,4.381515,0.278,28,40 or more weeks,en,,16
+0,QWGKVS,easy-acorn-key-distractor,2025-01-24 16:56:27.225,39.0,2025-01-24 16:56:34.528,750,m,acorn,key,key,see,easy-distractor,2,3.2817480000000003,4.161907,0.301,28,39 weeks,en,,16
+0,5QCS4M,hard-cheese-butter-distractor,2025-01-25 20:50:51.659,152.0,2025-01-25 20:50:59.076,750,f,cheese,butter,butter,see,hard-distractor,2,3.234748,4.214068,0.254,28,39 weeks,en ko,,16
+0,NPV5EF,hard-cheese-butter-distractor,2025-01-23 18:03:02.209,3.0,2025-01-23 18:03:09.473,570,m,cheese,butter,butter,see,hard-distractor,2,3.234748,4.214068,0.254,28,39 weeks,en hak cmn ru,,16
+0,QGTESM,hard-snail-worm-distractor,2025-01-25 17:27:46.688,12.0,2025-01-25 17:27:54.097,630,m,snail,worm,worm,see,hard-distractor,2,3.182748,4.062907,0.202,28,39 weeks,en,,16
+0,FHRCdd,easy-squirrel-eagle-distractor,2025-01-24 17:30:59.235,200.0,2025-01-24 17:31:06.683,540,m,eagle,squirrel,eagle,look_at,easy-distractor,2,3.303748,4.283068,0.323,28,39 weeks,en ur,,16
+0,XMJ25D,hard-potato-pot,2025-01-23 19:46:59.221,43.0,2025-01-23 19:47:06.518,690,m,pot,potato,potato,where,hard,2,3.210748,4.333515,0.23,28,39 weeks,en,,16
+0,UUQJAd,hard-cheese-butter,2025-01-24 13:29:16.596,156.0,2025-01-24 13:29:23.998,570,f,butter,cheese,cheese,find,hard,2,3.1487480000000003,4.128068000000001,0.168,28,38 weeks,en fr,,16
+0,dKKWAR,easy-squirrel-eagle-distractor,2025-01-23 19:28:51.491,2.0,2025-01-23 19:28:59.076,450,m,eagle,squirrel,eagle,where,easy-distractor,2,3.303748,4.283068,0.323,28,40 or more weeks,en,,16
+0,GNXMNQ,easy-turkey-swan-distractor,2025-01-24 00:46:15.665,55.0,2025-01-24 00:46:22.980,660,m,turkey,swan,swan,find,easy-distractor,2,3.110748,3.990907,0.13,28,37 weeks,en te ur,,16
+0,d4HUR3,hard-acorn-coconut,2025-01-24 02:49:51.606,312.0,2025-01-24 02:49:59.167,480,f,coconut,acorn,acorn,find,hard,2,3.216748,4.196068,0.236,28,39 weeks,en,,16
+0,FHRCdd,easy-acorn-key,2025-01-24 17:31:16.331,80.0,2025-01-24 17:31:23.663,540,m,acorn,key,acorn,find,easy,2,3.216748,4.196068,0.236,30,39 weeks,en ur,,17
+0,XMJ25D,easy-snail-cow-distractor,2025-01-23 19:47:13.309,55.0,2025-01-23 19:47:20.618,690,m,snail,cow,cow,where,easy-distractor,2,3.1607480000000003,4.040907000000001,0.18,30,39 weeks,en,,17
+0,5QCS4M,easy-turkey-swan,2025-01-25 20:51:08.189,96.0,2025-01-25 20:51:15.546,750,f,turkey,swan,turkey,where,easy,2,3.224748,4.2040679999999995,0.244,30,39 weeks,en ko,,17
+0,QGTESM,easy-cheese-mud,2025-01-25 17:28:01.413,14.0,2025-01-25 17:28:08.772,630,m,cheese,mud,cheese,find,easy,2,3.1487480000000003,4.128068000000001,0.168,30,39 weeks,en,,17
+0,UQBHFH,hard-snail-worm-distractor,2025-01-24 14:12:56.362,80.0,2025-01-24 14:13:03.705,510,f,snail,worm,worm,where,hard-distractor,2,3.1197480000000004,3.9999070000000003,0.139,30,40 or more weeks,en fr es,,17
+0,QWGKVS,easy-squirrel-eagle-distractor,2025-01-24 16:56:40.905,67.0,2025-01-24 16:56:48.249,750,m,squirrel,eagle,eagle,where,easy-distractor,2,3.303748,4.283068,0.323,30,39 weeks,en,,17
+0,dKKWAR,hard-turkey-goat,2025-01-23 19:29:06.757,4.0,2025-01-23 19:29:14.355,450,m,turkey,goat,turkey,look_at,hard,2,3.224748,4.2040679999999995,0.244,30,40 or more weeks,en,,17
+0,6THVBG,easy-cheese-mud-distractor,2025-01-12 15:21:01.666,15.0,2025-01-12 15:21:08.930,510,f,cheese,mud,mud,look_at,easy-distractor,2,3.135748,4.015907,0.155,30,39 weeks,en,,17
+0,NPV5EF,easy-snail-cow,2025-01-23 18:03:17.142,3.0,2025-01-23 18:03:24.433,570,m,cow,snail,snail,look_at,easy,2,3.1367480000000003,4.016907000000001,0.156,30,39 weeks,en hak cmn ru,,17
+0,CKRG26,easy-cheese-mud,2025-01-26 01:32:35.378,8.0,2025-01-26 01:32:42.833,630,f,mud,cheese,cheese,find,easy,2,3.1487480000000003,4.128068000000001,0.168,30,40 or more weeks,en,,17
+0,d4HUR3,easy-squirrel-eagle-distractor,2025-01-24 02:50:06.462,290.0,2025-01-24 02:50:14.007,480,f,eagle,squirrel,eagle,look_at,easy-distractor,2,3.303748,4.283068,0.323,30,39 weeks,en,,17
+0,GNXMNQ,easy-squirrel-eagle-distractor,2025-01-24 00:46:29.465,38.0,2025-01-24 00:46:36.760,660,m,squirrel,eagle,eagle,find,easy-distractor,2,3.283748,4.2630680000000005,0.303,30,37 weeks,en te ur,,17
+0,TUFKTQ,easy-acorn-key-distractor,2025-01-25 19:03:37.153,160.0,2025-01-25 19:03:44.587,450,f,key,acorn,key,where,easy-distractor,2,3.275748,4.155907,0.295,30,39 weeks,en,,17
+0,UUQJAd,easy-squirrel-eagle-distractor,2025-01-24 13:29:31.487,172.0,2025-01-24 13:29:38.939,570,f,squirrel,eagle,eagle,find,easy-distractor,2,3.283748,4.2630680000000005,0.303,30,38 weeks,en fr,,17
+0,6THVBG,hard-bulldozer-tractor,2025-01-12 15:21:11.320,64.0,2025-01-12 15:21:18.651,510,f,tractor,bulldozer,bulldozer,where,hard,2,3.210748,4.333515,0.23,31,39 weeks,en,,18
+0,UUQJAd,easy-bulldozer-orange,2025-01-24 13:29:40.835,167.0,2025-01-24 13:29:48.239,570,f,orange,bulldozer,bulldozer,see,easy,2,3.163748,4.286515,0.183,31,38 weeks,en fr,,18
+0,XMJ25D,easy-potato-glasses,2025-01-23 19:47:22.469,3.0,2025-01-23 19:47:29.738,690,m,potato,glasses,potato,look_at,easy,2,3.210748,4.333515,0.23,31,39 weeks,en,,18
+0,QGTESM,hard-bulldozer-tractor,2025-01-25 17:28:11.284,11.0,2025-01-25 17:28:18.709,630,m,bulldozer,tractor,bulldozer,where,hard,2,3.210748,4.333515,0.23,31,39 weeks,en,,18
+0,dKKWAR,hard-squirrel-monkey,2025-01-23 19:29:16.773,6.0,2025-01-23 19:29:24.345,450,m,monkey,squirrel,squirrel,see,hard,2,3.127748,4.107068,0.147,31,40 or more weeks,en,,18
+0,5QCS4M,easy-squirrel-eagle-distractor,2025-01-25 20:51:18.906,147.0,2025-01-25 20:51:26.326,750,f,eagle,squirrel,eagle,see,easy-distractor,2,3.283748,4.2630680000000005,0.303,31,39 weeks,en ko,,18
+0,GNXMNQ,easy-acorn-key,2025-01-24 00:46:37.865,57.0,2025-01-24 00:46:45.180,660,m,acorn,key,acorn,where,easy,2,3.1567480000000003,4.136068,0.176,31,37 weeks,en te ur,,18
+0,QWGKVS,hard-bulldozer-tractor-distractor,2025-01-24 16:56:49.044,6.0,2025-01-24 16:56:56.328,750,m,tractor,bulldozer,tractor,look_at,hard-distractor,2,3.1727480000000003,4.152068,0.192,31,39 weeks,en,,18
+0,d4HUR3,hard-turkey-goat,2025-01-24 02:50:15.312,366.0,2025-01-24 02:50:22.927,480,f,turkey,goat,turkey,where,hard,2,3.224748,4.2040679999999995,0.244,31,39 weeks,en,,18
+0,UQBHFH,hard-bulldozer-tractor,2025-01-24 14:13:05.434,69.0,2025-01-24 14:13:12.745,510,f,bulldozer,tractor,bulldozer,find,hard,2,3.163748,4.286515,0.183,31,40 or more weeks,en fr es,,18
+0,CKRG26,hard-bulldozer-tractor,2025-01-26 01:32:44.791,18.0,2025-01-26 01:32:52.208,630,f,tractor,bulldozer,bulldozer,where,hard,2,3.210748,4.333515,0.23,31,40 or more weeks,en,,18
+0,TUFKTQ,easy-bulldozer-orange,2025-01-25 19:03:46.397,221.0,2025-01-25 19:03:53.889,450,f,bulldozer,orange,bulldozer,find,easy,2,3.163748,4.286515,0.183,31,39 weeks,en,,18
+0,FHRCdd,hard-turtle-frog-distractor,2025-01-24 17:31:29.043,190.0,2025-01-24 17:31:36.483,540,m,frog,turtle,frog,where,hard-distractor,2,3.182748,4.062907,0.202,31,39 weeks,en ur,,18
+0,NPV5EF,hard-potato-pot-distractor,2025-01-23 18:03:26.795,5.0,2025-01-23 18:03:34.073,570,m,potato,pot,pot,see,hard-distractor,2,3.238748,4.118907,0.258,31,39 weeks,en hak cmn ru,,18
+0,QWGKVS,hard-potato-pot-distractor,2025-01-24 16:56:57.094,2.0,2025-01-24 16:57:04.388,750,m,potato,pot,pot,find,hard-distractor,2,3.238748,4.118907,0.258,32,39 weeks,en,,19
+0,GNXMNQ,hard-turtle-frog,2025-01-24 00:46:46.274,61.0,2025-01-24 00:46:53.580,660,m,turtle,frog,turtle,see,hard,2,3.2497480000000003,4.229068,0.269,32,37 weeks,en te ur,,19
+0,dKKWAR,easy-snail-cow,2025-01-23 19:29:26.714,2.0,2025-01-23 19:29:34.075,450,m,cow,snail,snail,find,easy,2,3.1087480000000003,3.988907,0.128,32,40 or more weeks,en,,19
+0,FHRCdd,hard-potato-pot,2025-01-24 17:31:40.101,166.0,2025-01-24 17:31:47.513,540,m,potato,pot,potato,see,hard,2,3.222748,4.345515000000001,0.242,32,39 weeks,en ur,,19
+0,TUFKTQ,hard-potato-pot-distractor,2025-01-25 19:03:55.595,218.0,2025-01-25 19:04:03.083,450,f,pot,potato,pot,look_at,hard-distractor,2,3.308748,4.188907,0.328,32,39 weeks,en,,19
+0,QGTESM,hard-turkey-goat,2025-01-25 17:28:21.345,13.0,2025-01-25 17:28:28.741,630,m,goat,turkey,turkey,look_at,hard,2,3.224748,4.2040679999999995,0.244,32,39 weeks,en,,19
+0,5QCS4M,hard-bulldozer-tractor-distractor,2025-01-25 20:51:29.736,158.0,2025-01-25 20:51:37.156,750,f,bulldozer,tractor,tractor,look_at,hard-distractor,2,3.1727480000000003,4.152068,0.192,32,39 weeks,en ko,,19
+0,UUQJAd,hard-snail-worm-distractor,2025-01-24 13:29:50.198,167.0,2025-01-24 13:29:57.599,570,f,worm,snail,worm,look_at,hard-distractor,2,3.1197480000000004,3.9999070000000003,0.139,32,38 weeks,en fr,,19
+0,XMJ25D,hard-turtle-frog,2025-01-23 19:47:31.464,25.0,2025-01-23 19:47:38.739,690,m,frog,turtle,turtle,see,hard,2,3.2497480000000003,4.229068,0.269,32,39 weeks,en,,19
+0,CKRG26,easy-acorn-key-distractor,2025-01-26 01:32:54.105,313.0,2025-01-26 01:33:01.772,630,f,acorn,key,key,see,easy-distractor,2,3.2817480000000003,4.161907,0.301,32,40 or more weeks,en,,19
+0,UQBHFH,easy-acorn-key-distractor,2025-01-24 14:13:14.583,57.0,2025-01-24 14:13:21.894,510,f,acorn,key,key,look_at,easy-distractor,2,3.275748,4.155907,0.295,32,40 or more weeks,en fr es,,19
+0,NPV5EF,easy-acorn-key,2025-01-23 18:03:36.337,5.0,2025-01-23 18:03:43.613,570,m,acorn,key,acorn,where,easy,2,3.1567480000000003,4.136068,0.176,32,39 weeks,en hak cmn ru,,19
+0,d4HUR3,easy-turtle-horse,2025-01-24 02:50:24.661,4.0,2025-01-24 02:50:32.167,480,f,turtle,horse,turtle,find,easy,2,3.2497480000000003,4.229068,0.269,32,39 weeks,en,,19
+0,6THVBG,hard-squirrel-monkey,2025-01-12 15:21:20.767,79.0,2025-01-12 15:21:28.111,510,f,squirrel,monkey,squirrel,find,hard,2,3.127748,4.107068,0.147,32,39 weeks,en,,19
+0,XMJ25D,easy-acorn-key,2025-01-23 19:47:40.550,2.0,2025-01-23 19:47:47.819,690,m,acorn,key,acorn,find,easy,2,3.216748,4.196068,0.236,33,39 weeks,en,,20
+0,NPV5EF,hard-bulldozer-tractor,2025-01-23 18:03:45.811,5.0,2025-01-23 18:03:53.093,570,m,bulldozer,tractor,bulldozer,find,hard,2,3.163748,4.286515,0.183,33,39 weeks,en hak cmn ru,,20
+0,GNXMNQ,easy-bulldozer-orange-distractor,2025-01-24 00:46:54.703,55.0,2025-01-24 00:47:02.000,660,m,orange,bulldozer,orange,look_at,easy-distractor,2,3.175748,4.155068,0.195,33,37 weeks,en te ur,,20
+0,UQBHFH,easy-squirrel-eagle,2025-01-24 14:13:23.575,42.0,2025-01-24 14:13:27.111,510,f,squirrel,eagle,squirrel,see,easy,2,3.127748,4.107068,0.147,33,40 or more weeks,en fr es,,20
+0,FHRCdd,easy-turkey-swan-distractor,2025-01-24 17:31:52.896,170.0,2025-01-24 17:32:00.313,540,m,swan,turkey,swan,look_at,easy-distractor,2,3.145748,4.025907,0.165,33,39 weeks,en ur,,20
+0,6THVBG,hard-potato-pot-distractor,2025-01-12 15:21:30.419,82.0,2025-01-12 15:21:37.750,510,f,pot,potato,pot,see,hard-distractor,2,3.238748,4.118907,0.258,33,39 weeks,en,,20
+0,5QCS4M,easy-acorn-key,2025-01-25 20:51:40.766,143.0,2025-01-25 20:51:48.166,750,f,key,acorn,acorn,find,easy,2,3.216748,4.196068,0.236,33,39 weeks,en ko,,20
+0,TUFKTQ,easy-snail-cow,2025-01-25 19:04:05.307,3.0,2025-01-25 19:04:12.598,450,f,cow,snail,snail,see,easy,2,3.1087480000000003,3.988907,0.128,33,39 weeks,en,,20
+0,QGTESM,hard-squirrel-monkey,2025-01-25 17:28:30.311,15.0,2025-01-25 17:28:37.750,630,m,squirrel,monkey,squirrel,see,hard,2,3.127748,4.107068,0.147,33,39 weeks,en,,20
+0,d4HUR3,easy-acorn-key-distractor,2025-01-24 02:50:34.045,275.0,2025-01-24 02:50:41.569,480,f,acorn,key,key,see,easy-distractor,2,3.2817480000000003,4.161907,0.301,33,39 weeks,en,,20
+0,CKRG26,hard-turtle-frog-distractor,2025-01-26 01:33:04.082,245.0,2025-01-26 01:33:11.719,630,f,frog,turtle,frog,look_at,hard-distractor,2,3.182748,4.062907,0.202,33,40 or more weeks,en,,20
+0,dKKWAR,hard-cheese-butter,2025-01-23 19:29:36.527,1.0,2025-01-23 19:29:44.055,450,m,cheese,butter,cheese,where,hard,2,3.146748,4.126068,0.166,33,40 or more weeks,en,,20
+0,UUQJAd,easy-cheese-mud-distractor,2025-01-24 13:29:59.258,124.0,2025-01-24 13:30:06.629,570,f,mud,cheese,mud,where,easy-distractor,2,3.135748,4.015907,0.155,33,38 weeks,en fr,,20
+0,QWGKVS,hard-acorn-coconut-distractor,2025-01-24 16:57:05.234,72.0,2025-01-24 16:57:12.568,750,m,acorn,coconut,coconut,see,hard-distractor,2,3.258748,4.381515,0.278,33,39 weeks,en,,20
+0,FHRCdd,hard-cheese-butter-distractor,2025-01-24 17:32:12.019,68.0,2025-01-24 17:32:19.303,540,m,butter,cheese,butter,look_at,hard-distractor,2,3.2607480000000004,4.240068000000001,0.28,35,39 weeks,en ur,,21
+0,CKRG26,easy-snail-cow,2025-01-26 01:33:19.951,204.0,2025-01-26 01:33:27.499,630,f,snail,cow,snail,find,easy,2,3.1087480000000003,3.988907,0.128,35,40 or more weeks,en,,21
+0,d4HUR3,easy-cheese-mud-distractor,2025-01-24 02:50:49.021,284.0,2025-01-24 02:50:56.547,480,f,cheese,mud,mud,look_at,easy-distractor,2,3.135748,4.015907,0.155,35,39 weeks,en,,21
+0,NPV5EF,hard-squirrel-monkey-distractor,2025-01-23 18:04:00.622,10.0,2025-01-23 18:04:07.933,570,m,squirrel,monkey,monkey,find,hard-distractor,2,3.1697480000000002,4.149068,0.189,35,39 weeks,en hak cmn ru,,21
+0,QWGKVS,easy-turtle-horse-distractor,2025-01-24 16:57:18.558,55.0,2025-01-24 16:57:25.889,750,m,turtle,horse,horse,see,easy-distractor,2,3.175748,4.055907,0.195,35,39 weeks,en,,21
+0,QGTESM,easy-turtle-horse-distractor,2025-01-25 17:28:46.312,11.0,2025-01-25 17:28:53.727,630,m,horse,turtle,horse,find,easy-distractor,2,3.175748,4.055907,0.195,35,39 weeks,en,,21
+0,5QCS4M,easy-snail-cow,2025-01-25 20:51:57.175,134.0,2025-01-25 20:52:04.576,750,f,snail,cow,snail,look_at,easy,2,3.1367480000000003,4.016907000000001,0.156,35,39 weeks,en ko,,21
+0,XMJ25D,easy-bulldozer-orange,2025-01-23 19:47:54.808,43.0,2025-01-23 19:48:02.100,690,m,bulldozer,orange,bulldozer,where,easy,2,3.210748,4.333515,0.23,35,39 weeks,en,,21
+0,6THVBG,hard-acorn-coconut,2025-01-12 15:21:45.440,3.0,2025-01-12 15:21:52.720,510,f,coconut,acorn,acorn,find,hard,2,3.216748,4.196068,0.236,35,39 weeks,en,,21
+0,UUQJAd,hard-acorn-coconut,2025-01-24 13:30:13.812,167.0,2025-01-24 13:30:21.219,570,f,coconut,acorn,acorn,find,hard,2,3.216748,4.196068,0.236,35,38 weeks,en fr,,21
+0,TUFKTQ,easy-squirrel-eagle-distractor,2025-01-25 19:04:18.973,225.0,2025-01-25 19:04:26.465,450,f,eagle,squirrel,eagle,see,easy-distractor,2,3.283748,4.2630680000000005,0.303,35,39 weeks,en,,21
+0,UQBHFH,easy-turkey-swan,2025-01-24 14:13:42.343,4.0,2025-01-24 14:13:49.577,510,f,swan,turkey,turkey,see,easy,2,3.2257480000000003,4.205068000000001,0.245,35,40 or more weeks,en fr es,,21
+0,dKKWAR,hard-bulldozer-tractor,2025-01-23 19:29:51.689,1.0,2025-01-23 19:29:59.254,450,m,tractor,bulldozer,bulldozer,find,hard,2,3.163748,4.286515,0.183,35,40 or more weeks,en,,21
+0,GNXMNQ,hard-turkey-goat,2025-01-24 00:47:08.174,6.0,2025-01-24 00:47:15.440,660,m,goat,turkey,turkey,look_at,hard,2,3.224748,4.2040679999999995,0.244,35,37 weeks,en te ur,,21
+0,UQBHFH,hard-cheese-butter,2025-01-24 14:13:51.137,75.0,2025-01-24 14:13:58.482,510,f,butter,cheese,cheese,find,hard,2,3.1487480000000003,4.128068000000001,0.168,36,40 or more weeks,en fr es,,22
+0,6THVBG,easy-turkey-swan-distractor,2025-01-12 15:21:55.067,69.0,2025-01-12 15:22:02.390,510,f,swan,turkey,swan,where,easy-distractor,2,3.145748,4.025907,0.165,36,39 weeks,en,,22
+0,5QCS4M,hard-potato-pot,2025-01-25 20:52:07.978,172.0,2025-01-25 20:52:15.406,750,f,potato,pot,potato,find,hard,2,3.222748,4.345515000000001,0.242,36,39 weeks,en ko,,22
+0,d4HUR3,hard-bulldozer-tractor-distractor,2025-01-24 02:50:57.826,396.0,2025-01-24 02:51:05.468,480,f,bulldozer,tractor,tractor,see,hard-distractor,2,3.1647480000000003,4.144068000000001,0.184,36,39 weeks,en,,22
+0,UUQJAd,easy-turtle-horse-distractor,2025-01-24 13:30:23.187,176.0,2025-01-24 13:30:30.609,570,f,horse,turtle,horse,look_at,easy-distractor,2,3.149748,4.029907000000001,0.169,36,38 weeks,en fr,,22
+0,TUFKTQ,hard-turkey-goat-distractor,2025-01-25 19:04:29.016,225.0,2025-01-25 19:04:36.512,450,f,turkey,goat,goat,look_at,hard-distractor,2,3.183748,4.063907,0.203,36,39 weeks,en,,22
+0,GNXMNQ,hard-cheese-butter,2025-01-24 00:47:16.633,20.0,2025-01-24 00:47:23.900,660,m,cheese,butter,cheese,where,hard,2,3.146748,4.126068,0.166,36,37 weeks,en te ur,,22
+0,FHRCdd,easy-snail-cow,2025-01-24 17:32:25.496,184.0,2025-01-24 17:32:32.933,540,m,snail,cow,snail,find,easy,2,3.1087480000000003,3.988907,0.128,36,39 weeks,en ur,,22
+0,CKRG26,hard-turkey-goat-distractor,2025-01-26 01:33:29.250,263.0,2025-01-26 01:33:36.894,630,f,goat,turkey,goat,see,hard-distractor,2,3.167748,4.047907,0.187,36,40 or more weeks,en,,22
+0,dKKWAR,easy-acorn-key,2025-01-23 19:30:01.830,1.0,2025-01-23 19:30:09.394,450,m,acorn,key,acorn,see,easy,2,3.216748,4.196068,0.236,36,40 or more weeks,en,,22
+0,QGTESM,easy-snail-cow,2025-01-25 17:28:55.682,11.0,2025-01-25 17:29:03.108,630,m,cow,snail,snail,look_at,easy,2,3.1367480000000003,4.016907000000001,0.156,36,39 weeks,en,,22
+0,NPV5EF,easy-cheese-mud-distractor,2025-01-23 18:04:10.377,4.0,2025-01-23 18:04:17.652,570,m,cheese,mud,mud,where,easy-distractor,2,3.135748,4.015907,0.155,36,39 weeks,en hak cmn ru,,22
+0,QWGKVS,easy-snail-cow,2025-01-24 16:57:26.681,27.0,2025-01-24 16:57:33.972,750,m,cow,snail,snail,look_at,easy,2,3.1367480000000003,4.016907000000001,0.156,36,39 weeks,en,,22
+0,XMJ25D,easy-turkey-swan-distractor,2025-01-23 19:48:03.964,24.0,2025-01-23 19:48:11.240,690,m,turkey,swan,swan,look_at,easy-distractor,2,3.145748,4.025907,0.165,36,39 weeks,en,,22
+0,NPV5EF,easy-turtle-horse,2025-01-23 18:04:19.761,3.0,2025-01-23 18:04:27.033,570,m,horse,turtle,turtle,see,easy,2,3.2497480000000003,4.229068,0.269,37,39 weeks,en hak cmn ru,,23
+0,TUFKTQ,easy-cheese-mud-distractor,2025-01-25 19:04:38.816,212.0,2025-01-25 19:04:46.283,450,f,mud,cheese,mud,where,easy-distractor,2,3.135748,4.015907,0.155,37,39 weeks,en,,23
+0,CKRG26,easy-squirrel-eagle-distractor,2025-01-26 01:33:39.182,280.0,2025-01-26 01:33:46.822,630,f,squirrel,eagle,eagle,look_at,easy-distractor,2,3.303748,4.283068,0.323,37,40 or more weeks,en,,23
+0,QGTESM,hard-acorn-coconut,2025-01-25 17:29:04.978,12.0,2025-01-25 17:29:12.396,630,m,acorn,coconut,acorn,where,hard,2,3.1567480000000003,4.136068,0.176,37,39 weeks,en,,23
+0,dKKWAR,hard-turtle-frog-distractor,2025-01-23 19:30:11.802,2.0,2025-01-23 19:30:19.134,450,m,turtle,frog,frog,look_at,hard-distractor,2,3.182748,4.062907,0.202,37,40 or more weeks,en,,23
+0,FHRCdd,easy-bulldozer-orange,2025-01-24 17:32:37.564,163.0,2025-01-24 17:32:44.962,540,m,orange,bulldozer,bulldozer,see,easy,2,3.163748,4.286515,0.183,37,39 weeks,en ur,,23
+0,UQBHFH,hard-turtle-frog,2025-01-24 14:14:00.177,73.0,2025-01-24 14:14:07.492,510,f,frog,turtle,turtle,where,hard,2,3.231748,4.211068,0.251,37,40 or more weeks,en fr es,,23
+0,UUQJAd,easy-turkey-swan-distractor,2025-01-24 13:30:32.348,167.0,2025-01-24 13:30:39.759,570,f,turkey,swan,swan,see,easy-distractor,2,3.110748,3.990907,0.13,37,38 weeks,en fr,,23
+0,6THVBG,easy-snail-cow-distractor,2025-01-12 15:22:04.663,72.0,2025-01-12 15:22:11.990,510,f,snail,cow,cow,look_at,easy-distractor,2,3.1607480000000003,4.040907000000001,0.18,37,39 weeks,en,,23
+0,XMJ25D,hard-cheese-butter-distractor,2025-01-23 19:48:13.810,168.0,2025-01-23 19:48:21.220,690,m,butter,cheese,butter,find,hard-distractor,2,3.234748,4.214068,0.254,37,39 weeks,en,,23
+0,d4HUR3,hard-snail-worm-distractor,2025-01-24 02:51:06.960,282.0,2025-01-24 02:51:14.489,480,f,worm,snail,worm,where,hard-distractor,2,3.1197480000000004,3.9999070000000003,0.139,37,39 weeks,en,,23
+0,QWGKVS,easy-turkey-swan,2025-01-24 16:57:34.780,19.0,2025-01-24 16:57:42.068,750,m,turkey,swan,turkey,find,easy,2,3.2257480000000003,4.205068000000001,0.245,37,39 weeks,en,,23
+0,GNXMNQ,hard-snail-worm-distractor,2025-01-24 00:47:25.043,46.0,2025-01-24 00:47:32.340,660,m,snail,worm,worm,find,hard-distractor,2,3.182748,4.062907,0.202,37,37 weeks,en te ur,,23
+0,5QCS4M,hard-turtle-frog-distractor,2025-01-25 20:52:19.030,86.0,2025-01-25 20:52:26.376,750,f,turtle,frog,frog,see,hard-distractor,2,3.127748,4.007907,0.147,37,39 weeks,en ko,,23
+0,UQBHFH,easy-potato-glasses-distractor,2025-01-24 14:14:09.542,54.0,2025-01-24 14:14:11.956,510,f,potato,glasses,glasses,look_at,easy-distractor,2,3.1207480000000003,4.100068,0.14,38,40 or more weeks,en fr es,,24
+0,QGTESM,hard-potato-pot-distractor,2025-01-25 17:29:14.161,11.0,2025-01-25 17:29:21.592,630,m,pot,potato,pot,see,hard-distractor,2,3.238748,4.118907,0.258,38,39 weeks,en,,24
+0,TUFKTQ,easy-turtle-horse,2025-01-25 19:04:48.079,185.0,2025-01-25 19:04:55.520,450,f,horse,turtle,turtle,find,easy,2,3.2497480000000003,4.229068,0.269,38,39 weeks,en,,24
+0,5QCS4M,easy-cheese-mud,2025-01-25 20:52:29.857,130.0,2025-01-25 20:52:37.256,750,f,cheese,mud,cheese,where,easy,2,3.146748,4.126068,0.166,38,39 weeks,en ko,,24
+0,QWGKVS,hard-cheese-butter,2025-01-24 16:57:42.913,3.0,2025-01-24 16:57:50.189,750,m,butter,cheese,cheese,where,hard,2,3.146748,4.126068,0.166,38,39 weeks,en,,24
+0,CKRG26,hard-potato-pot-distractor,2025-01-26 01:33:49.299,235.0,2025-01-26 01:33:56.941,630,f,potato,pot,pot,where,hard-distractor,2,3.308748,4.188907,0.328,38,40 or more weeks,en,,24
+0,6THVBG,easy-turtle-horse,2025-01-12 15:22:12.981,70.0,2025-01-12 15:22:20.309,510,f,horse,turtle,turtle,see,easy,2,3.2497480000000003,4.229068,0.269,38,39 weeks,en,,24
+0,GNXMNQ,easy-potato-glasses,2025-01-24 00:47:33.670,56.0,2025-01-24 00:47:40.980,660,m,glasses,potato,potato,see,easy,2,3.222748,4.345515000000001,0.242,38,37 weeks,en te ur,,24
+0,d4HUR3,hard-potato-pot-distractor,2025-01-24 02:51:17.595,287.0,2025-01-24 02:51:25.126,480,f,pot,potato,pot,find,hard-distractor,2,3.238748,4.118907,0.258,38,39 weeks,en,,24
+0,XMJ25D,easy-squirrel-eagle-distractor,2025-01-23 19:48:23.012,94.0,2025-01-23 19:48:30.361,690,m,eagle,squirrel,eagle,see,easy-distractor,2,3.283748,4.2630680000000005,0.303,38,39 weeks,en,,24
+0,NPV5EF,easy-turkey-swan-distractor,2025-01-23 18:04:29.187,5.0,2025-01-23 18:04:36.453,570,m,swan,turkey,swan,look_at,easy-distractor,2,3.145748,4.025907,0.165,38,39 weeks,en hak cmn ru,,24
+0,FHRCdd,hard-squirrel-monkey-distractor,2025-01-24 17:32:48.789,163.0,2025-01-24 17:32:56.222,540,m,squirrel,monkey,monkey,where,hard-distractor,2,3.114748,4.094068,0.134,38,39 weeks,en ur,,24
+0,dKKWAR,hard-potato-pot,2025-01-23 19:30:21.568,3.0,2025-01-23 19:30:29.144,450,m,pot,potato,potato,where,hard,2,3.210748,4.333515,0.23,38,40 or more weeks,en,,24
+0,UUQJAd,hard-potato-pot,2025-01-24 13:30:41.767,1.0,2025-01-24 13:30:49.019,570,f,pot,potato,potato,where,hard,2,3.210748,4.333515,0.23,38,38 weeks,en fr,,24
+0,5QCS4M,easy-bulldozer-orange-distractor,2025-01-25 20:52:46.272,139.0,2025-01-25 20:52:53.668,750,f,orange,bulldozer,orange,see,easy-distractor,2,3.1967480000000004,4.176068000000001,0.216,40,39 weeks,en ko,,25
+0,UUQJAd,hard-cheese-butter-distractor,2025-01-24 13:30:55.717,178.0,2025-01-24 13:31:03.139,570,f,butter,cheese,butter,look_at,hard-distractor,2,3.2607480000000004,4.240068000000001,0.28,40,38 weeks,en fr,,25
+0,GNXMNQ,easy-turkey-swan,2025-01-24 00:47:47.652,38.0,2025-01-24 00:47:54.940,660,m,turkey,swan,turkey,find,easy,2,3.2257480000000003,4.205068000000001,0.245,40,37 weeks,en te ur,,25
+0,QGTESM,hard-cheese-butter-distractor,2025-01-25 17:29:28.763,14.0,2025-01-25 17:29:36.170,630,m,butter,cheese,butter,find,hard-distractor,2,3.234748,4.214068,0.254,40,39 weeks,en,,25
+0,UQBHFH,hard-acorn-coconut-distractor,2025-01-24 14:14:32.032,4.0,2025-01-24 14:14:39.260,510,f,coconut,acorn,coconut,see,hard-distractor,2,3.258748,4.381515,0.278,40,40 or more weeks,en fr es,,25
+0,CKRG26,hard-cheese-butter,2025-01-26 01:34:05.829,25.0,2025-01-26 01:34:13.299,630,f,cheese,butter,cheese,see,hard,2,3.1487480000000003,4.128068000000001,0.168,40,40 or more weeks,en,,25
+0,dKKWAR,easy-turtle-horse-distractor,2025-01-23 19:30:36.904,2.0,2025-01-23 19:30:44.274,450,m,horse,turtle,horse,where,easy-distractor,2,3.149748,4.029907000000001,0.169,40,40 or more weeks,en,,25
+0,6THVBG,easy-acorn-key-distractor,2025-01-12 15:22:27.737,5.0,2025-01-12 15:22:35.009,510,f,key,acorn,key,see,easy-distractor,2,3.2817480000000003,4.161907,0.301,40,39 weeks,en,,25
+0,QWGKVS,hard-turtle-frog-distractor,2025-01-24 16:57:56.257,85.0,2025-01-24 16:58:03.609,750,m,frog,turtle,frog,see,hard-distractor,2,3.127748,4.007907,0.147,40,39 weeks,en,,25
+0,TUFKTQ,hard-snail-worm-distractor,2025-01-25 19:05:02.618,216.0,2025-01-25 19:05:10.091,450,f,snail,worm,worm,see,hard-distractor,2,3.182748,4.062907,0.202,40,39 weeks,en,,25
+0,NPV5EF,easy-potato-glasses,2025-01-23 18:04:45.429,4.0,2025-01-23 18:04:52.692,570,m,potato,glasses,potato,find,easy,2,3.222748,4.345515000000001,0.242,40,39 weeks,en hak cmn ru,,25
+0,d4HUR3,easy-turkey-swan,2025-01-24 02:51:32.305,34.0,2025-01-24 02:51:39.629,480,f,turkey,swan,turkey,find,easy,2,3.2257480000000003,4.205068000000001,0.245,40,39 weeks,en,,25
+0,FHRCdd,hard-bulldozer-tractor,2025-01-24 17:33:05.970,49.0,2025-01-24 17:33:13.252,540,m,tractor,bulldozer,bulldozer,find,hard,2,3.163748,4.286515,0.183,40,39 weeks,en ur,,25
+0,XMJ25D,hard-bulldozer-tractor-distractor,2025-01-23 19:48:37.691,42.0,2025-01-23 19:48:44.981,690,m,tractor,bulldozer,tractor,see,hard-distractor,2,3.1647480000000003,4.144068000000001,0.184,40,39 weeks,en,,25
+0,d4HUR3,hard-acorn-coconut-distractor,2025-01-24 02:51:41.180,298.0,2025-01-24 02:51:48.729,480,f,acorn,coconut,coconut,where,hard-distractor,2,3.271748,4.394515,0.291,41,39 weeks,en,,26
+0,CKRG26,hard-acorn-coconut,2025-01-26 01:34:15.839,274.0,2025-01-26 01:34:23.505,630,f,acorn,coconut,acorn,find,hard,2,3.216748,4.196068,0.236,41,40 or more weeks,en,,26
+0,GNXMNQ,easy-snail-cow,2025-01-24 00:47:56.118,61.0,2025-01-24 00:48:03.420,660,m,snail,cow,snail,look_at,easy,2,3.1367480000000003,4.016907000000001,0.156,41,37 weeks,en te ur,,26
+0,UUQJAd,easy-acorn-key-distractor,2025-01-24 13:31:04.712,163.0,2025-01-24 13:31:12.119,570,f,key,acorn,key,see,easy-distractor,2,3.2817480000000003,4.161907,0.301,41,38 weeks,en fr,,26
+0,TUFKTQ,hard-acorn-coconut,2025-01-25 19:05:12.054,2.0,2025-01-25 19:05:19.350,450,f,acorn,coconut,acorn,look_at,hard,2,3.1567480000000003,4.136068,0.176,41,39 weeks,en,,26
+0,FHRCdd,easy-cheese-mud-distractor,2025-01-24 17:33:17.043,169.0,2025-01-24 17:33:24.452,540,m,mud,cheese,mud,where,easy-distractor,2,3.135748,4.015907,0.155,41,39 weeks,en ur,,26
+0,NPV5EF,easy-bulldozer-orange-distractor,2025-01-23 18:04:54.767,3.0,2025-01-23 18:05:02.032,570,m,bulldozer,orange,orange,see,easy-distractor,2,3.1967480000000004,4.176068000000001,0.216,41,39 weeks,en hak cmn ru,,26
+0,UQBHFH,easy-cheese-mud-distractor,2025-01-24 14:14:41.146,113.0,2025-01-24 14:14:48.540,510,f,mud,cheese,mud,where,easy-distractor,2,3.135748,4.015907,0.155,41,40 or more weeks,en fr es,,26
+0,6THVBG,hard-snail-worm,2025-01-12 15:22:37.125,1.0,2025-01-12 15:22:44.388,510,f,snail,worm,snail,where,hard,2,3.1367480000000003,4.016907000000001,0.156,41,39 weeks,en,,26
+0,QGTESM,easy-bulldozer-orange,2025-01-25 17:29:37.823,10.0,2025-01-25 17:29:45.181,630,m,bulldozer,orange,bulldozer,look_at,easy,2,3.210748,4.333515,0.23,41,39 weeks,en,,26
+0,XMJ25D,easy-turtle-horse,2025-01-23 19:48:46.812,24.0,2025-01-23 19:48:54.082,690,m,turtle,horse,turtle,look_at,easy,2,3.231748,4.211068,0.251,41,39 weeks,en,,26
+0,dKKWAR,easy-squirrel-eagle,2025-01-23 19:30:46.655,3.0,2025-01-23 19:30:54.055,450,m,squirrel,eagle,squirrel,find,easy,2,3.127748,4.107068,0.147,41,40 or more weeks,en,,26
+0,5QCS4M,easy-turtle-horse-distractor,2025-01-25 20:52:57.045,148.0,2025-01-25 20:53:04.468,750,f,horse,turtle,horse,find,easy-distractor,2,3.175748,4.055907,0.195,41,39 weeks,en ko,,26
+0,QWGKVS,easy-bulldozer-orange-distractor,2025-01-24 16:58:04.379,71.0,2025-01-24 16:58:11.728,750,m,bulldozer,orange,orange,where,easy-distractor,2,3.175748,4.155068,0.195,41,39 weeks,en,,26
+0,TUFKTQ,hard-cheese-butter-distractor,2025-01-25 19:05:21.330,3.0,2025-01-25 19:05:28.609,450,f,butter,cheese,butter,where,hard-distractor,2,3.2607480000000004,4.240068000000001,0.28,42,39 weeks,en,,27
+0,FHRCdd,hard-acorn-coconut,2025-01-24 17:33:27.692,191.0,2025-01-24 17:33:35.142,540,m,acorn,coconut,acorn,see,hard,2,3.216748,4.196068,0.236,42,39 weeks,en ur,,27
+0,dKKWAR,hard-acorn-coconut,2025-01-23 19:30:56.427,1.0,2025-01-23 19:31:03.796,450,m,coconut,acorn,acorn,look_at,hard,2,3.1567480000000003,4.136068,0.176,42,40 or more weeks,en,,27
+0,d4HUR3,hard-cheese-butter,2025-01-24 02:51:50.707,251.0,2025-01-24 02:51:58.206,480,f,butter,cheese,cheese,see,hard,2,3.1487480000000003,4.128068000000001,0.168,42,39 weeks,en,,27
+0,GNXMNQ,hard-acorn-coconut-distractor,2025-01-24 00:48:04.543,65.0,2025-01-24 00:48:11.860,660,m,acorn,coconut,coconut,where,hard-distractor,2,3.271748,4.394515,0.291,42,37 weeks,en te ur,,27
+0,5QCS4M,hard-turkey-goat,2025-01-25 20:53:07.907,9.0,2025-01-25 20:53:15.198,750,f,turkey,goat,turkey,where,hard,2,3.224748,4.2040679999999995,0.244,42,39 weeks,en ko,,27
+0,QGTESM,easy-squirrel-eagle-distractor,2025-01-25 17:29:46.702,14.0,2025-01-25 17:29:54.097,630,m,eagle,squirrel,eagle,where,easy-distractor,2,3.303748,4.283068,0.323,42,39 weeks,en,,27
+0,CKRG26,hard-squirrel-monkey-distractor,2025-01-26 01:34:26.472,182.0,2025-01-26 01:34:34.011,630,f,monkey,squirrel,monkey,look_at,hard-distractor,2,3.114748,4.094068,0.134,42,40 or more weeks,en,,27
+0,NPV5EF,hard-acorn-coconut-distractor,2025-01-23 18:05:04.517,2.0,2025-01-23 18:05:11.792,570,m,coconut,acorn,coconut,look_at,hard-distractor,2,3.271748,4.394515,0.291,42,39 weeks,en hak cmn ru,,27
+0,UQBHFH,easy-turtle-horse-distractor,2025-01-24 14:14:50.377,38.0,2025-01-24 14:14:57.670,510,f,turtle,horse,horse,look_at,easy-distractor,2,3.149748,4.029907000000001,0.169,42,40 or more weeks,en fr es,,27
+0,XMJ25D,easy-cheese-mud-distractor,2025-01-23 19:48:55.942,26.0,2025-01-23 19:49:03.222,690,m,cheese,mud,mud,where,easy-distractor,2,3.135748,4.015907,0.155,42,39 weeks,en,,27
+0,6THVBG,easy-squirrel-eagle,2025-01-12 15:22:46.550,3.0,2025-01-12 15:22:53.798,510,f,squirrel,eagle,squirrel,find,easy,2,3.127748,4.107068,0.147,42,39 weeks,en,,27
+0,UUQJAd,hard-turtle-frog,2025-01-24 13:31:13.773,174.0,2025-01-24 13:31:21.189,570,f,turtle,frog,turtle,find,hard,2,3.2497480000000003,4.229068,0.269,42,38 weeks,en fr,,27
+0,QWGKVS,easy-potato-glasses-distractor,2025-01-24 16:58:12.575,4.0,2025-01-24 16:58:19.849,750,m,glasses,potato,glasses,find,easy-distractor,2,3.1607480000000003,4.140068,0.18,42,39 weeks,en,,27
+0,TUFKTQ,hard-bulldozer-tractor-distractor,2025-01-25 19:05:30.503,219.0,2025-01-25 19:05:37.995,450,f,bulldozer,tractor,tractor,find,hard-distractor,2,3.1647480000000003,4.144068000000001,0.184,43,39 weeks,en,,28
+0,5QCS4M,hard-cheese-butter,2025-01-25 20:53:18.616,142.0,2025-01-25 20:53:26.019,750,f,cheese,butter,cheese,look_at,hard,2,3.146748,4.126068,0.166,43,39 weeks,en ko,,28
+0,CKRG26,easy-turkey-swan,2025-01-26 01:34:36.474,350.0,2025-01-26 01:34:44.227,630,f,swan,turkey,turkey,where,easy,2,3.224748,4.2040679999999995,0.244,43,40 or more weeks,en,,28
+0,NPV5EF,hard-cheese-butter,2025-01-23 18:05:13.999,3.0,2025-01-23 18:05:21.275,570,m,cheese,butter,cheese,where,hard,2,3.146748,4.126068,0.166,43,39 weeks,en hak cmn ru,,28
+0,UQBHFH,hard-potato-pot-distractor,2025-01-24 14:14:59.830,63.0,2025-01-24 14:15:08.684,510,f,pot,potato,pot,find,hard-distractor,2,3.238748,4.118907,0.258,43,40 or more weeks,en fr es,,28
+0,FHRCdd,easy-squirrel-eagle,2025-01-24 17:33:40.614,66.0,2025-01-24 17:33:47.942,540,m,eagle,squirrel,squirrel,look_at,easy,2,3.090748,4.070068,0.11,43,39 weeks,en ur,,28
+0,6THVBG,hard-turkey-goat-distractor,2025-01-12 15:22:56.221,343.0,2025-01-12 15:23:03.808,510,f,turkey,goat,goat,look_at,hard-distractor,2,3.183748,4.063907,0.203,43,39 weeks,en,,28
+0,UUQJAd,easy-potato-glasses-distractor,2025-01-24 13:31:23.261,162.0,2025-01-24 13:31:30.660,570,f,glasses,potato,glasses,where,easy-distractor,2,3.1207480000000003,4.100068,0.14,43,38 weeks,en fr,,28
+0,d4HUR3,hard-squirrel-monkey,2025-01-24 02:51:59.642,285.0,2025-01-24 02:52:07.186,480,f,monkey,squirrel,squirrel,look_at,hard,2,3.090748,4.070068,0.11,43,39 weeks,en,,28
+0,GNXMNQ,hard-squirrel-monkey,2025-01-24 00:48:13.041,5.0,2025-01-24 00:48:20.321,660,m,monkey,squirrel,squirrel,see,hard,2,3.127748,4.107068,0.147,43,37 weeks,en te ur,,28
+0,QGTESM,hard-turtle-frog,2025-01-25 17:29:55.671,11.0,2025-01-25 17:30:03.111,630,m,frog,turtle,turtle,see,hard,2,3.2497480000000003,4.229068,0.269,43,39 weeks,en,,28
+0,QWGKVS,easy-cheese-mud,2025-01-24 16:58:20.645,149.0,2025-01-24 16:58:28.068,750,m,mud,cheese,cheese,look_at,easy,2,3.146748,4.126068,0.166,43,39 weeks,en,,28
+0,XMJ25D,hard-squirrel-monkey,2025-01-23 19:49:05.442,3.0,2025-01-23 19:49:12.722,690,m,squirrel,monkey,squirrel,find,hard,2,3.127748,4.107068,0.147,43,39 weeks,en,,28
+0,dKKWAR,easy-cheese-mud,2025-01-23 19:31:06.039,3.0,2025-01-23 19:31:13.616,450,m,mud,cheese,cheese,see,easy,2,3.1487480000000003,4.128068000000001,0.168,43,40 or more weeks,en,,28
+0,UQBHFH,hard-turkey-goat-distractor,2025-01-24 14:15:35.142,47.0,2025-01-24 14:15:42.407,510,f,turkey,goat,goat,look_at,hard-distractor,2,3.183748,4.063907,0.203,45,40 or more weeks,en fr es,,29
+0,d4HUR3,easy-potato-glasses,2025-01-24 02:52:14.690,3.0,2025-01-24 02:52:21.954,480,f,glasses,potato,potato,find,easy,2,3.222748,4.345515000000001,0.242,45,39 weeks,en,,29
+0,XMJ25D,hard-turkey-goat,2025-01-23 19:49:19.630,3.0,2025-01-23 19:49:26.902,690,m,turkey,goat,turkey,see,hard,2,3.2257480000000003,4.205068000000001,0.245,45,39 weeks,en,,29
+0,TUFKTQ,hard-squirrel-monkey-distractor,2025-01-25 19:05:45.256,3.0,2025-01-25 19:05:52.544,450,f,squirrel,monkey,monkey,see,hard-distractor,2,3.1697480000000002,4.149068,0.189,45,39 weeks,en,,29
+0,6THVBG,hard-turtle-frog-distractor,2025-01-12 15:23:11.325,3.0,2025-01-12 15:23:18.588,510,f,frog,turtle,frog,where,hard-distractor,2,3.182748,4.062907,0.202,45,39 weeks,en,,29
+0,dKKWAR,easy-potato-glasses-distractor,2025-01-23 19:31:21.139,3.0,2025-01-23 19:31:28.504,450,m,glasses,potato,glasses,find,easy-distractor,2,3.1607480000000003,4.140068,0.18,45,40 or more weeks,en,,29
+0,NPV5EF,hard-turtle-frog,2025-01-23 18:05:28.728,5.0,2025-01-23 18:05:35.992,570,m,frog,turtle,turtle,find,hard,2,3.2497480000000003,4.229068,0.269,45,39 weeks,en hak cmn ru,,29
+0,GNXMNQ,easy-cheese-mud,2025-01-24 00:48:26.551,63.0,2025-01-24 00:48:33.860,660,m,cheese,mud,cheese,look_at,easy,2,3.146748,4.126068,0.166,45,37 weeks,en te ur,,29
+0,CKRG26,easy-turtle-horse,2025-01-26 01:34:53.505,275.0,2025-01-26 01:35:01.124,630,f,horse,turtle,turtle,look_at,easy,2,3.231748,4.211068,0.251,45,40 or more weeks,en,,29
+0,UUQJAd,hard-bulldozer-tractor,2025-01-24 13:31:37.772,150.0,2025-01-24 13:31:45.170,570,f,bulldozer,tractor,bulldozer,find,hard,2,3.163748,4.286515,0.183,45,38 weeks,en fr,,29
+0,QGTESM,easy-acorn-key,2025-01-25 17:30:09.963,11.0,2025-01-25 17:30:17.316,630,m,key,acorn,acorn,look_at,easy,2,3.1567480000000003,4.136068,0.176,45,39 weeks,en,,29
+0,QWGKVS,hard-turkey-goat,2025-01-24 16:58:34.013,30.0,2025-01-24 16:58:41.309,750,m,turkey,goat,turkey,where,hard,2,3.224748,4.2040679999999995,0.244,45,39 weeks,en,,29
+0,5QCS4M,easy-potato-glasses,2025-01-25 20:53:34.448,14.0,2025-01-25 20:53:41.730,750,f,glasses,potato,potato,find,easy,2,3.222748,4.345515000000001,0.242,45,39 weeks,en ko,,29
+0,FHRCdd,hard-turkey-goat-distractor,2025-01-24 17:33:58.966,91.0,2025-01-24 17:34:06.272,540,m,turkey,goat,goat,see,hard-distractor,2,3.167748,4.047907,0.187,45,39 weeks,en ur,,29
+0,NPV5EF,hard-turkey-goat-distractor,2025-01-23 18:05:38.274,3.0,2025-01-23 18:05:45.532,570,m,goat,turkey,goat,where,hard-distractor,2,3.183748,4.063907,0.203,46,39 weeks,en hak cmn ru,,30
+0,TUFKTQ,easy-turkey-swan-distractor,2025-01-25 19:05:54.764,215.0,2025-01-25 19:06:02.251,450,f,swan,turkey,swan,where,easy-distractor,2,3.145748,4.025907,0.165,46,39 weeks,en,,30
+0,UQBHFH,easy-snail-cow,2025-01-24 14:15:45.081,67.0,2025-01-24 14:15:52.389,510,f,snail,cow,snail,where,easy,2,3.1367480000000003,4.016907000000001,0.156,46,40 or more weeks,en fr es,,30
+0,dKKWAR,easy-turkey-swan,2025-01-23 19:31:30.826,1.0,2025-01-23 19:31:38.384,450,m,turkey,swan,turkey,look_at,easy,2,3.224748,4.2040679999999995,0.244,46,40 or more weeks,en,,30
+0,CKRG26,easy-potato-glasses-distractor,2025-01-26 01:35:03.552,268.0,2025-01-26 01:35:11.152,630,f,glasses,potato,glasses,where,easy-distractor,2,3.1207480000000003,4.100068,0.14,46,40 or more weeks,en,,30
+0,FHRCdd,easy-turtle-horse-distractor,2025-01-24 17:34:12.058,172.0,2025-01-24 17:34:19.471,540,m,turtle,horse,horse,where,easy-distractor,2,3.149748,4.029907000000001,0.169,46,39 weeks,en ur,,30
+0,d4HUR3,easy-snail-cow,2025-01-24 02:52:23.697,263.0,2025-01-24 02:52:31.206,480,f,cow,snail,snail,see,easy,2,3.1087480000000003,3.988907,0.128,46,39 weeks,en,,30
+0,6THVBG,easy-potato-glasses-distractor,2025-01-12 15:23:26.074,7.0,2025-01-12 15:23:33.348,510,f,potato,glasses,glasses,find,easy-distractor,2,3.1607480000000003,4.140068,0.18,46,39 weeks,en,,30
+0,5QCS4M,hard-acorn-coconut,2025-01-25 20:53:45.145,147.0,2025-01-25 20:53:52.560,750,f,acorn,coconut,acorn,look_at,hard,2,3.1567480000000003,4.136068,0.176,46,39 weeks,en ko,,30
+0,XMJ25D,hard-acorn-coconut,2025-01-23 19:49:29.135,2.0,2025-01-23 19:49:36.403,690,m,acorn,coconut,acorn,look_at,hard,2,3.1567480000000003,4.136068,0.176,46,39 weeks,en,,30
+0,UUQJAd,hard-turkey-goat,2025-01-24 13:31:47.770,1.0,2025-01-24 13:31:55.020,570,f,goat,turkey,turkey,see,hard,2,3.2257480000000003,4.205068000000001,0.245,46,38 weeks,en fr,,30
+0,QGTESM,easy-turkey-swan-distractor,2025-01-25 17:30:18.900,12.0,2025-01-25 17:30:26.327,630,m,turkey,swan,swan,find,easy-distractor,2,3.110748,3.990907,0.13,46,39 weeks,en,,30
+0,QWGKVS,hard-snail-worm-distractor,2025-01-24 16:58:42.121,64.0,2025-01-24 16:58:49.449,750,m,worm,snail,worm,see,hard-distractor,2,3.182748,4.062907,0.202,46,39 weeks,en,,30
+0,GNXMNQ,hard-potato-pot,2025-01-24 00:48:34.972,4.0,2025-01-24 00:48:42.240,660,m,potato,pot,potato,see,hard,2,3.222748,4.345515000000001,0.242,46,37 weeks,en te ur,,30
+0,GNXMNQ,easy-turtle-horse,2025-01-24 00:48:43.386,44.0,2025-01-24 00:48:50.680,660,m,turtle,horse,turtle,where,easy,2,3.231748,4.211068,0.251,47,37 weeks,en te ur,,31
+0,6THVBG,hard-cheese-butter,2025-01-12 15:23:35.618,66.0,2025-01-12 15:23:42.948,510,f,butter,cheese,cheese,look_at,hard,2,3.146748,4.126068,0.166,47,39 weeks,en,,31
+0,dKKWAR,easy-bulldozer-orange,2025-01-23 19:31:40.867,2.0,2025-01-23 19:31:48.225,450,m,orange,bulldozer,bulldozer,where,easy,2,3.210748,4.333515,0.23,47,40 or more weeks,en,,31
+0,NPV5EF,easy-squirrel-eagle,2025-01-23 18:05:47.954,4.0,2025-01-23 18:05:55.213,570,m,squirrel,eagle,squirrel,look_at,easy,2,3.090748,4.070068,0.11,47,39 weeks,en hak cmn ru,,31
+0,XMJ25D,hard-snail-worm-distractor,2025-01-23 19:49:38.183,60.0,2025-01-23 19:49:45.503,690,m,worm,snail,worm,where,hard-distractor,2,3.1197480000000004,3.9999070000000003,0.139,47,39 weeks,en,,31
+0,QGTESM,hard-snail-worm,2025-01-25 17:30:28.402,11.0,2025-01-25 17:30:35.801,630,m,worm,snail,snail,where,hard,2,3.1367480000000003,4.016907000000001,0.156,47,39 weeks,en,,31
+0,QWGKVS,hard-squirrel-monkey,2025-01-24 16:58:50.350,21.0,2025-01-24 16:58:57.648,750,m,monkey,squirrel,squirrel,look_at,hard,2,3.090748,4.070068,0.11,47,39 weeks,en,,31
+0,TUFKTQ,easy-potato-glasses-distractor,2025-01-25 19:06:04.701,214.0,2025-01-25 19:06:12.171,450,f,glasses,potato,glasses,find,easy-distractor,2,3.1607480000000003,4.140068,0.18,47,39 weeks,en,,31
+0,UQBHFH,easy-bulldozer-orange,2025-01-24 14:15:53.739,81.0,2025-01-24 14:16:01.086,510,f,orange,bulldozer,bulldozer,see,easy,2,3.163748,4.286515,0.183,47,40 or more weeks,en fr es,,31
+0,d4HUR3,easy-bulldozer-orange,2025-01-24 02:52:32.668,332.0,2025-01-24 02:52:40.246,480,f,bulldozer,orange,bulldozer,where,easy,2,3.210748,4.333515,0.23,47,39 weeks,en,,31
+0,FHRCdd,hard-snail-worm-distractor,2025-01-24 17:34:22.422,154.0,2025-01-24 17:34:29.821,540,m,snail,worm,worm,look_at,hard-distractor,2,3.1197480000000004,3.9999070000000003,0.139,47,39 weeks,en ur,,31
+0,CKRG26,easy-bulldozer-orange-distractor,2025-01-26 01:35:13.785,266.0,2025-01-26 01:35:21.465,630,f,orange,bulldozer,orange,find,easy-distractor,2,3.1967480000000004,4.176068000000001,0.216,47,40 or more weeks,en,,31
+0,5QCS4M,hard-squirrel-monkey-distractor,2025-01-25 20:53:55.743,144.0,2025-01-25 20:54:03.150,750,f,squirrel,monkey,monkey,see,hard-distractor,2,3.1697480000000002,4.149068,0.189,47,39 weeks,en ko,,31
+0,UUQJAd,easy-snail-cow-distractor,2025-01-24 13:31:56.673,154.0,2025-01-24 13:32:04.070,570,f,snail,cow,cow,where,easy-distractor,2,3.1607480000000003,4.040907000000001,0.18,47,38 weeks,en fr,,31
+0,QWGKVS,easy-acorn-key,2025-01-24 16:58:58.570,29.0,2025-01-24 16:59:05.869,750,m,acorn,key,acorn,find,easy,2,3.216748,4.196068,0.236,48,39 weeks,en,,32
+0,UQBHFH,hard-squirrel-monkey-distractor,2025-01-24 14:16:02.935,78.0,2025-01-24 14:16:07.461,510,f,squirrel,monkey,monkey,find,hard-distractor,2,3.1697480000000002,4.149068,0.189,48,40 or more weeks,en fr es,,32
+0,NPV5EF,hard-snail-worm-distractor,2025-01-23 18:05:57.549,5.0,2025-01-23 18:06:04.813,570,m,worm,snail,worm,see,hard-distractor,2,3.182748,4.062907,0.202,48,39 weeks,en hak cmn ru,,32
+0,TUFKTQ,hard-turtle-frog,2025-01-25 19:06:13.965,200.0,2025-01-25 19:06:21.430,450,f,turtle,frog,turtle,look_at,hard,2,3.231748,4.211068,0.251,48,39 weeks,en,,32
+0,6THVBG,easy-bulldozer-orange-distractor,2025-01-12 15:23:45.339,43.0,2025-01-12 15:23:52.618,510,f,bulldozer,orange,orange,see,easy-distractor,2,3.1967480000000004,4.176068000000001,0.216,48,39 weeks,en,,32
+0,QGTESM,easy-potato-glasses-distractor,2025-01-25 17:30:37.783,10.0,2025-01-25 17:30:45.183,630,m,potato,glasses,glasses,see,easy-distractor,2,3.1607480000000003,4.140068,0.18,48,39 weeks,en,,32
+0,UUQJAd,hard-squirrel-monkey,2025-01-24 13:32:06.445,168.0,2025-01-24 13:32:13.860,570,f,squirrel,monkey,squirrel,look_at,hard,2,3.090748,4.070068,0.11,48,38 weeks,en fr,,32
+0,d4HUR3,hard-turtle-frog-distractor,2025-01-24 02:52:41.541,283.0,2025-01-24 02:52:49.068,480,f,frog,turtle,frog,look_at,hard-distractor,2,3.182748,4.062907,0.202,48,39 weeks,en,,32
+0,XMJ25D,hard-potato-pot-distractor,2025-01-23 19:49:47.322,27.0,2025-01-23 19:49:54.603,690,m,pot,potato,pot,find,hard-distractor,2,3.238748,4.118907,0.258,48,39 weeks,en,,32
+0,5QCS4M,hard-snail-worm,2025-01-25 20:54:06.501,115.0,2025-01-25 20:54:13.881,750,f,worm,snail,snail,where,hard,2,3.1367480000000003,4.016907000000001,0.156,48,39 weeks,en ko,,32
+0,CKRG26,hard-snail-worm,2025-01-26 01:35:23.116,306.0,2025-01-26 01:35:30.749,630,f,worm,snail,snail,see,hard,2,3.1087480000000003,3.988907,0.128,48,40 or more weeks,en,,32
+0,FHRCdd,easy-potato-glasses-distractor,2025-01-24 17:34:32.680,167.0,2025-01-24 17:34:40.082,540,m,potato,glasses,glasses,find,easy-distractor,2,3.1607480000000003,4.140068,0.18,48,39 weeks,en ur,,32
+0,GNXMNQ,hard-bulldozer-tractor,2025-01-24 00:48:51.853,37.0,2025-01-24 00:48:59.140,660,m,tractor,bulldozer,bulldozer,find,hard,2,3.163748,4.286515,0.183,48,37 weeks,en te ur,,32
+0,dKKWAR,hard-snail-worm-distractor,2025-01-23 19:31:50.711,1.0,2025-01-23 19:31:58.075,450,m,snail,worm,worm,see,hard-distractor,2,3.182748,4.062907,0.202,48,40 or more weeks,en,,32

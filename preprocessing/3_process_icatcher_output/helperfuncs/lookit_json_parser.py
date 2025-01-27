@@ -10,6 +10,7 @@ def get_lookit_trial_times(lookit_json):
     syllable_info = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "syllables.csv"))
     audio_duration_info = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "audio_duration_info.csv"))
     subject_sections = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "subject_sections.csv"))
+    word_onset_info = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "target_word_onset.csv"))
     # Get section info for this project
     section_row = subject_sections[subject_sections['section_name'] == PROJECT_VERSION].iloc[0]
     start_date = datetime.strptime(section_row['start_date'], '%Y-%m-%d')
@@ -41,7 +42,7 @@ def get_lookit_trial_times(lookit_json):
           
         fmt_str = r"%Y-%m-%dT%H:%M:%S.%f"
         # identify audio lag and trial information of each trials
-        # TODO: add session information
+        # TODO: modularize this section
         for key, value in session_info['exp_data'].items():
             # GENERALIZE THIS SECTION - WHICH KEYS 
             # only consider real trials that are 'easy' or 'hard', no attention getters (and no prematurely terminated trials)
@@ -78,8 +79,22 @@ def get_lookit_trial_times(lookit_json):
                 
                 [target_audio, target_image] = value["audioPlayed"].split("/")[-1].replace(".mp3", "").rsplit("_", 1)
                 
+                # Determine which word to match based on target_audio: 'find' and 'see' are question phrases and use a different version of the same word 
+                if target_audio in ['find', 'see']:
+                    match_word = f"{target_image}2"
+                else:
+                    match_word = target_image
+                    
+                # Get onset info by matching word column
+                current_word_onset_info = word_onset_info[word_onset_info['word'] == match_word]
+                if not current_word_onset_info.empty:
+                    article_length = current_word_onset_info['article_length'].iloc[0]
+                    current_target_onset = target_onset + article_length
+                else:
+                    print(f"No onset info found for word: {match_word}")
+                
                 num_syllables = syllable_info[syllable_info['word'] == target_image]['syllable_count']
-                target_offset = target_onset + audio_duration_info[audio_duration_info['syllables'] == num_syllables.iloc[0]]['target_word'].iloc[0]
+                target_offset = current_target_onset + audio_duration_info[audio_duration_info['syllables'] == num_syllables.iloc[0]]['target_word'].iloc[0]
 
                 if any(videoStartedIdx) and any(audioStartedIdx):
                     trial_timestamps = \
@@ -95,14 +110,14 @@ def get_lookit_trial_times(lookit_json):
                           'Trials.targetAudio': target_audio, \
                           'Trials.trialType': trial_type, \
                           'Trials.carrier_onset': carrier_onset, \
-                          'Trials.target_onset': target_onset, \
+                          'Trials.target_onset': current_target_onset, \
                           'Trials.target_offset': target_offset, \
+                          'Trials.article_length': article_length if article_length else 0, \
                           'Trials.order': trial_order, \
                           'SubjectInfo.age_at_birth': age_at_birth, \
                           'SubjectInfo.language_list': language_list, \
                           'SubjectInfo.condition_list': condition_list
                           }]
-                    print(trial_timestamps)
                     trial_timing_info = pd.concat([trial_timing_info, pd.DataFrame(trial_timestamps)])
 
     # get trial onset/offset relative to onset of video recording

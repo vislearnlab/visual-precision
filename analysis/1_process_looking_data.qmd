@@ -186,13 +186,15 @@ all_looking_times <- trial_timing_info |>
     Trials.imagePair = gsub("(easy-|hard-|-distractor)", "", Trials.trialID),
     Trials.distractorImage = setdiff(strsplit(Trials.trialID, "-")[[1]], c("easy", "hard", "distractor", Trials.targetImage))[1],
     # Normalizing all times to be 0ms when the target word starts. Target words start at the same time across carrier phrase lengths and conditions - subtracting '225ms' to account for use of article 'the'
-    time_normalized_corrected = time_ms - Trials.audio_lag_vs_video_lag - 225 - Trials.target_onset * 1000,
+    time_normalized_corrected = time_ms - Trials.audio_lag_vs_video_lag - Trials.target_onset * 1000,
     accuracy = ifelse((lookType_coded == "left" & Trials.targetImage == Trials.leftImage) | (lookType_coded == "right" & Trials.targetImage == Trials.rightImage), 1, 0),
     confident_frame = confidence > 0.6,
     not_looking_away = lookType_coded == "left" | lookType_coded == "right",
     lookType = lookType_coded,
     accuracy = ifelse(not_looking_away, accuracy, NA)
   )
+
+
 ```
 
 Qualitatively looking at the range of lag across participants
