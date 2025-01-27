@@ -90,5 +90,3 @@ def lookit_similarities():
     similarity_df = pd.DataFrame(similarity_data)
     similarity_df.to_csv(os.path.join(metadata_path, 'similarities.csv'), index=False)
     return similarity_df
-
-lookit_similarities()

@@ -3,7 +3,7 @@ library(wordbankr)
 library(tools)
 
 # To save a frame list base to be randomized and completed in Lookit
-save_frame_list <- function(stimuli, file_name) {
+save_frame_list <- function(stimuli, file_path) {
   image_list <- list()
   for (i in 1:nrow(stimuli)) {
     image_frame <- tibble(
@@ -26,7 +26,7 @@ save_frame_list <- function(stimuli, file_name) {
   #all_frames <- frame_list_base
   save_stimuli(c(stimuli$Audio_File_Word_1, stimuli$Audio_File_Word_2), image_list)
   frame_list_json <- toJSON(all_frames,pretty=TRUE)
-  write(frame_list_json, here("stimuli", "lookit", "preprocessing", file_name))
+  write(frame_list_json, file_path)
   return(all_frames)
 }
 

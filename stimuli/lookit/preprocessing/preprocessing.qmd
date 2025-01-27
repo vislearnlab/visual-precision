@@ -1,4 +1,6 @@
 
+We are re-using images and stimuli from an older experiment so a lot of this code is re-formatting, adding metadata and moving files to the right directories. We narrow down the stimuli from around 350 image pairs to around 16 image pairs. The main outputs are a stimuli_all.csv file that has metadata for those 16 image pairs and a lookit_stimuli.json file that contains the JSON-formatted stimuli to be used in our Lookit experiment.
+
 Importing packages 
 
 ```{r echo=FALSE}
@@ -22,7 +24,10 @@ if (conda_env != "") {
 ## Stimuli selection and formatting
 
 ```{r constants}
+# Storing stimuli on our Ubuntu server
 STIMULI_PATH = "https://ucsdlearninglabs.org/stimuli/"
+PROJECT_VERSION = Sys.getenv("PROJECT_VERSION")
+# The directory the current file is located in
 SOURCE_CODE_PATH = here("stimuli", "lookit")
 KIND_INFO = "group"
 SOURCE_PATH <- file.path(SOURCE_CODE_PATH, "preprocessing", "older_stimuli", "exp3_garden")
@@ -108,25 +113,22 @@ filtered_stimuli <- filtered_stimuli |>
 ### Creating pilot study JSONs and moving audio and image files to correct directories
 ```{r}
 save_frame_list(filtered_stimuli |>
-  filter(wordPairing == "easy" | wordPairing == "hard"), "pilot_stimuli.json")
+  filter(wordPairing == "easy" | wordPairing == "hard"), here("stimuli", "lookit", "lookit_stimuli.json"))
 ```
 
-Creating CSV to send for initial pilot
+Creating CSV to send for both our pilot and our main study
 ```{r}
-init_stimuli <- merged_aoas(filtered_stimuli, english_ws_aoa) |>
+stimuli_all <- merged_aoas(filtered_stimuli, english_ws_aoa) |>
   arrange(wordPairing, AoA_Est_Word1) |>
   select(-matches("Audio"), -matches("Image"), -item_pair, -est_diff_aoa, -distractorId, -itemGroup, -trial_type) |>
   select(-animacy, -cor, -wordPairing, everything())
 
-pilot_stimuli <- init_stimuli |> filter(wordPairing == "easy" | wordPairing == "hard")
-
-write.csv(pilot_stimuli, file.path(SOURCE_CODE_PATH, "pilot_stimuli.csv"))
-
-write.csv(init_stimuli, file.path(SOURCE_CODE_PATH, "stimuli_all.csv"))
+write.csv(stimuli_all, here("data", "metadata", "stimuli_all.csv"))
 ```
 
-
 ### Convert WAV files to mp3
+Not using the raw WAV files from exp3 anymore but using the same function to process the WAV files processed through Praat
+
 ```{python echo=false}
 import os
 import subprocess as sp
@@ -154,7 +156,7 @@ for audio in audioFiles:
         os.remove(os.path.join(audioPath, audio))
 ```
 
-## Wordbank vs MALD
+## Wordbank vs Kuperman
 
 Exploratory work comparing age-of-acquisitions used for older stimuli, derived from the Kuperman survey, to age-of-acquisitions and words available through Wordbank.
 
@@ -168,8 +170,8 @@ nrow(english_wg_aoa)
 Wordbank only contains 245 words for the younger Words & Gestures dataset with AoA data but contains 573 words for older Words & Sentences dataset. Checking both against existing stimuli pairs to see if we can get to 24 varied trials.
 
 ```{r}
-aoa_stimuli_ws <- merged_stimuli(new_stimuli, english_ws_aoa)
-aoa_stimuli_wg <- merged_stimuli(new_stimuli, english_wg_aoa)
+aoa_stimuli_ws <- merged_stimuli(stimuli_all, english_ws_aoa)
+aoa_stimuli_wg <- merged_stimuli(stimuli_all, english_wg_aoa)
 filtered_words <- as.list(aoa_stimuli_ws |>
   select(Word1, Word2) |>
   unlist() |>
@@ -179,32 +181,36 @@ filtered_words <- as.list(aoa_stimuli_ws |>
 Plotting existing AoA data against new AoA data to look for alignment in correlated pairs
 ```{r}
 # Extracting the AoAs for all of the unique words that are present in both Wordbank and the older stimuli dataset
-aoa_aggregated_diff <- aoa_aggregated |>
-  select(Word1, Word2, item_pair, trial_type, cor, AoA_Est_Word1, AoA_Est_Word2, diff_aoa, AoA_Word1, AoA_Word2, aoa_diff_wb) |>
+aoa_aggregated_diff <- stimuli_all |>
+  filter(!is.na(AoA_Word1_WB) & !is.na(AoA_Word2_WB)) |>
+  mutate(item_pair = paste0(Word1,"_",Word2),
+         diff_aoa = (AoA_Est_Word1 - AoA_Est_Word2)/12,
+         aoa_diff_wb = (AoA_Word1_WB - AoA_Word2_WB)/12) |>
+  select(Word1, Word2, item_pair, wordPairing, cor, AoA_Est_Word1, AoA_Est_Word2, diff_aoa, AoA_Word1_WB, AoA_Word2_WB, aoa_diff_wb) |>
   pivot_longer(cols=starts_with("Word"),
                names_to="Word_Type",
                values_to="Word") |>
-  mutate(AoA_WB = ifelse(Word_Type == "Word1", AoA_Word1, AoA_Word2),
-         AoA_MALD = round((ifelse(Word_Type == "Word1", AoA_Est_Word1, AoA_Est_Word2) - 1.5) * 12)) |>
-  select(Word, AoA_WB, AoA_MALD) |>
+  mutate(AoA_WB = ifelse(Word_Type == "Word1", AoA_Word1_WB, AoA_Word2_WB),
+         AoA_Kuperman = round((ifelse(Word_Type == "Word1", AoA_Est_Word1, AoA_Est_Word2) - 1.5) * 12)) |>
+  select(Word, AoA_WB, AoA_Kuperman) |>
   distinct()
 
 pos <- position_jitter(width = 0.3, seed = 2)
 
-ggplot(aoa_aggregated_diff, aes(x = AoA_MALD, y = AoA_WB)) +
+ggplot(aoa_aggregated_diff, aes(x = AoA_Kuperman, y = AoA_WB)) +
   geom_smooth(method = "lm", se = TRUE, color = "darkgrey", alpha = 0.5) +  # Linear regression line with transparency
   geom_label_repel(force = 50, position=pos, aes(label = Word), formula=y~x) +
   geom_point(color = "lightblue", size = 4, alpha = 0.7, position=pos) + 
-  labs(title = "Age of Acquisition of words based on MALD survey vs WordBank data",
-       x = "MALD AoA (age in months)",
+  labs(title = "Age of Acquisition of our stimuli based on Kuperman survey vs WordBank data",
+       x = "Kuperman AoA (age in months)",
        y = "WordBank AoA (age in months)") +
-  scale_x_continuous(breaks = seq(min(aoa_aggregated_diff$AoA_MALD)-1, 
-                                    max(aoa_aggregated_diff$AoA_MALD), 
+  scale_x_continuous(breaks = seq(min(aoa_aggregated_diff$AoA_Kuperman)-1, 
+                                    max(aoa_aggregated_diff$AoA_Kuperman), 
                                     by = 2)) +  # More ticks on x-axis
   scale_y_continuous(breaks = seq(min(aoa_aggregated_diff$AoA_WB), 
                                     max(aoa_aggregated_diff$AoA_WB), 
                                     by = 2)) +  # More ticks on y-axis 
   theme_minimal()
 
-ggsave(here("stimuli", "lookit", "plots", "maldWordbank.png"))
+ggsave(here("stimuli", "lookit", "preprocessing", "plots", "kupermanWordbank.png"))
 ```
