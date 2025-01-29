@@ -18,6 +18,7 @@ data/raw/icatcher_videos/
 data/raw/icatcher_annotations/
 data/raw/original_videos/
 data/raw/lookit/input_lookit_study.json
+data/raw/lookit/subject_data.csv
 
 stimuli/lookit/preprocessing/older_stimuli/
 stimuli/lookit/instructions/**
