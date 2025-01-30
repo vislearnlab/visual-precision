@@ -1,0 +1,80 @@
+Importing packages 
+
+```{r}
+library(tidyverse)
+library(here)
+library(dotenv)
+library(readr)
+library(rlang)
+
+load_dot_env(file=here(".env"))
+SERVER_PATH = Sys.getenv("SERVER_PATH")
+```
+
+```{r constants}
+RAW_DATA_PATH = file.path(SERVER_PATH, "data", "raw", "lookit")
+
+gift_cards <- read.csv(file.path(RAW_DATA_PATH, "gift_cards.csv"), stringsAsFactors = FALSE)
+
+# Read the subjects data CSV
+subjects_data <- read.csv(file.path(RAW_DATA_PATH, "subject_data.csv"), stringsAsFactors = FALSE)
+```
+
+```{r}
+email_template = 
+  "Dear [parent_name],
+
+Thank you to [child_name] for participating in 'How do children think about categories?' on Children Helping Science, run by Bria Long in the Visual Learning Lab at the University of California, San Diego!
+
+As promised, here is the Amazon.com gift card code for participating:
+
+ [gift_card]
+
+To use this code, please go to: https://www.amazon.com/gc/redeem/
+
+If you have any questions or concerns about your child's participation in this study, please email us at vislearnlab@ucsd.edu
+
+Thank you,
+Tarun Sepuri
+Lab Manager
+Visual Learning Lab, University of California, San Diego
+https://childrenhelpingscience.com/exp/labs/331/
+
+Please do not reply to this message. If you have questions, please email us at vislearnlab@ucsd.edu" 
+```
+
+```{r}
+fill_email <- function(parent_name, child_name, gift_card) {
+  email_filled <- email_template %>%
+    str_replace_all("\\[parent_name\\]", parent_name) %>%
+    str_replace_all("\\[child_name\\]", child_name) %>%
+    str_replace_all("\\[gift_card\\]", gift_card)
+  
+  return(email_filled)
+}
+```
+
+```{r}
+# Filter for unused gift cards
+unused_gift_cards <- gift_cards %>%
+  filter(used == "")
+
+# Filter for parents who haven't been paid
+unpaid_parents <- subjects_data %>%
+  filter(Paid == "")
+
+# Match unused gift cards to unpaid parents
+matched_data <- unpaid_parents %>%
+  mutate(claim_code = unused_gift_cards$claim_code[seq_len(n())]) %>%
+# Remove any NA values in case there are more unpaid parents than unused gift cards 
+  filter(!is.na(claim_code))
+
+# Apply the function to each row and store the output
+output_emails <- mapply(fill_email, matched_data$parent_nickname, matched_data$name, matched_data$claim_code)
+
+# Write to a text file with each output on a new line
+writeLines(output_emails, file.path(RAW_DATA_PATH, "matched_gift_cards.txt"), sep = "\n\n")
+
+# Print confirmation
+cat("Text file 'matched_gift_cards.txt' has been generated successfully!\n")
+```
