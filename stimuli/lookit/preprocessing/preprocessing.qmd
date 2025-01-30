@@ -187,7 +187,7 @@ aoa_aggregated_diff <- stimuli_all |>
          diff_aoa = (AoA_Est_Word1 - AoA_Est_Word2)/12,
          aoa_diff_wb = (AoA_Word1_WB - AoA_Word2_WB)/12) |>
   select(Word1, Word2, item_pair, wordPairing, cor, AoA_Est_Word1, AoA_Est_Word2, diff_aoa, AoA_Word1_WB, AoA_Word2_WB, aoa_diff_wb) |>
-  pivot_longer(cols=starts_with("Word"),
+  pivot_longer(cols=starts_with("Word")& !matches("^wordpairing$"),
                names_to="Word_Type",
                values_to="Word") |>
   mutate(AoA_WB = ifelse(Word_Type == "Word1", AoA_Word1_WB, AoA_Word2_WB),
@@ -209,8 +209,8 @@ ggplot(aoa_aggregated_diff, aes(x = AoA_Kuperman, y = AoA_WB)) +
                                     by = 2)) +  # More ticks on x-axis
   scale_y_continuous(breaks = seq(min(aoa_aggregated_diff$AoA_WB), 
                                     max(aoa_aggregated_diff$AoA_WB), 
-                                    by = 2)) +  # More ticks on y-axis 
+                                    by = 2)) + # More ticks on y-axis +
   theme_minimal()
 
-ggsave(here("stimuli", "lookit", "preprocessing", "plots", "kupermanWordbank.png"))
+ggsave(here("stimuli", "lookit", "preprocessing", "plots", "kupermanWordbank.png"), bg="white")
 ```
