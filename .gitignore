@@ -22,3 +22,7 @@ data/raw/lookit/input_lookit_study.json
 stimuli/lookit/preprocessing/older_stimuli/
 stimuli/lookit/instructions/**
 stimuli/lookit/audio/**
+
+models/openclip/checkpoints/
+models/multimodal/
+models/silicon-menagerie/
