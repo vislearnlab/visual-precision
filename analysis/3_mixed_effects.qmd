@@ -2,12 +2,16 @@
 library(tidyverse)
 library(here)
 library(lmerTest)
+library(dotenv)
+
+load_dot_env(file=here(".env"))
+PROJECT_VERSION = Sys.getenv("PROJECT_VERSION")
 ```
 
 ### Load data
 ```{r}
 trial_metadata <- read.csv(here("data","metadata","trial_metadata.csv"))
-trial_summary_data <- read.csv(here("data","processed_data","trial_summary_data.csv"))
+trial_summary_data <- read.csv(here("data",PROJECT_VERSION, "processed_data","trial_summary_data.csv"))
 
 usable_trials <- trial_summary_data |>
   filter(exclude_participant_insufficient_data == 0 & trial_exclusion == 0 & exclude_participant == 0) 
@@ -28,5 +32,14 @@ main_effect <- lmer(corrected_target_looking ~ (text_similarity_centered * test_
                     + (1|Trials.targetImage) 
                     + (1|Trials.imagePair), 
                     data = trials_with_effect_vars)
+
+
+age_effect <- lmer(corrected_target_looking ~ (test_age_centered) 
+                    + (1|Trials.targetImage) 
+                    + (1|Trials.imagePair), 
+                    data = trials_with_effect_vars)
+
+summary(main_effect)
+anova(main_effect)
 
 ```

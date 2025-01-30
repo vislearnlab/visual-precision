@@ -14,12 +14,13 @@ load_dot_env(file=here(".env"))
 ```{r constants}
 PROJECT_VERSION = Sys.getenv("PROJECT_VERSION")
 METADATA_PATH = here("data", "metadata")
+
 DATA_TO_ANALYZE_PATH = here("data", PROJECT_VERSION, "data_to_analyze")
 
 # Importing trial and participant information from Lookit
 trial_timing_info = read.csv(file.path(DATA_TO_ANALYZE_PATH, "lookit_trial_timing_info.csv"))
 stimuli_metadata = read.csv(file.path(METADATA_PATH, "stimuli_all.csv"))
-similarities <- read.csv(here("data", "metadata", "similarities.csv"))
+similarities <- read.csv(here("data", "embeddings", "clip_similarities.csv"))
 ```
 
 ```{r helpers}
@@ -441,6 +442,14 @@ technical_trial_issues <- all_looking_times |>
   select(SubjectInfo.subjID, Trials.trialID,technical_issue_exclusion_reason,exclude_technical_issue, video_capture_time, framerate)
 ```
 
+Frame rate distribution
+```{r}
+fps_distribution <- technical_trial_issues |>
+  mutate(rounded_framerate = round(framerate)) 
+
+hist(fps_distribution$rounded_framerate, breaks = 10, main = "Frame rate distribution", xlab = "Frame rate (Hz)", ylab = "Number of trials")
+```
+
 
 ```{r message=FALSE}
 #integrate with central tracking file
@@ -568,6 +577,7 @@ In order to plot participants' average proportion looking to the target across t
 target_ms_per_frame <- 1000/30
 #resample times
 looking_times_resampled <- all_looking_times %>%
+  #filter(usable_window==1) %>%
   #rename and transform variables for resampling function
   mutate(
     aoi = case_when(
