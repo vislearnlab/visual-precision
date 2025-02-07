@@ -1,6 +1,0 @@
-SubjectInfo.subjID,number_distinct_sessions,total_trials,total_trials_critical_window,total_trials_short,exclude_participant_insufficient_data,exclude_participant_insufficient_data_critical,exclude_participant_insufficient_data_short,exclude_participant,preterm_infant_exclusion,non_english_exposure_exclusion,side_bias_exclusion
-AWMRW7,1,25,25,24,0,0,0,0,0,0,0
-CS7F6L,1,12,12,12,1,1,1,0,0,0,0
-M7RZU2,1,24,24,23,0,0,0,0,0,0,0
-QcRBVD,1,31,31,31,0,0,0,0,0,0,0
-ZPX2dD,1,25,25,25,0,0,0,0,0,0,0

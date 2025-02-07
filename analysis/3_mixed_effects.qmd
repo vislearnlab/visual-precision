@@ -10,8 +10,8 @@ PROJECT_VERSION = Sys.getenv("PROJECT_VERSION")
 
 ### Load data
 ```{r}
-trial_metadata <- read.csv(here("data","metadata","trial_metadata.csv"))
-trial_summary_data <- read.csv(here("data",PROJECT_VERSION, "processed_data","trial_summary_data.csv"))
+trial_metadata <- read.csv(here("data","metadata","level-trialtype_data.csv"))
+trial_summary_data <- read.csv(here("data",PROJECT_VERSION, "processed_data","level-trials_data.csv"))
 
 usable_trials <- trial_summary_data |>
   filter(exclude_participant_insufficient_data == 0 & trial_exclusion == 0 & exclude_participant == 0) 

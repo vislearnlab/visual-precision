@@ -18,9 +18,9 @@ METADATA_PATH = here("data", "metadata")
 DATA_TO_ANALYZE_PATH = here("data", PROJECT_VERSION, "data_to_analyze")
 
 # Importing trial and participant information from Lookit
-trial_timing_info = read.csv(file.path(DATA_TO_ANALYZE_PATH, "lookit_trial_timing_info.csv"))
-stimuli_metadata = read.csv(file.path(METADATA_PATH, "stimuli_all.csv"))
-similarities <- read.csv(here("data", "embeddings", "clip_similarities.csv"))
+trial_timing_info = read.csv(file.path(DATA_TO_ANALYZE_PATH, "level-trials_source-lookit_data.csv"))
+stimuli_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_data.csv"))
+similarities <- read.csv(here("data", "embeddings", "similarities-clip_data.csv"))
 ```
 
 ```{r helpers}
@@ -172,7 +172,7 @@ Importing looking time data after initial preprocessing of iCatcher data in Pyth
 ```{r}
 # Importing looking time data from iCatcher+
 timestamp_data <- read_csv(
-  file.path(DATA_TO_ANALYZE_PATH, paste("processed", "icatcher.csv", sep = "_")),
+  file.path(DATA_TO_ANALYZE_PATH, "level-looks_source-icatcher_data.csv"),
   show_col_types = FALSE
 )
 
@@ -188,10 +188,9 @@ all_looking_times <- trial_timing_info |>
     Trials.distractorImage = setdiff(strsplit(Trials.trialID, "-")[[1]], c("easy", "hard", "distractor", Trials.targetImage))[1],
     # Normalizing all times to be 0ms when the target word starts. Target words start at the same time across carrier phrase lengths and conditions - subtracting '225ms' to account for use of article 'the'
     time_normalized_corrected = time_ms - Trials.audio_lag_vs_video_lag - Trials.target_onset * 1000,
-    accuracy = ifelse((lookType_coded == "left" & Trials.targetImage == Trials.leftImage) | (lookType_coded == "right" & Trials.targetImage == Trials.rightImage), 1, 0),
+    accuracy = ifelse((lookType == "left" & Trials.targetImage == Trials.leftImage) | (lookType == "right" & Trials.targetImage == Trials.rightImage), 1, 0),
     confident_frame = confidence > 0.6,
-    not_looking_away = lookType_coded == "left" | lookType_coded == "right",
-    lookType = lookType_coded,
+    not_looking_away = lookType == "left" | lookType == "right",
     accuracy = ifelse(not_looking_away, accuracy, NA)
   )
 
@@ -493,18 +492,22 @@ summarize_subj_trials <- summarize_subj_trials %>%
 #### Summarize trial-level data contribution exclusions
 
 ```{r message=FALSE}
-## summarize the total number of usable trials
+## summarize the total number of usable trials - does not include infants who do not have any sessions with age exclusions
 summarize_usable_trials <- summarize_subj_trials %>%
-  #filter trial-level exclusions
-  filter(trial_exclusion==0) %>%
+  group_by(SubjectInfo.subjID) %>%
   #filter age exclusions
   filter(age_exclusion==0) %>%
-  group_by(SubjectInfo.subjID) %>%
   summarize(
-    num_usable_trials=sum(usable_window),
-    num_usable_trials_critical_window = sum(usable_critical_window),
-    num_usable_trials_short=sum(usable_window_short)
+    num_usable_trials=sum(usable_window, na.rm=TRUE),
+    num_usable_trials_critical_window = sum(usable_critical_window, na.rm=TRUE),
+    num_usable_trials_short=sum(usable_window_short, na.rm=TRUE)
   )
+
+# participants who do not have any sessions included because of their age during participation
+age_excluded_infants <- summarize_subj_trials |>
+  filter(age_exclusion == 1 & !(SubjectInfo.subjID %in% participant_total_usable_trials$SubjectInfo.subjID)) |>
+  distinct(SubjectInfo.subjID, SubjectInfo.testAge)
+num_age_excluded <- nrow(age_excluded_infants |> distinct(SubjectInfo.subjID))
 
 #total trials
 participant_total_usable_trials <- summarize_usable_trials %>%
@@ -520,14 +523,12 @@ participant_total_usable_trials <- summarize_usable_trials %>%
     total_trials = ifelse(is.na(total_trials),0,total_trials),
     total_trials_critical_window = ifelse(is.na(total_trials_critical_window),0,total_trials_critical_window),
     total_trials_short = ifelse(is.na(total_trials_short),0,total_trials_short),
-    exclude_participant_insufficient_data = ifelse(total_trials<20,1,0),
-    exclude_participant_insufficient_data_critical = ifelse(total_trials_critical_window<20,1,0),
-    exclude_participant_insufficient_data_short = ifelse(total_trials_short<20,1,0)
-  )
-
+    exclude_participant_insufficient_data = ifelse(total_trials<16,1,0),
+    exclude_participant_insufficient_data_critical = ifelse(total_trials_critical_window<16,1,0),
+    exclude_participant_insufficient_data_short = ifelse(total_trials_short<16,1,0),
+  ) 
 #participants to exclude based on data contribution
-print("Pilot data:")
-print(paste("Excluded participants:", sum(participant_total_usable_trials$exclude_participant_insufficient_data,na.rm=T)))
+print(paste("Excluded participants:", sum(participant_total_usable_trials$exclude_participant_insufficient_data,na.rm=T) + num_age_excluded))
 #participants to keep
 print(paste("Included participants:", sum(participant_total_usable_trials$exclude_participant_insufficient_data==0,na.rm=T)))
 
@@ -547,9 +548,11 @@ all_looking_times <- all_looking_times %>%
   mutate(
     preterm_infant_exclusion = ifelse(SubjectInfo.subjID %in% preterm_infants,1,0),
     non_english_exposure_exclusion = ifelse(SubjectInfo.subjID %in% non_english_exposure,1,0),
-    #dev_concern_exclusion = ifelse(SubjectInfo.subjID %in% dev_concern_infants,1,0),
+    dev_concern_exclusion = ifelse(SubjectInfo.subjID %in% dev_concern_infants,1,0),
     side_bias_exclusion = ifelse(SubjectInfo.subjID %in% side_bias_infants,1,0),
-    exclude_participant = ifelse(SubjectInfo.subjID %in% subject_exclusions,1,0)
+    exclude_participant = ifelse(SubjectInfo.subjID %in% subject_exclusions,1,0),
+    # Infants excluded because they completed all of their trials out of the required age range
+    exclude_participant_insufficient_data = ifelse(is.na(exclude_participant_insufficient_data),1,exclude_participant_insufficient_data)
   )
 
 overview_exclusions <- distinct(all_looking_times,
@@ -557,7 +560,7 @@ overview_exclusions <- distinct(all_looking_times,
                                 exclude_participant,
                                 preterm_infant_exclusion,
                                 non_english_exposure_exclusion,
-                                #dev_concern_exclusion,
+                                dev_concern_exclusion,
                                 side_bias_exclusion,
                                 exclude_participant_insufficient_data)
 
@@ -577,7 +580,7 @@ In order to plot participants' average proportion looking to the target across t
 target_ms_per_frame <- 1000/30
 #resample times
 looking_times_resampled <- all_looking_times %>%
-  #filter(usable_window==1) %>%
+  filter(usable_window==1) %>%
   #rename and transform variables for resampling function
   mutate(
     aoi = case_when(
@@ -630,11 +633,11 @@ if (!dir.exists(PROCESSED_DATA_PATH)) {
 }
 
 #write a dataset with exclusions processed
-write_csv(all_looking_times, file.path(PROCESSED_DATA_PATH,"looking_times_with_exclusion_info.csv"))
-write_csv(looking_time_resampled_clean, file.path(PROCESSED_DATA_PATH, "looking_times_resampled_clean.csv"))
-saveRDS(all_looking_times, file.path(PROCESSED_DATA_PATH, "looking_times_with_exclusion_info.rds"))
+write_csv(all_looking_times, file.path(PROCESSED_DATA_PATH,"level-looks_added-metadata_data.csv"))
+write_csv(looking_time_resampled_clean, file.path(PROCESSED_DATA_PATH, "level-looks_data.csv"))
+#saveRDS(all_looking_times, file.path(PROCESSED_DATA_PATH, "looking_times_with_exclusion_info.rds"))
 #write out usable trial summary
-write_csv(participant_total_usable_trials,file.path(PROCESSED_DATA_PATH, "participant_usable_trial_summary.csv"))
-write_csv(summarize_subj_trials,file.path(PROCESSED_DATA_PATH, "trial_summary_data.csv"))
-write_csv(trial_metadata, here("data", "metadata", "trial_metadata.csv"))
+write_csv(participant_total_usable_trials,file.path(PROCESSED_DATA_PATH, "level-participant_added-trials_data.csv"))
+write_csv(summarize_subj_trials,file.path(PROCESSED_DATA_PATH, "level-trials_data.csv"))
+write_csv(trial_metadata, here("data", "metadata", "level-trialtype_data.csv"))
 ```

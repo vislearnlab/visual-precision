@@ -175,13 +175,13 @@ add_age_split <- function(data) {
 ### Load data
 ```{r}
 PROCESSED_DATA_PATH = here("data",PROJECT_VERSION,"processed_data")
-looking_time_resampled_clean <- read.csv(file.path(PROCESSED_DATA_PATH, "looking_times_resampled_clean.csv"))
-all_looking_times <- read.csv(file.path(PROCESSED_DATA_PATH,"looking_times_with_exclusion_info.csv"))
-trial_metadata <- read.csv(here("data","metadata","trial_metadata.csv"))
-trial_summary_data <- read.csv(file.path(PROCESSED_DATA_PATH,"trial_summary_data.csv"))
+looking_time_resampled_clean <- read.csv(file.path(PROCESSED_DATA_PATH, "level-looks_data.csv"))
+all_looking_times <- read.csv(file.path(PROCESSED_DATA_PATH,"level-looks_added-metadata_data.csv"))
+trial_metadata <- read.csv(here("data","metadata","level-trialtype_data.csv"))
+trial_summary_data <- read.csv(file.path(PROCESSED_DATA_PATH,"level-trials_data.csv"))
 # TODO: move similarity correlations to exploratory qmd file
-cvcl_similarities <- read.csv(here("data", "embeddings", "cvcl_similarities.csv"))
-openclip_similarities <- read.csv(here("data", "embeddings", "openclip_similarities.csv"))
+cvcl_similarities <- read.csv(here("data", "embeddings", "similarities-cvcl_data.csv"))
+openclip_similarities <- read.csv(here("data", "embeddings", "similarities-openclip_data.csv"))
 
 looking_data_summarized <- trial_summary_data |>
   filter(trial_exclusion == 0 & exclude_participant == 0 & exclude_participant_insufficient_data == 0) |>
@@ -194,6 +194,19 @@ mean_age <- looking_data_summarized %>%
   pull(overall_mean_age) / 30
 
 mean_age <- round(mean_age, 2)
+```
+util function to see what the order of trials were for individual participants
+```{r}
+order_of_trials <- function(data, subjID) {
+  curr_order <- data |>
+  filter(SubjectInfo.subjID == subjID) |>
+  distinct(Trials.trialID, .keep_all=TRUE) |>
+  arrange(Trials.ordinal) |>
+  select(Trials.ordinal, Trials.trialID, Trials.targetImage, Trials.distractorImage, Trials.trialType, Trials.leftImage, Trials.rightImage, Trials.targetAudio)
+  write_csv(curr_order, paste0(subjID,".csv"))
+}
+
+#order_of_trials(all_looking_times, "L7Y4Y6")
 ```
 
 ### Overall timecourse plot of proportion target looking 
@@ -416,11 +429,11 @@ ggsave(here("figures",PROJECT_VERSION,"prop_looking_across_time_age.png"),lookin
 #### Age-split performance
 ```{r}
 participant_age_halves = summarized_data(looking_data_summarized |> add_age_split() |> mutate(acc = corrected_target_looking + 0.5), "age_half", "acc", 
-                                         c("age_half", "SubjectInfo.subjID")) 
+                                         c("age_half", "SubjectInfo.subjID", "SubjectInfo.testAge")) 
 
 
 participant_age_halves_summarized = summarized_data(participant_age_halves |> rename(looking_time = mean_value), "age_half", "looking_time", c("age_half"))
-ggplot(participant_age_halves,
+accuracy_age <- ggplot(participant_age_halves,
        aes(x = age_half, y = mean_value, color = age_half)) +
     geom_violin(aes(color=age_half), alpha=0.2) +
   geom_jitter(size = 3, alpha = 0.3, width=0.2) +
@@ -431,9 +444,33 @@ ggplot(participant_age_halves,
   ylab("Accuracy") +
   xlab("Age half of child") +
   ggpubr::stat_cor(method = "pearson") +
-  labs(caption = (paste0("14-24 month olds age split at M=",mean_age)), title="Word recognition acuracy by age")
+  labs(caption = (paste0("14-24 month olds age split at M=",mean_age, " months")), title="Word recognition acuracy by age")
+accuracy_age
+ggsave(here("figures",PROJECT_VERSION,"accuracy_age.png"),accuracy_age,width=9,height=6,bg = "white")
+```
 
-ggsave(here("figures",PROJECT_VERSION,"accuracy_age.png"),looking_times,width=9,height=6,bg = "white")
+#### Age split continuous
+```{r}
+ggplot(participant_age_halves, aes(x = SubjectInfo.testAge/30, y = mean_value, label = SubjectInfo.subjID)) +
+  #geom_linerange(aes(ymin = lower_ci, ymax = upper_ci), 
+    #             position = position_jitter(width = 0.1, seed = 123),
+   #              alpha = 0.3) +
+  geom_hline(yintercept = 0.5, linetype = "dashed") +
+  geom_point(size = 4, alpha = 0.4,
+             position = position_jitter(width = 0.1, seed = 123)) +
+  geom_smooth() +
+  scale_y_continuous(breaks = seq(0.3, 0.8, by = 0.1), limits = c(0.3, 0.8)) +
+  labs(x = "Age in months", y = "Proportion of target looking", color = "Age half") +
+  ggtitle("Corrected proportion of target looking by age") +
+  theme_minimal() +
+  ggpubr::stat_cor(method = "pearson")
+```
+younger group mean
+```{r}
+younger_mean <- participant_age_halves |>
+  filter(age_half == "younger") |>
+  summarize(mean_value = mean(SubjectInfo.testAge)/30) |>
+  pull(mean_value)
 ```
 ## Easy vs hard trial plots
 
@@ -532,9 +569,10 @@ saliency_effects <- looking_data_summarized |>
   # Calculating the proportion of time looking at the target word even if it isn't the target word in that particular study
  mutate(original_target_looking_baseline_window = ifelse(grepl("distractor", Trials.trialType), 1 - mean_target_looking_baseline_window,   mean_target_looking_baseline_window),
         original_target_looking_critical_window = ifelse(grepl("distractor", Trials.trialType), 1 - mean_target_looking_critical_window, mean_target_looking_critical_window)) |>
+  add_age_split() |>
  summarize(mean_baseline_looking = mean(original_target_looking_baseline_window),
            mean_critical_looking = mean(original_target_looking_critical_window),
-           .by = Trials.imagePair)
+           .by = c(Trials.imagePair, age_half))
   
 ```
 
@@ -648,6 +686,8 @@ clip_age_half_summarized <- looking_data_summarized |>
 
 clip_plots <- generate_multimodal_plots(clip_data_summarized, "CLIP")
 clip_age_plots <- generate_multimodal_age_effect_plots(clip_age_half_summarized, model_type="CLIP")
+clip_plots
+clip_age_plots
 
 # CVCL
 cvcl_similarities_combined <- cvcl_similarities |>
@@ -726,6 +766,8 @@ ggplot(text_correlation_results, aes(x = epoch, y = pearson_cor)) +
 
 image_openclip_age <- epoch_age_half_plot(calculate_correlations(openclip_age_half_summarized, "image_similarity", "mean_value", group_var=c("epoch", "age_half")), "image_similarity")
 text_openclip_age <- epoch_age_half_plot(calculate_correlations(openclip_age_half_summarized, "text_similarity", "mean_value", group_var=c("epoch", "age_half")), "text_similarity")
+image_openclip_age
+text_openclip_age
 ggsave(here("figures",PROJECT_VERSION,"openclip_image_embeddings_age.png"),image_openclip_age,width=9,height=6,bg = "white")
 
 ``` 
@@ -734,6 +776,7 @@ ggsave(here("figures",PROJECT_VERSION,"openclip_image_embeddings_age.png"),image
 ```{r}
 cor(data.frame(trial_metadata$multimodal_similarity, trial_metadata$image_similarity, trial_metadata$text_similarity, trial_metadata$cor))
 cor.test(trial_metadata$image_similarity, trial_metadata$text_similarity)
+# TODO: add direct similarity matrix comparison
 ```
 
 

@@ -13,6 +13,8 @@ venv/
 
 misc/
 
+# excluding full looking time file because it's too big
+data/main/processed_data/level-looks_added-metadata_data.csv
 
 data/raw/icatcher_videos/
 data/raw/icatcher_annotations/

@@ -7,10 +7,9 @@ import os
 from config import *
 
 def get_lookit_trial_times(lookit_json):
-    syllable_info = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "syllables.csv"))
-    audio_duration_info = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "audio_duration_info.csv"))
-    subject_sections = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "subject_sections.csv"))
-    word_onset_info = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "target_word_onset.csv"))
+    audio_duration_info = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "level-syllables_added-audio_data.csv"))
+    subject_sections = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "level-section_data.csv"))
+    word_onset_syllable_info = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "level-wordtype_added-audio_data.csv"))
     # Get section info for this project
     section_row = subject_sections[subject_sections['section_name'] == PROJECT_VERSION].iloc[0]
     start_date = datetime.strptime(section_row['start_date'], '%Y-%m-%d')
@@ -86,14 +85,14 @@ def get_lookit_trial_times(lookit_json):
                     match_word = target_image
                     
                 # Get onset info by matching word column
-                current_word_onset_info = word_onset_info[word_onset_info['word'] == match_word]
-                if not current_word_onset_info.empty:
-                    article_length = current_word_onset_info['article_length'].iloc[0]
+                current_onset_syllable_info = word_onset_syllable_info[word_onset_syllable_info['word'] == match_word]
+                if not current_onset_syllable_info.empty:
+                    article_length = current_onset_syllable_info['article_length'].iloc[0]
                     current_target_onset = target_onset + article_length
                 else:
                     print(f"No onset info found for word: {match_word}")
                 
-                num_syllables = syllable_info[syllable_info['word'] == target_image]['syllable_count']
+                num_syllables = current_onset_syllable_info['syllable_count']
                 target_offset = current_target_onset + audio_duration_info[audio_duration_info['syllables'] == num_syllables.iloc[0]]['target_word'].iloc[0]
 
                 if any(videoStartedIdx) and any(audioStartedIdx):
