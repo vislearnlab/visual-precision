@@ -22,6 +22,7 @@ data/raw/original_videos/
 data/raw/lookit/input_lookit_study.json
 data/raw/lookit/subject_data.csv
 data/raw/lookit/matched_gift_cards.txt
+data/raw/lookit/gift_cards.csv
 
 stimuli/lookit/preprocessing/older_stimuli/
 stimuli/lookit/instructions/**
@@ -29,4 +30,4 @@ stimuli/lookit/audio/**
 
 models/openclip/checkpoints/
 models/multimodal/
-models/silicon-menagerie/
+models/silicon_menagerie/

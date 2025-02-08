@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import itertools
 from feature_generator import FeatureGenerator
 import torch
 import os
@@ -10,11 +11,9 @@ class MultimodalModel(FeatureGenerator):
     
     def __init__(self, model, preprocess, device=None):
         super().__init__(model, preprocess, device)
-        self.image_word_alignment = lambda **x: self.model(**x).logits_per_image.softmax(dim=-1).detach().cpu().numpy()
 
     # Load and preprocess images
-    def preprocess_image(self, image_path):
-        image = Image.open(image_path).convert("RGB")
+    def preprocess_image(self, image):
         return self.preprocess(image).unsqueeze(0).to(self.device)
 
     def preprocess_text(self, text):
@@ -26,9 +25,9 @@ class MultimodalModel(FeatureGenerator):
     def encode_text(self, text):
         return self.model.encode_text(text)
 
-    def image_embeddings(self, image_paths):
+    def image_embeddings(self, images):
         """Get image embeddings"""
-        images = [self.preprocess_image(image_path) for image_path in image_paths]
+        images = [self.preprocess_image(image) for image in images]
         with torch.no_grad():
             embeddings = [self.encode_image(image) for image in images]
         return self.normalize_embeddings(embeddings)
@@ -44,28 +43,20 @@ class MultimodalModel(FeatureGenerator):
         """Get multimodal embeddings: by default, averages image and text embeddings"""
         return [(a + b) / 2 for a, b in zip(image_embeddings, text_embeddings)]
 
-    def similarities(self, word1, word2):
-        image1 = self.stimuli_loader.word_to_image(word1)
-        image2 = self.stimuli_loader.word_to_image(word2)
-        # If either images are not found, return None
-        if image1 is None or image2 is None:
-            return None
-        curr_image_embeddings = self.image_embeddings([image1, image2])
-        curr_text_embeddings = self.text_embeddings([word1, word2])
-        curr_multimodal_embeddings = self.multimodal_embeddings(curr_image_embeddings, curr_text_embeddings)
-        similarity_scores = {
-            'image_similarity': self.similarity(curr_image_embeddings[0], curr_image_embeddings[1]),
-            'text_similarity': self.similarity(curr_text_embeddings[0], curr_text_embeddings[1]),
-            'multimodal_similarity': self.similarity(curr_multimodal_embeddings[0], curr_multimodal_embeddings[1])
-        }
-        print(f"{word1} and {word2} similarity scores: {similarity_scores}")
-        return similarity_scores
+    def similarities(self, word1, word2, dataloader_row):
+        # TODO: this only returns the similarity scores for the first pair of images: need to separate out, indexing is weird
+        for image1, image2 in itertools.combinations(dataloader_row['images'], 2):
+            curr_image_embeddings = self.image_embeddings([image1, image2])
+            curr_text_embeddings = self.text_embeddings([word1, word2])
+            curr_multimodal_embeddings = self.multimodal_embeddings(curr_image_embeddings, curr_text_embeddings)
+            similarity_scores = {
+                'image_similarity': self.similarity(curr_image_embeddings[0], curr_image_embeddings[1]),
+                'text_similarity': self.similarity(curr_text_embeddings[0], curr_text_embeddings[1]),
+                'multimodal_similarity': self.similarity(curr_multimodal_embeddings[0], curr_multimodal_embeddings[1])
+            }
+            return similarity_scores
 
     def normalize_embeddings(self, embeddings):
         """Normalize embeddings to unit L2 norm"""
         return [embedding / embedding.norm(dim=-1, keepdim=True) for embedding in embeddings]
-
-    def image_word_alignment(self, images, words):
-        """Compute alignment between a set of images and a list of words"""
-        inputs = self.preprocess(images=images, text=words, return_tensors="pt", padding=True)
-        return self.image_word_alignment(**inputs)
+    

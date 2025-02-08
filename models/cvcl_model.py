@@ -11,7 +11,6 @@ from multimodal_model import MultimodalModel
 
 load_dotenv()
 
-
 class CVCLGenerator(MultimodalModel):
     def __init__(self):
         self.model, self.preprocess = MultiModalLitModel.load_model()
@@ -22,8 +21,6 @@ class CVCLGenerator(MultimodalModel):
     def preprocess_text(self, text):
         texts, texts_len = self.model.tokenize(text)
         texts, texts_len = texts.to(self.device), texts_len.to(self.device)
-        print(texts)
-        print(texts_len)
         return texts, texts_len
     
     def text_embeddings(self, words):
