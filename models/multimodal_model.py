@@ -9,8 +9,8 @@ import numpy as np
 class MultimodalModel(FeatureGenerator):
     """Abstract base class for multimodal models like CLIP and CVCL that extends FeatureGenerator"""
     
-    def __init__(self, model, preprocess, device=None):
-        super().__init__(model, preprocess, device)
+    def __init__(self, model, preprocess, dataloader=None, device=None):
+        super().__init__(model, preprocess, dataloader, device)
 
     # Load and preprocess images
     def preprocess_image(self, image):
@@ -44,8 +44,9 @@ class MultimodalModel(FeatureGenerator):
         return [(a + b) / 2 for a, b in zip(image_embeddings, text_embeddings)]
 
     def similarities(self, word1, word2, dataloader_row):
+        valid_images = [img for img in dataloader_row['images'] if img is not None]
         # TODO: this only returns the similarity scores for the first pair of images: need to separate out, indexing is weird
-        for image1, image2 in itertools.combinations(dataloader_row['images'], 2):
+        for image1, image2 in itertools.combinations(valid_images, 2):
             curr_image_embeddings = self.image_embeddings([image1, image2])
             curr_text_embeddings = self.text_embeddings([word1, word2])
             curr_multimodal_embeddings = self.multimodal_embeddings(curr_image_embeddings, curr_text_embeddings)
@@ -55,6 +56,12 @@ class MultimodalModel(FeatureGenerator):
                 'multimodal_similarity': self.similarity(curr_multimodal_embeddings[0], curr_multimodal_embeddings[1])
             }
             return similarity_scores
+        print(f"skipping {word1} and {word2} since they do not have valid images")
+        return {
+        'image_similarity': None,
+        'text_similarity': None,
+        'multimodal_similarity': None
+        }
 
     def normalize_embeddings(self, embeddings):
         """Normalize embeddings to unit L2 norm"""

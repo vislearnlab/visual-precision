@@ -5,9 +5,9 @@ from multimodal_model import MultimodalModel
 load_dotenv()
 
 class CLIPGenerator(MultimodalModel):
-    def __init__(self):
+    def __init__(self, dataloader=None, device=None):
         self.model, self.preprocess = clip.load("ViT-B/32")
-        super().__init__(self.model, self.preprocess)
+        super().__init__(self.model, self.preprocess, dataloader, device)
         self.name = "clip"
     
     def preprocess_text(self, text):
