@@ -3,7 +3,7 @@ import subprocess
 import re
 import json
 import csv
-from ..config import PROJECT_PATH, SERVER_PATH, PROJECT_VERSION
+from config import PROJECT_PATH, SERVER_PATH
 hashed_ids = {}
 
 # Making a map of the response UUIDs to the child hashed IDs for easier storage
@@ -71,6 +71,10 @@ def clean_lookit_json(input_lookit_json, cleaned_path, subject_data_path):
 
     # Write to CSV file, appending if it exists
     mode = 'a' if os.path.exists(subject_data_path) else 'w'
+    if mode == 'a':
+        with open(subject_data_path, 'a') as f:
+            f.seek(0, 2)  # Move the pointer to the end of the file
+            f.write('\n')  # Add a new line if it's not empty
     with open(subject_data_path, mode, newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=subject_csv_header)
         if mode == 'w':  # Only write header for new files
