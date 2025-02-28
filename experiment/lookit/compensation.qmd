@@ -26,11 +26,7 @@ email_template =
 
 Thank you to [child_name] for participating in 'How do children think about categories?' on Children Helping Science, run by Bria Long in the Visual Learning Lab at the University of California, San Diego!
 
-As promised, here is the Amazon.com gift card code for participating:
-
- [gift_card]
-
-To use this code, please go to: https://www.amazon.com/gc/redeem/
+As promised, here [gift_card] is the link to the Amazon.com gift card for participating.
 
 If you have any questions or concerns about your child's participation in this study, please email us at vislearnlab@ucsd.edu
 
