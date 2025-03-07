@@ -21,8 +21,8 @@ def hashed_id_map(responses_path):
 def clean_lookit_json(input_lookit_json, cleaned_path, subject_data_path):
     f = open(input_lookit_json)
     lookit_json = json.load(f)
-    identifiable_fields = ['birthday', 'age_in_days', 'name', 'global_id', 'nickname']
-    child_subject_fields = ['name', 'birthday', 'age_in_days', 'global_id', 'age_at_birth', 'age_rounded','gender']
+    identifiable_fields = ['birthday', 'age_in_days', 'name', 'global_id', 'nickname', 'additional_information']
+    child_subject_fields = ['name', 'birthday', 'age_in_days', 'global_id', 'age_at_birth', 'age_rounded','gender', 'additional_information']
     subject_csv_rows = []
     subject_csv_header = ['local_id', 'hashed_id'] + child_subject_fields + ['parent_nickname', 'parent_global_id', 'parent_hashed_id', 'date_created', 'response_id']
     local_id_count = 0
