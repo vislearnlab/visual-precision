@@ -25,9 +25,9 @@ def get_lookit_trial_times(lookit_json):
     trial_timing_info = pd.DataFrame()
 
     for session_info in study_info:
-        print(session_info.keys())
         # Parse session date and check if it is within the data collection bounds of the project version
         session_date = datetime.strptime(session_info['response']['date_created'].split()[0], '%Y-%m-%d')
+        response_id = session_info['response']['uuid']
         if session_date <= start_date:
             continue
         if end_date and not pd.isna(end_date) and session_date >= end_date:
@@ -115,7 +115,9 @@ def get_lookit_trial_times(lookit_json):
                           'Trials.order': trial_order, \
                           'SubjectInfo.age_at_birth': age_at_birth, \
                           'SubjectInfo.language_list': language_list, \
-                          'SubjectInfo.condition_list': condition_list
+                          'SubjectInfo.condition_list': condition_list, \
+                          'Session.response_id': response_id, \
+                          'Session.date': session_date
                           }]
                     trial_timing_info = pd.concat([trial_timing_info, pd.DataFrame(trial_timestamps)])
 

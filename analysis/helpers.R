@@ -84,7 +84,7 @@ summarize_data <- function(data,summary_field) {
 
 resample_aoi_trial <- function(df_trial, sample_duration=1000/30) {
   
-  print(paste0("Subject Number: ",unique(df_trial$sub_num), "; Trial Number: ", unique(df_trial$Trials.ordinal)))
+  #print(paste0("Subject Number: ",unique(df_trial$sub_num), "; Trial Number: ", unique(df_trial$Trials.ordinal)))
   
   t_origin <- df_trial$t_norm
   data_origin <- df_trial$aoi
@@ -153,6 +153,50 @@ add_age_split <- function(data) {
     )
 }
 
+add_aoa_split <- function(data) {
+  data |>
+    mutate(mean_aoa = mean(AoA_Est_target),
+           aoa_half = ifelse(AoA_Est_target > mean(AoA_Est_target), "higher", "lower"))
+}
+
+half_violins_plot <- function(data, x_var, y_var, group_var, violin_conditions, input_xlab="Distractor Difficulty Condition",
+                              input_ylab="Baseline-Corrected\nProportion Target Looking",input_caption="") {
+  avg_corrected_target_looking <- summarized_data(data, x_var, y_var, group_var) |> filter(N > 5)
+  
+  overall_corrected_target_looking <- summarized_data(avg_corrected_target_looking |>
+                                        rename(avg_corrected_target_looking = mean_value), x_var, "avg_corrected_target_looking", x_var)
+  
+  overall_corrected_target_looking_by_condition %>%
+    knitr::kable()
+  
+  set.seed(2)
+  
+  overall_condition_plot <- ggplot(avg_corrected_target_looking, aes(x=.data[[x_var]], y=mean_value, fill=.data[[x_var]])) +
+    gghalves::geom_half_violin(data=filter(avg_corrected_target_looking, .data[[x_var]]==violin_conditions[[1]]), 
+                               position=position_nudge(x=-.1, y=0), width=1, trim=FALSE, alpha=.8, 
+                               color=NA, side="l", fill="#77DD77") +  # Pastel green
+    gghalves::geom_half_violin(data=filter(avg_corrected_target_looking, .data[[x_var]]==violin_conditions[[2]]), 
+                               position=position_nudge(x=.1, y=0), width=1, trim=FALSE, alpha=.8, 
+                               color=NA, side="r", fill="#FF6961") +  # Pastel red
+    geom_path(aes(group=SubjectInfo.subjID), color="black", fill=NA, alpha=0.15, size=0.75, position=jitterer) +   
+    geom_point(aes(color=.data[[x_var]], group=SubjectInfo.subjID), size=2.5, alpha=0.15, position=jitterer) +
+    geom_point(data=overall_corrected_target_looking, aes(y=mean_value), color="black", size=5) +
+    geom_line(data=overall_corrected_target_looking, aes(y=mean_value, group=1), color="black", size=3) +
+    geom_errorbar(data=overall_corrected_target_looking, aes(y=mean_value, ymin=lower_ci, ymax=upper_ci), width=0, size=1.2, color="black") +
+    geom_hline(yintercept=0, linetype="dashed") +
+    scale_color_manual(values = setNames(c("#77DD77", "#FF6961"), 
+                                         as.character(sapply(violin_conditions, sym)))) +# Match point colors
+    theme(legend.position="none") +
+    xlab(input_xlab) +
+    ylab(input_ylab) +
+    labs(title="", caption = input_caption) +
+    theme(axis.title.x = element_text(face="bold", size=20),
+          axis.text.x  = element_text(size=14),
+          axis.title.y = element_text(face="bold", size=20),
+          axis.text.y  = element_text(size=16),
+          strip.text.x = element_text(size=16, face="bold"))
+}
+
 similarity_effect_plot <- function(data, x_var, y_var="mean_value", model_type) {
   sim_type <- strsplit(x_var, "_")[[1]][1]
   ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]])) +
@@ -160,7 +204,7 @@ similarity_effect_plot <- function(data, x_var, y_var="mean_value", model_type) 
     geom_point(size = 3, alpha = 0.5) +
     geom_linerange(aes(ymin = .data[[y_var]] - ci, ymax = .data[[y_var]] + ci), alpha = 0.1) + 
     geom_smooth(method = "lm") +
-    geom_label_repel(aes(label = paste(Trials.targetImage, "-", Trials.distractorImage)), max.overlaps = Inf) +
+    geom_label_repel(aes(label = paste(Trials.targetImage, "-", Trials.distractorImage)), max.overlaps = 5) +
     ylab("Baseline-corrected proportion target looking") +
     xlab(paste(model_type,"target-distractor",sim_type,"similarity")) +
     ggpubr::stat_cor(method = "spearman")
@@ -173,25 +217,46 @@ similarity_age_half_plot <- function(data, x_var, y_var="mean_value", group_var=
     geom_point(size = 3, alpha = 0.5) +
     geom_smooth(method = "lm") +
     geom_linerange(aes(ymin = .data[[y_var]] - ci, ymax = .data[[y_var]] + ci), alpha = 0.1) + 
-    scale_color_brewer(palette = "Set2", name="Age half") +  # Using RColorBrewer for colors
+    scale_color_brewer(palette = "Set1", name="Age half") +  # Using RColorBrewer for colors
     ylab("Baseline-corrected proportion target looking") +
     xlab(paste(model_type,"target-distractor",sim_type,"similarity")) +
     ggpubr::stat_cor(method = "spearman") +
     labs(caption=paste0("Labels are in the order of target-distractor. M=",mean_age," months"))
 }
 
+age_half_plot <- function(data, x_var, y_var="mean_value", group_var="age_half", x_label, y_label="Baseline-corrected proportion target looking", labels=c(), title="") {
+  sim_type <- strsplit(x_var, "_")[[1]][1]
+  ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]], color = .data[[group_var]])) +
+    geom_hline(yintercept=0,linetype="dashed")+
+    geom_point(size = 3, alpha = 0.5) +
+    geom_smooth(method = "lm") +
+    geom_linerange(aes(ymin = .data[[y_var]] - ci, ymax = .data[[y_var]] + ci), alpha = 0.1) + 
+    scale_color_brewer(palette = "Set1", name="Age half") +  # Using RColorBrewer for colors
+    ylab("Baseline-corrected proportion target looking") +
+    xlab(x_label) +
+    ggpubr::stat_cor(method = "spearman") +
+    labs(caption=paste0("M=",mean_age," months"), title=title)
+}
+
 epoch_age_half_plot <- function(data, x_var) {
   sim_type <- strsplit(x_var, "_")[[1]][1]
+  
   ggplot(data, aes(x = epoch, y = pearson_cor, color = age_half)) +
-    geom_point(aes(shape = p_value < 0.05), size = 3) + 
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    geom_point(size = 3) +  # Apply jitter to points only
+    geom_errorbar(data = data[(data$epoch %% 7 == 0 & data$age_half == "younger") | 
+                                (data$epoch %% 5 == 0 & data$age_half == "older"), ], 
+                  aes(ymin = ci_lower, ymax = ci_upper), 
+                  width = 0.3, alpha = 0.5) +  # No jitter on error bars
     geom_smooth(span = 2) +
     labs(title = paste(sim_type, "similarity correlation across Open-CLIP training"),
          x = "Epoch",
-         y = "Coefficient of similarity") +  # Set color for significance
+         y = "Coefficient of similarity") +  
     theme_minimal() +
     guides(shape = "none") +
-    scale_color_brewer(palette = "Set2", name="Age half") 
+    scale_color_brewer(palette = "Set1", name = "Age half") 
 }
+
 
 summarize_similarity_data <- function(data, extra_fields=NULL) {
   group_vars = c("Trials.trialID", "Trials.targetImage", "Trials.distractorImage", "image_similarity", "cor")

@@ -20,6 +20,7 @@ DATA_TO_ANALYZE_PATH = here("data", PROJECT_VERSION, "data_to_analyze")
 # Importing trial and participant information from Lookit
 trial_timing_info = read.csv(file.path(DATA_TO_ANALYZE_PATH, "level-trials_source-lookit_data.csv"))
 stimuli_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_data.csv"))
+saliency_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_added-saliency_data.csv"))
 similarities <- read.csv(here("data", "embeddings", "similarities-clip_data.csv"))
 ```
 
@@ -50,6 +51,22 @@ all_looking_times <- trial_timing_info |>
   )
 ```
 
+Only keeping trials from the first session trials for participants who participated twice - an exception is made for NP4PXK who only completed 2 trials in their first session. Make a note in the subject spreadsheet to only pay these participants once.
+```{r}
+multiple_sessions <- all_looking_times |>
+  distinct(SubjectInfo.subjID, Session.date, Session.response_id) |>
+  group_by(SubjectInfo.subjID) |>
+   mutate(
+    session_count = n_distinct(Session.date),
+    min_session_date = min(Session.date),
+    second_session_date = nth(sort(unique(Session.date)), 2, default = NA) # Get 2nd session date if available
+  ) |>  
+  filter(session_count > 1 & Session.date != min(Session.date) & SubjectInfo.subjID != "NP4PXK" |
+           SubjectInfo.subjID == "NP4PXK" & Session.date != second_session_date)
+
+all_looking_times <- anti_join(all_looking_times, multiple_sessions, by = c("SubjectInfo.subjID", "Session.date"))
+```
+
 Qualitatively looking at the range of lag across participants
 ```{r message=FALSE}
 lag_analysis <- all_looking_times |>
@@ -72,7 +89,7 @@ We also compute relevant side-bias information.
 
 ```{r message=FALSE}
 critical_window <- c(300,3500)
-critical_window_short <- c(300,1800)
+critical_window_short <- c(300,2500)
 baseline_window <- c(-2000,0)
 
 # summarize critical window
@@ -133,7 +150,14 @@ similarities_combined <- similarities |>
 
 trial_metadata <- trial_metadata |>
   left_join(similarities_combined, by = c("Trials.distractorImage"="word_a", "Trials.targetImage"="word_b")) |>
-  distinct(Trials.trialID, .keep_all=TRUE)
+  distinct(Trials.trialID, .keep_all=TRUE) |>
+  left_join(saliency_metadata |> select(matches("Mean"), "ImagePair"), by = c("Trials.imagePair"="ImagePair")) |>
+  mutate(
+    MeanSaliencyDiff = if_else(grepl("distractor", Trials.trialID), -MeanSaliencyDiff, MeanSaliencyDiff),
+    tmp = MeanTargetSaliency,
+    MeanTargetSaliency = if_else(grepl("distractor", Trials.trialID), MeanDistractorSaliency, MeanTargetSaliency),
+    MeanDistractorSaliency = if_else(grepl("distractor", Trials.trialID), tmp, MeanDistractorSaliency)
+  ) |> select(-tmp)
 
 
 # Pulling in specific data about individual words that are currently being labeled as being data about word1 and word2 in respective trials, for example the age-of-acquisition of the words
@@ -163,13 +187,16 @@ subject_exclusions <- c()
 #### Age-based exclusions
 
 ```{r message=FALSE}
-age_excluded_infant_sessions <- all_looking_times %>%
+age_excluded_infant_sessions_all <- all_looking_times %>%
   distinct(SubjectInfo.subjID,SubjectInfo.testAge) %>%
   #filter out children outside of the age bounds (older than 14 months and younger than 24 months)
   filter(!(424<=SubjectInfo.testAge & SubjectInfo.testAge<=761)) %>%
   mutate(
     age_exclusion = 1
   )
+
+age_excluded_infant_sessions <- age_excluded_infant_sessions_all |>
+  filter(!(420<=SubjectInfo.testAge & SubjectInfo.testAge<=760))
 
 #reintegrate with data because this exclusion decision has implications for data-contribution-based exclusions
 all_looking_times <- all_looking_times %>%
@@ -227,7 +254,7 @@ Any infants noted as having a developmental concern were excluded.
 ```{r}
 dev_concern_infants <- all_looking_times %>%
   distinct(SubjectInfo.subjID,SubjectInfo.condition_list) %>%
-  filter(!is.na(SubjectInfo.condition_list)) %>%
+  filter(!is.na(SubjectInfo.condition_list) & SubjectInfo.condition_list != "") %>%
   pull(SubjectInfo.subjID)
 subject_exclusions <- c(subject_exclusions,dev_concern_infants)
 ```
@@ -347,7 +374,7 @@ summarize_subj_trials <- summarize_subj_trials %>%
 summarize_usable_trials <- summarize_subj_trials %>%
   group_by(SubjectInfo.subjID) %>%
   #filter age exclusions
-  filter(age_exclusion==0) %>%
+  filter(age_exclusion==0 & trial_exclusion==0) %>%
   summarize(
     num_usable_trials=sum(usable_window, na.rm=TRUE),
     num_usable_trials_critical_window = sum(usable_critical_window, na.rm=TRUE),
@@ -356,9 +383,14 @@ summarize_usable_trials <- summarize_subj_trials %>%
 
 # participants who do not have any sessions included because of their age during participation
 age_excluded_infants <- summarize_subj_trials |>
-  filter(age_exclusion == 1 & !(SubjectInfo.subjID %in% participant_total_usable_trials$SubjectInfo.subjID)) |>
+  filter(age_exclusion == 1 & !(SubjectInfo.subjID %in% summarize_usable_trials$SubjectInfo.subjID)) |>
   distinct(SubjectInfo.subjID, SubjectInfo.testAge)
 num_age_excluded <- nrow(age_excluded_infants |> distinct(SubjectInfo.subjID))
+
+zero_trials_included <- summarize_subj_trials |>
+  filter(age_exclusion != 1 & trial_exclusion == 1 & !(SubjectInfo.subjID %in% summarize_usable_trials$SubjectInfo.subjID)) |>
+  distinct(SubjectInfo.subjID, SubjectInfo.testAge)
+num_zero_trials <- nrow(zero_trials_included |> distinct(SubjectInfo.subjID))
 
 #total trials
 participant_total_usable_trials <- summarize_usable_trials %>%
@@ -379,7 +411,7 @@ participant_total_usable_trials <- summarize_usable_trials %>%
     exclude_participant_insufficient_data_short = ifelse(total_trials_short<16,1,0),
   ) 
 #participants to exclude based on data contribution
-print(paste("Excluded participants:", sum(participant_total_usable_trials$exclude_participant_insufficient_data,na.rm=T) + num_age_excluded))
+print(paste("Excluded participants:", sum(participant_total_usable_trials$exclude_participant_insufficient_data,na.rm=T) + num_age_excluded + num_zero_trials))
 #participants to keep
 print(paste("Included participants:", sum(participant_total_usable_trials$exclude_participant_insufficient_data==0,na.rm=T)))
 
@@ -402,7 +434,7 @@ all_looking_times <- all_looking_times %>%
     dev_concern_exclusion = ifelse(SubjectInfo.subjID %in% dev_concern_infants,1,0),
     side_bias_exclusion = ifelse(SubjectInfo.subjID %in% side_bias_infants,1,0),
     exclude_participant = ifelse(SubjectInfo.subjID %in% subject_exclusions,1,0),
-    # Infants excluded because they completed all of their trials out of the required age range
+    # Making sure infants excluded because they completed all of their trials out of the required age range are marked as excluded
     exclude_participant_insufficient_data = ifelse(is.na(exclude_participant_insufficient_data),1,exclude_participant_insufficient_data)
   )
 
