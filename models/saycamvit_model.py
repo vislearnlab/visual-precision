@@ -8,5 +8,4 @@ class SayCamVIT(VisionModel):
         torch.set_num_threads(1) 
         model = load_model('dino_say_vitb14')
         super().__init__(model)
-        self.model.eval()
         self.name = "saycam_vit"

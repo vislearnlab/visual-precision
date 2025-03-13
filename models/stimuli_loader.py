@@ -49,12 +49,13 @@ class StimuliDataset(Dataset):
     for i in range(1, self.num_image_cols + 1)]
 
 class StimuliLoader():
-  def __init__(self, dataset_file, batch_size=1, image_folder=None, id_column=None, stimuli_type='lookit'):
+  def __init__(self, dataset_file, batch_size=1, image_folder=None, id_column=None, stimuli_type='lookit', pairwise=False):
     self.stimuli_type = stimuli_type
     self.image_folder = image_folder
     self.batch_size = batch_size
     self.dataset_file = dataset_file
     self.id_column = id_column
+    self.pairwise = pairwise
   
   def collator(self, batch):
     return {key: [item for ex in batch for item in ex[key]] for key in batch[0]}

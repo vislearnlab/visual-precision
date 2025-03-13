@@ -1,4 +1,4 @@
-"","Word1","Word2","AoA_Est_Word1","AoA_Est_Word2","recognizability_word1","recognizability_word2","AoA_Word1_WB","AoA_Word2_WB","cor","animacy","wordPairing"
+"","text1","text2","AoA_Est_Word1","AoA_Est_Word2","recognizability_word1","recognizability_word2","AoA_Word1_WB","AoA_Word2_WB","cor","animacy","wordPairing"
 "1","turkey","swan",3.95,6.31763,"0.714","0.857",28,NA,0.81002739111313,1,"easy"
 "2","turtle","horse",4.17,4.15,"0.846","0.9375",24,22,0.829943892616427,1,"easy"
 "3","cheese","mud",4.33,4.05,"0.4375","0.75",19,NA,0.807120908420862,0,"easy"

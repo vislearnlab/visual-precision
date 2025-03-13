@@ -26,4 +26,7 @@ def load_openclip():
 torch.set_num_threads(1)
 #load_contrastives()
 #load_openclip()
-load_vits()
+#load_vits()
+
+#CLIPGenerator(device="cuda:0").compute_tsne_visualization()
+CLIPGenerator(device="cuda:0").lookit_similarities()

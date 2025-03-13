@@ -24,6 +24,7 @@ class FeatureGenerator(ABC):
         else:
             self.device = device
         self.model = model.to(self.device)
+        self.model.eval()
         self.preprocess = preprocess
         self.name = name
         # using default lookit stimuli
@@ -37,7 +38,6 @@ class FeatureGenerator(ABC):
             batch_size=1,
             stimuli_type="exp1"
         ).dataloader()
-        self.image_word_alignment = lambda **x: self.model(**x).logits_per_image.softmax(dim=-1).detach().cpu().numpy()
 
     def similarity(self, embeddings1, embeddings2):
         # Compute cosine similarity
@@ -58,7 +58,7 @@ class FeatureGenerator(ABC):
         pass
 
     def format_similarity_row(self, word1, word2, similarity_score):
-        return {'word1': word1, 'word2': word2, **similarity_score}
+        return {'target': word1, 'distractor': word2, **similarity_score}
 
     def lookit_similarities(self, save_path=None):
         """Calculate cosine similarities between all word pairs in the Lookit dataset"""
@@ -68,10 +68,11 @@ class FeatureGenerator(ABC):
                 similarity_data = []
                 # need to fix placing based on the stimuli set
                 text_set = set()
-                for count, (text1, text2) in enumerate(itertools.combinations(d['text'], 2)):
+                for count, (text1, text2) in enumerate(itertools.permutations(d['text'], 2)):
+                    images = [d['images'][d['text'].index(text1)], d['images'][d['text'].index(text2)]]
                     pair = tuple(sorted([text1, text2]))
                     if pair not in text_set:
-                        curr_similarities = self.similarities(text1, text2, d)
+                        curr_similarities = self.similarities(text1, text2, images)[0]
                         curr_similarities["stimuli_id"] = d['id'][0]
                         curr_similarities["row_id"] = f"{curr_similarities["stimuli_id"]}_{count}"
                         similarity_data.append(self.format_similarity_row(text1, text2, curr_similarities))
