@@ -24,7 +24,7 @@ class StimuliDataset(Dataset):
 
   def __getitem__(self, idx):
     row = self.manifest.iloc[idx]
-    texts = [row[f"text{i}"] for i in range(1, self.num_text_cols + 1)]
+    texts = [str(row[f"text{i}"]) for i in range(1, self.num_text_cols + 1)]
     images = []
     image_paths = self._get_image_paths(row)
     for image_path in image_paths:
