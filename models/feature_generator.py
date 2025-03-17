@@ -70,7 +70,7 @@ class FeatureGenerator(ABC):
                 text_set = set()
                 for count, (text1, text2) in enumerate(itertools.permutations(d['text'], 2)):
                     images = [d['images'][d['text'].index(text1)], d['images'][d['text'].index(text2)]]
-                    pair = tuple(sorted([text1, text2]))
+                    pair = tuple(([text1, text2]))
                     if pair not in text_set:
                         curr_similarities = self.similarities(text1, text2, images)[0]
                         curr_similarities["stimuli_id"] = d['id'][0]

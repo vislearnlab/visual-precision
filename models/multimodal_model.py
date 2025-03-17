@@ -51,12 +51,15 @@ class MultimodalModel(FeatureGenerator):
         """Get multimodal embeddings: by default, averages image and text embeddings"""
         return [(a + b) / 2 for a, b in zip(image_embeddings, text_embeddings)]
     
-    def logits_per_image(self, image_embeddings, text_embeddings, logit_scale=100):
-        """Get logits per image given embeddings"""
-        return logit_scale * torch.stack(image_embeddings).squeeze(1) @ text_embeddings.t()
+    def text_to_images_logits(self, image_embeddings, text_embeddings, logit_scale=100):
+        """Get logits of text to image embedding dot products"""
+        return logit_scale * image_embeddings @ text_embeddings.t()
     
-    def word_to_images_similarity(self, image_embeddings, text_embedding, logit_scale=100):
-        logits = self.logits_per_image(image_embeddings, text_embedding, logit_scale).to(self.device)
+    def text_to_images_similarity(self, image_embeddings, text_embedding, logit_scale=100):
+        # Convert image_embeddings list to tensor if needed
+        if isinstance(image_embeddings, list):
+            image_embeddings = torch.stack(image_embeddings)
+        logits = self.text_to_images_logits(image_embeddings, text_embedding, logit_scale).to(self.device)
         softmaxes = torch.nn.functional.softmax(logits, dim=0)
         return softmaxes[1][0].item()
     
@@ -73,24 +76,19 @@ class MultimodalModel(FeatureGenerator):
         for image1, image2 in itertools.combinations(valid_images, 2):
             curr_image_embeddings = self.image_embeddings([image1, image2])
             curr_text_embeddings = self.text_embeddings([word1, word2])
-            # TODO: need to fix this to work in feature_generator but also fix how each row is labeled in lookit_similarities, 
-            # get rid of repeated code with embeddings 
+            # TODO: need to fix how each row is labeled in lookit_similarities, 
             similarity_scores.append({
                 'image_similarity': self.similarity(curr_image_embeddings[0], curr_image_embeddings[1]),
                 'text_similarity': self.similarity(curr_text_embeddings[0], curr_text_embeddings[1]),
-                # index 0 is target and index 1 is distractor
-                'distractor_image_to_word_similarity': self.similarity(curr_image_embeddings[1], curr_text_embeddings[0]),
-                'luce': self.multimodal_luce(curr_image_embeddings, curr_text_embeddings[0]),
-                'softmax_logit_scale_10': self.word_to_images_similarity(curr_image_embeddings, curr_text_embeddings[0], logit_scale=10),
-                'softmax_logit_scale_100': self.word_to_images_similarity(curr_image_embeddings, curr_text_embeddings[0], logit_scale=100),
+                # finding distractor image to target word similarity
+                'multimodal_similarity': self.text_to_images_similarity(curr_image_embeddings, curr_text_embeddings[0], logit_scale=10),
             })
         if similarity_scores == []:
             print(f"skipping {word1} and {word2} since they do not have valid images")
             return [{
                 'image_similarity': None,
                 'text_similarity': None,
-                'multimodal_similarity_word1': None,
-                'multimodal_similarity_word2': None,
+                'multimodal_similarity': None
             }]
         else:
             return similarity_scores

@@ -17,6 +17,8 @@ misc/
 data/main/processed_data/level-looks_added-metadata_data.csv
 
 data/raw/icatcher_videos/
+data/pilot/*
+peekbank/*
 data/raw/icatcher_annotations/
 data/raw/original_videos/
 data/raw/lookit/input_lookit_study.json
