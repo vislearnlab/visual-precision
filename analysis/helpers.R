@@ -1,5 +1,6 @@
 library(tidyverse)
 library(rlang)
+library(gghalves)
 
 
 # Function to summarize whether a trial is usable based on whether the subject is looking at the screen for greater than 50% of the critical window
@@ -161,12 +162,13 @@ add_aoa_split <- function(data) {
 
 half_violins_plot <- function(data, x_var, y_var, group_var, violin_conditions, input_xlab="Distractor Difficulty Condition",
                               input_ylab="Baseline-Corrected\nProportion Target Looking",input_caption="") {
+  jitterer <- position_jitter(width = .05,seed=1)
   avg_corrected_target_looking <- summarized_data(data, x_var, y_var, group_var) |> filter(N > 5)
   
   overall_corrected_target_looking <- summarized_data(avg_corrected_target_looking |>
                                         rename(avg_corrected_target_looking = mean_value), x_var, "avg_corrected_target_looking", x_var)
   
-  overall_corrected_target_looking_by_condition %>%
+  overall_corrected_target_looking %>%
     knitr::kable()
   
   set.seed(2)
@@ -208,6 +210,22 @@ similarity_effect_plot <- function(data, x_var, y_var="mean_value", model_type) 
     ylab("Baseline-corrected proportion target looking") +
     xlab(paste(model_type,"target-distractor",sim_type,"similarity")) +
     ggpubr::stat_cor(method = "spearman")
+}
+
+multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", group_var, input_title) {
+  sim_type <- strsplit(x_var, "_")[[1]][1]
+  ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]], color=.data[[group_var]])) +
+    geom_hline(yintercept=0,linetype="dashed")+
+    geom_point(size = 3, alpha = 0.6) +
+    geom_linerange(aes(ymin = .data[[y_var]] - ci, ymax = .data[[y_var]] + ci), alpha = 0.2) + 
+    geom_smooth (alpha=0.3, size=0, method="lm") +
+    stat_smooth (geom="line", alpha=0.9, size=1.5, method="lm") +
+    #geom_label_repel(aes(label = paste(Trials.targetImage, "-", Trials.distractorImage)), max.overlaps = 5) +
+    ylab("Baseline-corrected proportion target looking") +
+    xlab("Target-distractor embedding similarity") +
+    #labs(title=input_title) +
+    #ggpubr::stat_cor(method = "spearman") +
+    scale_color_manual(values = c("#C7E9C0", "#74C476", "#238B45"), labels = c("Image *", "Multimodal", "Text *"), name="Similarity type")
 }
 
 similarity_age_half_plot <- function(data, x_var, y_var="mean_value", group_var="age_half",model_type) {

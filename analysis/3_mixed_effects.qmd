@@ -6,6 +6,7 @@ library(MuMIn)
 library(lme4)
 library(dotenv)
 library(broom)
+library(broom.mixed)
 
 load_dot_env(file=here(".env"))
 PROJECT_VERSION = Sys.getenv("PROJECT_VERSION")
@@ -16,7 +17,7 @@ PROJECT_VERSION = Sys.getenv("PROJECT_VERSION")
 trial_metadata <- read.csv(here("data","metadata","level-trialtype_data.csv"))
 trial_summary_data <- read.csv(here("data",PROJECT_VERSION, "processed_data","level-trials_data.csv"))
 
-usable_trials <- looking_data_summarized |>
+usable_trials <- trial_summary_data |>
   filter(exclude_participant_insufficient_data == 0 & trial_exclusion == 0 & exclude_participant == 0) 
 
 # Merging with similarity information and mean-centering main effects
@@ -28,64 +29,62 @@ trials_with_effect_vars <- usable_trials |>
 ### Run mixed-effects model
 ```{r message=FALSE}
 prereg_main_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity)*scale(age_in_months)
-                    + (scale(text_similarity) | SubjectInfo.subjID) 
+                    + (scale(text_similarity) | SubjectInfo.subjID)
                     + (1|Trials.targetImage) 
                     + (1|Trials.imagePair), 
                     data = trials_with_effect_vars)
 
-main_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity)*scale(age_in_months)
+image_sim_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
+                    + (scale(image_similarity) | SubjectInfo.subjID)
+                    + (1|Trials.targetImage) 
+                    + (1|Trials.imagePair), 
+                    data = trials_with_effect_vars)
+
+age_effect <- lmer(scale(corrected_target_looking_short) ~ scale(age_in_months)*scale(AoA_Est_target)
+                   + (1 | SubjectInfo.subjID) 
+                    + (1|Trials.targetImage) 
+                    + (1|Trials.imagePair), 
+                    data = trials_with_effect_vars)
+
+summary(prereg_main_effect)
+#anova(main_effect)
+```
+
+Swapping text similarity with image similarity:
+```{r}
+summary(image_sim_effect)
+```
+Adding covariates:
+```{r}
+
+main_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
                     + scale(AoA_Est_target)
-                    + scale(image_similarity)
                     + scale(MeanSaliencyDiff)
-                    + (scale(text_similarity) | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage) 
-                    + (1|Trials.imagePair), 
+                    + (1 | SubjectInfo.subjID) 
+                    + (1|Trials.targetImage), 
                     data = trials_with_effect_vars)
 
-age_effect <- lmer(scale(corrected_target_looking) ~ scale(age_in_months) 
-                    + (1|Trials.targetImage) 
-                    + (1|Trials.imagePair), 
+main_text_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity)*scale(age_in_months)
+                    + scale(AoA_Est_target)
+                    + scale(MeanSaliencyDiff)
+                    + (1 | SubjectInfo.subjID) 
+                    + (1|Trials.targetImage), 
                     data = trials_with_effect_vars)
-
-#summary(main_effect)
-anova(main_effect)
+summary(main_effect)
+summary(main_text_effect)
 r.squaredGLMM(main_effect)
-
-#main_effect_lm <- lm(scale(corrected_target_looking_short) ~ scale(text_similarity), data= trials_with_effect_vars)
 ```
 
 ### Alternate window analyses
 ```{r}
-baseline_covariate_looking <- lmer(scale(mean_target_looking_critical_window) ~ scale(age_in_months)*scale(text_similarity)
+baseline_covariate_looking <- lmer(scale(mean_target_looking_critical_window) ~ scale(age_in_months)*scale(image_similarity)
                     + scale(AoA_Est_target)
                     + scale(MeanSaliencyDiff)
                     + scale(mean_target_looking_baseline_window)
-                    + (1 | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage) 
-                    + (1|Trials.imagePair), 
+                    + (scale(image_similarity) | SubjectInfo.subjID) 
+                    + (1|Trials.targetImage), 
                     data = trials_with_effect_vars)
 
 summary(baseline_covariate_looking)
 ```
 
-```{r}
-# table_data <- tidy(main_effect, effects = "fixed") %>%
-#   mutate(
-#     p.value = 2 * (1 - pnorm(abs(statistic))),  # Calculate p-values for lmer
-#     p.value = ifelse(p.value < .001, "< .001", sprintf("%.3f", p.value)),
-#     term = case_when(
-#       term == "(Intercept)" ~ "Intercept",
-#       term == "scale(test_age_centered)" ~ "Age (scaled)",
-#       term == "scale(total_num_errors)" ~ "Number of errors (scaled)",
-#       TRUE ~ term
-#     )
-#   ) %>%
-#   rename(
-#     Predictor = term,
-#     "b" = estimate,
-#     "SE" = std.error,
-#     "t" = statistic,  # Note: changed from z to t for lmer
-#     "p" = p.value
-#   ) %>%
-#   mutate(across(c("b", "SE", "t"), ~round(., 2)))
-```

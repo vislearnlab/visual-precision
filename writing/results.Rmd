@@ -1,0 +1,127 @@
+---
+title: "How precise is infants' visual concept knowledge?"
+bibliography: library.bib
+csl: apa6.csl
+document-params: "10pt, letterpaper"
+
+author-information: > 
+    \author{{\large \bf Morton Ann Gernsbacher (MAG@Macc.Wisc.Edu)} \\ Department of Psychology, 1202 W. Johnson Street \\ Madison, WI 53706 USA
+    \AND {\large \bf Sharon J.~Derry (SDJ@Macc.Wisc.Edu)} \\ Department of Educational Psychology, 1025 W. Johnson Street \\ Madison, WI 53706 USA}
+
+    
+output: papaja::apa6_pdf   
+#output: cogsci_paper::cogsci_paper
+#final-submission: \cogscifinalcopy
+---
+
+
+```{r, libraries}
+library(png)
+library(grid)
+library(ggplot2)
+library(xtable)
+library(here)
+library(dplyr)
+library(lmerTest)
+library(broom.mixed)
+```
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=3, fig.height=3, fig.crop = F, 
+                      fig.pos = "tb", fig.path=here('figures'),
+                      echo=F, warning=F, cache=F, 
+                      message=F, sanitize = T)
+```
+
+```{r}
+trial_metadata <- read.csv(here("data","metadata","level-trialtype_data.csv"))
+trial_summary_data <- read.csv(here("data","main", "processed_data","level-trials_data.csv"))
+
+usable_trials <- trial_summary_data %>%
+  filter(exclude_participant_insufficient_data == 0 & trial_exclusion == 0 & exclude_participant == 0) 
+
+# Merging with similarity information and mean-centering main effects
+trials_with_effect_vars <- usable_trials |>
+  left_join(trial_metadata) |>
+  mutate(age_in_months = SubjectInfo.testAge/30)
+```
+
+```{r message=FALSE}
+prereg_main_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity)*scale(age_in_months)
+                    + (scale(text_similarity) | SubjectInfo.subjID)
+                    + (1|Trials.targetImage) 
+                    + (1|Trials.imagePair), 
+                    data = trials_with_effect_vars)
+
+image_sim_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
+                    + (scale(image_similarity) | SubjectInfo.subjID)
+                    + (1|Trials.targetImage) 
+                    + (1|Trials.imagePair), 
+                    data = trials_with_effect_vars)
+
+multimodal_sim_effect <- lmer(scale(corrected_target_looking) ~ scale(multimodal_similarity)*scale(age_in_months)
+                    + (scale(multimodal_similarity) | SubjectInfo.subjID)
+                    + (1|Trials.targetImage) 
+                    + (1|Trials.imagePair), 
+                    data = trials_with_effect_vars)
+
+main_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
+                    + (scale(image_similarity) | SubjectInfo.subjID)
+                    + scale(MeanSaliencyDiff)
+                    + scale(AoA_Est_target)
+                    + (1|Trials.targetImage) 
+                    + (1|Trials.imagePair), 
+                    data = trials_with_effect_vars)
+
+
+tidy_model <- function(main_effect){
+  table_data <- tidy(main_effect, effects = "fixed") %>%
+  mutate(
+    p.value = 2 * (1 - pnorm(abs(statistic))),  # Calculate p-values for lmer
+    p.value = case_when(
+      p.value < .05 ~ "<.05",
+      p.value < .01 ~ "<.01",
+      p.value < .001 ~ "<.001", 
+      TRUE ~ sprintf("%.3f", p.value)),
+    term = case_when(
+      term == "(Intercept)" ~ "Intercept",
+      term == "scale(age_in_months)" ~ "Age (scaled)",
+      #term == "scale(image_similarity)" ~ "Target-distractor image embedding similarity (scaled)",
+      TRUE ~ term
+    )
+  ) %>%
+  rename(
+    Predictor = term,
+    "b" = estimate,
+    "SE" = std.error,
+    "t" = statistic,  # Note: changed from z to t for lmer
+    "p" = p.value
+  ) %>%
+  mutate(across(c("b", "SE", "t"), ~round(., 2)))
+  return(table_data)
+}
+
+image_sim_model <- tidy_model(image_sim_effect)
+image_sim_predictor <- image_sim_model |> filter(Predictor == "scale(image_similarity)")
+multimodal_sim_model <- tidy_model(multimodal_sim_effect)
+multimodal_sim_predictor <- multimodal_sim_model |> filter(Predictor == "scale(multimodal_similarity)")
+text_sim_model <- tidy_model(prereg_main_effect)
+text_sim_predictor <- text_sim_model |> filter(Predictor == "scale(text_similarity)")
+main_model <- tidy_model(main_effect)
+aoa_predictor <- main_model |> filter(Predictor == "scale(AoA_Est_target)")
+saliency_predictor <- main_model |> filter(Predictor == "scale(MeanSaliencyDiff)")
+```
+
+# Results
+
+
+First, we examined the effect of target and distractor similarity on word recognition accuracy across our age range. Word recognition accuracy was assessed at the trial-level using the proportion of looking at the target over the distractor. This measure was incorporated as the difference between looking time in the critical window and baseline window (300 to 3500 ms and -2000 to 0 ms respectively, relative to target word onset), following the rationale described by \cite{weaverBecomingWordMeaning2024a}. Contrary to our expectation that word embedding similarity would inversely correlate with infants' looking time, and reveal the partiality of infants' visual concept knowledge, we found no significant change in looking time with change in word embedding similarity. However, exploratory image and multimodal similarity measures did correlate with looking time as expected (see Fig 1B for comparison). We confirmed this qualitative finding with a linear mixed-effects model (image: b=`r image_sim_predictor |> pull(b)`, p=`r image_sim_predictor |> pull(p)`; text: b=`r text_sim_predictor |> pull(b)`, p=`r text_sim_predictor |> pull(p)`; multimodal: b=`r multimodal_sim_predictor |> pull(b)`, p=`r multimodal_sim_predictor |> pull(p)`). This difference in similarity measure predictivity is especially remarkable since the embedding spaces of a single multimodal model are highly correlated (\cite{luoFindingUnsupervisedAlignment2024a}).
+
+Next, we examined whether the similarity effect would change with age, expecting the effect of similarity to decrease with age as infants form more precise representations. Surprisingly, we did not find any interaction between infant age and embedding similarity. Corroborating this finding, looking time in general does not change with age with younger infants already exhibiting significant accuracy across all trials (Fig 1C). The nature of infants' representations of visual concepts remains relatively stable across our 14-24 month age range.
+
+Why did text similarity and age not predict looking time? To ensure the robustness of our findings, we measured the effects of item-level differences. This examination is also pertinent since we use a broad range of naturalistic images, an atypical choice in looking-while-listening trials (\cite{fernaldLookingListeningUsing2008}). We examined how differences in target word age-of-acquisition (AoA) (measured using estimated AoA values from \cite{kupermanAgeofacquisitionRatings300002012}) and image pair visual saliency differences (measured using the GBVS toolbox; \cite{harelGraphBasedVisualSaliency2006}) affected accuracy. Target word difficulty did correlate inversely with looking time (see Fig 1D for split-half comparison), in line with our expectation that more difficult words are harder to recognize. Accuracy was at chance for our most difficult words like 'coconut' and 'swan'. Further, we did not find any interaction between AoA, infant age, and our measures of similarity, highlighting the separate roles that embedding similarity measures and word difficulty play in predicting infants' target looking time. In contrast, visual saliency did not predict infants' looking time. This finding strengthens our result, indicating that our model similarity measures' looking time predictivity cannot be explained only by lower-level perceptual features and establishes multimodal model embedding similarities as a future measure of infants' visual concept knowledge.
+
+
+\setlength{\parindent}{-0.1in} 
+\setlength{\leftskip}{0.125in}
+\noindent

@@ -141,15 +141,9 @@ summarize_subj_trials <- all_looking_times %>%
 trial_metadata <- summarize_subj_trials |>
   distinct(Trials.trialID, Trials.targetImage, Trials.distractorImage, Trials.imagePair) 
 
-similarities_combined <- similarities |>
-  rename(word_a = word1, word_b = word2) |>
-  bind_rows(
-    similarities |>
-      rename(word_a = word2, word_b = word1)
-)
 
 trial_metadata <- trial_metadata |>
-  left_join(similarities_combined, by = c("Trials.distractorImage"="word_a", "Trials.targetImage"="word_b")) |>
+  left_join(similarities, by = c("Trials.distractorImage"="distractor", "Trials.targetImage"="target")) |>
   distinct(Trials.trialID, .keep_all=TRUE) |>
   left_join(saliency_metadata |> select(matches("Mean"), "ImagePair"), by = c("Trials.imagePair"="ImagePair")) |>
   mutate(
@@ -162,12 +156,12 @@ trial_metadata <- trial_metadata |>
 
 # Pulling in specific data about individual words that are currently being labeled as being data about word1 and word2 in respective trials, for example the age-of-acquisition of the words
 stimuli_metadata_by_word <- stimuli_metadata |>
-  rename_with(~ gsub("Word1|word1", "target", .)) |>
-  rename_with(~ gsub("Word2|word2", "distractor", .)) |>
+  rename_with(~ gsub("Word1|word1|text1", "target", .)) |>
+  rename_with(~ gsub("Word2|word2|text2", "distractor", .)) |>
   bind_rows(
     stimuli_metadata |>
-      rename_with(~ gsub("Word1|word1", "distractor", .)) |>
-      rename_with(~ gsub("Word2|word2", "target", .))
+      rename_with(~ gsub("Word1|word1|text1", "distractor", .)) |>
+      rename_with(~ gsub("Word2|word2|text2", "target", .))
   ) |>
   distinct(target, distractor, .keep_all=TRUE) |>
   select(-X)
@@ -387,6 +381,7 @@ age_excluded_infants <- summarize_subj_trials |>
   distinct(SubjectInfo.subjID, SubjectInfo.testAge)
 num_age_excluded <- nrow(age_excluded_infants |> distinct(SubjectInfo.subjID))
 
+# participants who did not have any trials that were included, usually because of frame rate issues
 zero_trials_included <- summarize_subj_trials |>
   filter(age_exclusion != 1 & trial_exclusion == 1 & !(SubjectInfo.subjID %in% summarize_usable_trials$SubjectInfo.subjID)) |>
   distinct(SubjectInfo.subjID, SubjectInfo.testAge)
@@ -410,6 +405,7 @@ participant_total_usable_trials <- summarize_usable_trials %>%
     exclude_participant_insufficient_data_critical = ifelse(total_trials_critical_window<16,1,0),
     exclude_participant_insufficient_data_short = ifelse(total_trials_short<16,1,0),
   ) 
+
 #participants to exclude based on data contribution
 print(paste("Excluded participants:", sum(participant_total_usable_trials$exclude_participant_insufficient_data,na.rm=T) + num_age_excluded + num_zero_trials))
 #participants to keep
