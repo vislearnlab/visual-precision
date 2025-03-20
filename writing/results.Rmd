@@ -44,9 +44,17 @@ usable_trials <- trial_summary_data %>%
 trials_with_effect_vars <- usable_trials |>
   left_join(trial_metadata) |>
   mutate(age_in_months = SubjectInfo.testAge/30)
+
+mean_age <- trials_with_effect_vars |> distinct(SubjectInfo.subjID, age_in_months) |>
+  summarize(mean_age = round(mean(age_in_months),2)) |>
+  pull(mean_age)
+younger_infants <- trials_with_effect_vars |>
+  filter(age_in_months < mean_age)
 ```
 
 ```{r message=FALSE}
+
+
 prereg_main_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity)*scale(age_in_months)
                     + (scale(text_similarity) | SubjectInfo.subjID)
                     + (1|Trials.targetImage) 
@@ -65,8 +73,8 @@ multimodal_sim_effect <- lmer(scale(corrected_target_looking) ~ scale(multimodal
                     + (1|Trials.imagePair), 
                     data = trials_with_effect_vars)
 
-main_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
-                    + (scale(image_similarity) | SubjectInfo.subjID)
+main_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity)*scale(age_in_months)
+                    + (scale(text_similarity) | SubjectInfo.subjID)
                     + scale(MeanSaliencyDiff)
                     + scale(AoA_Est_target)
                     + (1|Trials.targetImage) 
@@ -79,9 +87,9 @@ tidy_model <- function(main_effect){
   mutate(
     p.value = 2 * (1 - pnorm(abs(statistic))),  # Calculate p-values for lmer
     p.value = case_when(
-      p.value < .05 ~ "<.05",
-      p.value < .01 ~ "<.01",
       p.value < .001 ~ "<.001", 
+      p.value < .01 ~ "<.01",
+      p.value < .05 ~ "<.05",
       TRUE ~ sprintf("%.3f", p.value)),
     term = case_when(
       term == "(Intercept)" ~ "Intercept",
@@ -110,16 +118,18 @@ text_sim_predictor <- text_sim_model |> filter(Predictor == "scale(text_similari
 main_model <- tidy_model(main_effect)
 aoa_predictor <- main_model |> filter(Predictor == "scale(AoA_Est_target)")
 saliency_predictor <- main_model |> filter(Predictor == "scale(MeanSaliencyDiff)")
+
+
 ```
 
 # Results
 
+We focused on analyzing how well infants' could identify the referents of common visual concepts in naturalistic visual images with distractors that varied in similarity to the target image.  Overall, we found an increase in how often infants looked at the target image when the distractor was dissimilar to the target in either image or word similarity space (see Figure 1C, estimated using linear mixed-effect models, image similarity: b=`r image_sim_predictor |> pull(b)`, t=`r image_sim_predictor |> pull(t)`, p=`r image_sim_predictor |> pull(p)`; text similarity: b=`r text_sim_predictor |> pull(b)`, t=`r text_sim_predictor |> pull(t)`, p=`r text_sim_predictor |> pull(p)`); that is, children were more likely to look at the correct referent when the distractor was linguistically or visually dissimilar. However, this was not solely due to difference in visual saliency: we measured visual saliency differences with the GBVS toolbox [@harelGraphBasedVisualSaliency2006], which did not predict significant variance in infants' looking behaviors (model: b=`r saliency_predictor |> pull(b)`, t=`r saliency_predictor |> pull(t)`, p=`r saliency_predictor |> pull(p)`).
 
-First, we examined the effect of target and distractor similarity on word recognition accuracy across our age range. Word recognition accuracy was assessed at the trial-level using the proportion of looking at the target over the distractor. This measure was incorporated as the difference between looking time in the critical window and baseline window (300 to 3500 ms and -2000 to 0 ms respectively, relative to target word onset), following the rationale described by \cite{weaverBecomingWordMeaning2024a}. Contrary to our expectation that word embedding similarity would inversely correlate with infants' looking time, and reveal the partiality of infants' visual concept knowledge, we found no significant change in looking time with change in word embedding similarity. However, exploratory image and multimodal similarity measures did correlate with looking time as expected (see Fig 1B for comparison). We confirmed this qualitative finding with a linear mixed-effects model (image: b=`r image_sim_predictor |> pull(b)`, p=`r image_sim_predictor |> pull(p)`; text: b=`r text_sim_predictor |> pull(b)`, p=`r text_sim_predictor |> pull(p)`; multimodal: b=`r multimodal_sim_predictor |> pull(b)`, p=`r multimodal_sim_predictor |> pull(p)`). This difference in similarity measure predictivity is especially remarkable since the embedding spaces of a single multimodal model are highly correlated (\cite{luoFindingUnsupervisedAlignment2024a}).
 
-Next, we examined whether the similarity effect would change with age, expecting the effect of similarity to decrease with age as infants form more precise representations. Surprisingly, we did not find any interaction between infant age and embedding similarity. Corroborating this finding, looking time in general does not change with age with younger infants already exhibiting significant accuracy across all trials (Fig 1C). The nature of infants' representations of visual concepts remains relatively stable across our 14-24 month age range.
+We next examined how differences in target word age-of-acquisition (measured using estimated AoA from [@kupermanAgeofacquisitionRatings300002012] determined accuracy. Age-of-acquisition correlated inversely with looking time (see Fig 1E; model: b=`r aoa_predictor |> pull(b)`, t=`r aoa_predictor |> pull(t)`, p=`r aoa_predictor |> pull(p)`), in line with our intuitive expectation that harder words would be harder to recognize. Accuracy was at chance for our most difficult words like 'coconut' and 'swan'. Additionally, we did not find any interaction between AoA, infant age, and our similarity measures, highlighting the separate roles that similarity and word difficulty play in predicting infants' target looking time. 
 
-Why did text similarity and age not predict looking time? To ensure the robustness of our findings, we measured the effects of item-level differences. This examination is also pertinent since we use a broad range of naturalistic images, an atypical choice in looking-while-listening trials (\cite{fernaldLookingListeningUsing2008}). We examined how differences in target word age-of-acquisition (AoA) (measured using estimated AoA values from \cite{kupermanAgeofacquisitionRatings300002012}) and image pair visual saliency differences (measured using the GBVS toolbox; \cite{harelGraphBasedVisualSaliency2006}) affected accuracy. Target word difficulty did correlate inversely with looking time (see Fig 1D for split-half comparison), in line with our expectation that more difficult words are harder to recognize. Accuracy was at chance for our most difficult words like 'coconut' and 'swan'. Further, we did not find any interaction between AoA, infant age, and our measures of similarity, highlighting the separate roles that embedding similarity measures and word difficulty play in predicting infants' target looking time. In contrast, visual saliency did not predict infants' looking time. This finding strengthens our result, indicating that our model similarity measures' looking time predictivity cannot be explained only by lower-level perceptual features and establishes multimodal model embedding similarities as a future measure of infants' visual concept knowledge.
+Finally, we examined whether these effect would change with over the tested age range (14-24 months), expecting the effect of similarity to decrease with age as infants form more precise representations. Surprisingly, we did not find any interaction between infant age and embedding similarity. Corroborating this finding, looking time in general did not change with age. Younger infants (<`r mean_age` months) still showed above chance accuracy when collapsing across all trials (model: ).
 
 
 \setlength{\parindent}{-0.1in} 

@@ -13,6 +13,8 @@ library(RColorBrewer)
 library(lmerTest)
 library(cowplot)
 library(ggtext)
+library(scales)
+
 source("helpers.R")
 
 load_dot_env(file=here(".env"))
@@ -65,14 +67,12 @@ summarize_subj <- looking_time_resampled_clean %>%
   filter(trial_exclusion == 0 & exclude_participant ==0 & exclude_participant_insufficient_data == 0) %>%
   filter(!is.na(accuracy_transformed)) %>%
   group_by(SubjectInfo.subjID, time_normalized_corrected, SubjectInfo.testAge) %>%
-  filter(n() > 10) %>%
   summarized_data(., "SubjectInfo.subjID", "accuracy_transformed", c("SubjectInfo.testAge", "time_normalized_corrected")) %>%
   rename(mean_accuracy = mean_value)
 
 #summarizing across subjects for each time point
 summarize_across_subj <- summarize_subj %>%
   group_by(time_normalized_corrected) %>%
-  filter(n() > 10) %>%
   summarized_data(., "time_normalized_corrected", "mean_accuracy", c("time_normalized_corrected")) |>
   rename(accuracy = mean_value)
 
@@ -212,6 +212,69 @@ trial_performances <- ggplot(summarized_data(looking_data_summarized, "Trials.tr
   ) 
 trial_performances
 ```
+####Item-level timecourses
+```{r}
+# First, let's make sure we have the correct data
+summarize_target <- looking_time_resampled_clean %>%
+  filter(trial_exclusion == 0 & exclude_participant == 0 & exclude_participant_insufficient_data == 0) %>%
+  left_join(trial_metadata) %>%
+  filter(!is.na(accuracy_transformed)) %>%
+  group_by(Trials.targetImage, time_normalized_corrected) %>%
+  filter(Trials.targetImage %in% c("acorn", "bulldozer", "cheese", "potato", "squirrel", "snail", "turkey", "turtle")) %>%
+  summarized_data(., "Trials.targetImage", "accuracy_transformed", c("Trials.targetImage", "AoA_Est_target", "time_normalized_corrected")) %>%
+  rename(mean_accuracy = mean_value)
+
+# Create a mapping of target images to their AoA values
+target_aoa_mapping <- summarize_target %>%
+  select(Trials.targetImage, AoA_Est_target) %>%
+  distinct() %>%
+  arrange(AoA_Est_target)  # Sort by AoA
+
+# Convert Trials.targetImage to a factor with levels ordered by AoA (descending)
+summarize_target <- summarize_target %>%
+  mutate(Trials.targetImage = factor(Trials.targetImage, 
+                                     levels = target_aoa_mapping$Trials.targetImage))
+# Normalize aoa_values to range between 0 and 1
+aoa_scaled <- rescale(aoa_values, to = c(0, 1))
+
+# Generate a high-resolution color gradient (e.g., 1000 colors)
+num_colors <- 1000
+color_palette <- viridis(num_colors, option = "E",alpha=0.8)
+
+# Map scaled values to colors using interpolation
+color_values <- color_palette[ceiling((1-aoa_scaled) * (num_colors - 1)) + 1]
+
+
+# Create named color vector
+target_colors <- setNames(color_values, target_aoa_mapping$Trials.targetImage)
+
+
+# Create the plot with a discrete legend but gradient colors
+looking_times_target <- ggplot(summarize_target, 
+                              aes(time_normalized_corrected, 
+                                  mean_accuracy, 
+                                  color = Trials.targetImage,  # Use target image for color mapping
+                                  group = Trials.targetImage)) +  # Group by target image
+  xlim(-2000, 4000) +
+  geom_errorbar(aes(ymin = mean_accuracy - ci, 
+                    ymax = mean_accuracy + ci), 
+                width = 0, 
+                alpha = 0.15) +
+  geom_smooth(method = "gam", alpha = 0.1) +
+  geom_vline(xintercept = 0, size = 1.5) +
+  geom_hline(yintercept = 0.5, size = 1.2, linetype = "dashed") +
+  geom_vline(xintercept = 300, linetype = "dotted") +
+  ylim(0, 1) +
+  xlab("Time (normalized to target word onset) in ms") +
+  ylab("Proportion Target Looking") +
+   scale_color_manual(values = target_colors,
+                     name = "Primary Target Words \n(sorted in increasing\nage-of-acquisition\norder)") +
+  theme_minimal()
+
+# Display the plot
+looking_times_target
+ggsave(here("figures",PROJECT_VERSION,"timecourse_plot.svg"),looking_times_target,width=8.5,height=5.5,bg = "white")
+```
 
 ## Age plots 
 
@@ -250,7 +313,7 @@ ggsave(here("figures",PROJECT_VERSION,"prop_looking_across_time_age.png"),lookin
 #### Age-split performance
 ```{r}
 # note: using shorter window just because there's clearly no age-related effect with longer window 
-participant_age_halves = summarized_data(looking_data_summarized |> left_join(target_looking_item_level) |> rename(mean_looking = mean_value) |>  add_age_split() |> mutate(acc = corrected_target_looking), "age_half", "acc", 
+participant_age_halves = summarized_data(looking_data_summarized |> left_join(target_looking_item_level) |> rename(mean_looking = mean_value) |>  add_age_split() |> mutate(acc = corrected_target_looking_short), "age_half", "acc", 
                                          c("age_half", "SubjectInfo.subjID", "SubjectInfo.testAge")) 
 
 
@@ -290,7 +353,6 @@ age_continuous <- ggplot(participant_age_jittered, aes(x = x_jittered, y = mean_
   #ggtitle("Corrected proportion of target looking by age") +
   theme_minimal()
 age_continuous
-ggsave(here("figures",PROJECT_VERSION,"age_plot.svg"),age_continuous,width=11,height=4,bg = "white")
 ```
 
 younger group mean
@@ -312,7 +374,6 @@ high_accuracy_subjects <- avg_corrected_target_looking_by_condition |>
 
 overall_condition_plot <- half_violins_plot(looking_data_summarized |> filter(Trials.trialType == "easy" | Trials.trialType == "hard"), "Trials.trialType", "corrected_target_looking", "SubjectInfo.subjID", c("easy", "hard"))
 overall_condition_plot
-ggsave(here("figures",PROJECT_VERSION,"condition_based_looking.png"),overall_condition_plot,width=9,height=6,bg = "white")
 ```
 
 #### Target image difficulty
@@ -361,8 +422,6 @@ word_prefs <- ggplot(overall_target_looking_by_word,aes(reorder(Trials.targetIma
   guides(color = "none")
   
 word_prefs
-ggsave(here("figures",PROJECT_VERSION,"easy_trial_pref_by_word.png"),word_prefs,width=9,height=6,bg = "white")
-
 ```
 
 
@@ -404,10 +463,10 @@ create_model_plots(saycamvit_similarities, name="SayCamVIT")
 Create CLIP model plot with all three similarities
 ```{r}
 clip_data_long <- clip_data_summarized |>
-  pivot_longer(cols = c("text_similarity", "image_similarity", "multimodal_similarity"), names_to = "sim_type", values_to = "similarity")
+  pivot_longer(cols = c("text_similarity", "image_similarity"), names_to = "sim_type", values_to = "similarity")
 all_clip_plot <- multiple_similarity_effects_plot(clip_data_long, "similarity", group_var="sim_type", input_title="Looking time and CLIP embedding correlations")
 all_clip_plot
-ggsave(here("figures",PROJECT_VERSION,"clip_plot.svg"),all_clip_plot,width=9,height=6,bg = "white")
+ggsave(here("figures",PROJECT_VERSION,"clip_plot.svg"),all_clip_plot,width=8.5, height=8,bg = "white")
 ```
 
 
@@ -490,13 +549,17 @@ cor.test((imagenetvit_similarities |> arrange(word1, word2))$image_similarity, (
 ```
 # AoA plots
 ```{r}
+aoa_jittered <- target_looking_item_level %>%
+  rowwise() %>%
+  mutate(aoa_x_jittered = AoA_Est_target + runif(n(), -0.01, 0.01))
 
-ggplot(target_looking_item_level, aes(x=AoA_Est_target, y=mean_value))+
+aoa_across_time <- ggplot(aoa_jittered, aes(x=aoa_x_jittered, y=mean_value))+
   geom_hline(yintercept=0,linetype="dashed")+
-  geom_point(size=2, alpha=0.6)+
-  geom_smooth(method="lm")+
-  geom_label_repel(aes(label=ifelse(AoA_Est_target > 5.5 | AoA_Est_target < 4, Trials.targetImage, ""))) +
-  xlab("Estimated AoA of target words")+
+  geom_point(size=6, alpha=0.4, color="#08306B")+
+  geom_linerange(aes(ymin = mean_value - ci, ymax = mean_value + ci), alpha = 0.1) + 
+  geom_smooth(method="lm", color="#08306B", alpha=0.5)+
+  geom_label_repel(aes(label=ifelse((Trials.targetImage %in% c("swan", "acorn", "key", "worm", "potato", "goat", "bulldozer")), Trials.targetImage, ""), force_pull=0.2)) +
+  xlab("Estimated age-of-acquisition of target words")+
   ylab("Baseline-corrected prop. of target looking")+
   #ggtitle("Prop. of target looking by estimated AoA of target words")+
   theme_minimal()+
@@ -506,9 +569,12 @@ ggplot(target_looking_item_level, aes(x=AoA_Est_target, y=mean_value))+
         axis.text.y  = element_text(size=10),
         strip.text.x = element_text(size = 10,face="bold")
         ) +
- scale_x_continuous(breaks = seq(3, 6, by = 0.5)) +
-  ggpubr::stat_cor(method = "spearman", label.y = max(target_looking_item_level$mean_value) + 0.05) +
- scale_color_brewer(palette = "Set2", name="Age half")
+ scale_x_continuous(breaks = seq(3, 6, by = 0.5)) 
+aoa_across_time
+ggsave(here("figures",PROJECT_VERSION,"aoa_plot.svg"),aoa_across_time,width=8.5,height=5.5,bg = "white")
+
+  #ggpubr::stat_cor(method = "spearman", label.y = max(target_looking_item_level$mean_value) + 0.05)
+
 
 age_half_plot(target_looking_item_age_level, "AoA_Est_target", x_label="AoA of target word", title="Target looking by estimated AoA of target word across age half")
 
@@ -551,7 +617,6 @@ summarize_trial <- looking_time_resampled_clean %>%
   filter(trial_exclusion == 0 & exclude_participant ==0 & exclude_participant_insufficient_data == 0) %>%
   filter(!is.na(accuracy_transformed)) %>%
   group_by(SubjectInfo.subjID, time_normalized_corrected, SubjectInfo.testAge) %>%
-  filter(n() > 10) %>%
   summarized_data(., "Trials.trialID", "accuracy_transformed", c("time_normalized_corrected")) %>%
   rename(mean_accuracy = mean_value)
 
@@ -562,8 +627,7 @@ summarize_trial <- looking_time_resampled_clean %>%
             mean_value=mean(mean_accuracy,na.rm=TRUE),
             sd_accuracy=sd(mean_accuracy,na.rm=TRUE),
             se_accuracy=sd_accuracy/sqrt(n),
-            ci = ifelse(n > 1, qt(0.975, n - 1) * sd_accuracy / sqrt(n), NA)) %>%
-  filter(n > 5)
+            ci = ifelse(n > 1, qt(0.975, n - 1) * sd_accuracy / sqrt(n), NA)) 
 
 looking_times_aoa <- ggplot(summarize_across_aoa,aes(time_normalized_corrected,mean_value,color=aoa_half))+
   xlim(-2000,4000)+
@@ -581,7 +645,6 @@ looking_times_aoa <- ggplot(summarize_across_aoa,aes(time_normalized_corrected,m
    guides(color = guide_legend(reverse = TRUE))
 
 looking_times_aoa
-ggsave(here("figures",PROJECT_VERSION,"aoa_plot.svg"),looking_times_aoa,width=11,height=4,bg = "white")
 ```
 
 AoA correlations

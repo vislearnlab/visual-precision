@@ -225,7 +225,13 @@ multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", gr
     xlab("Target-distractor embedding similarity") +
     #labs(title=input_title) +
     #ggpubr::stat_cor(method = "spearman") +
-    scale_color_manual(values = c("#C7E9C0", "#74C476", "#238B45"), labels = c("Image *", "Multimodal", "Text *"), name="Similarity type")
+    scale_color_manual(values = c("#6BAED6", "#2171B5"), labels = c("Image", "Word"), name="Similarity type") +
+    theme(axis.title.x = element_text(face="bold", size=15, vjust=-1),
+          axis.text.x  = element_text(size=10,angle=0,vjust=0.5),
+          axis.title.y = element_text(face="bold", size=15),
+          axis.text.y  = element_text(size=10),
+          strip.text.x = element_text(size = 10,face="bold")
+    ) 
 }
 
 similarity_age_half_plot <- function(data, x_var, y_var="mean_value", group_var="age_half",model_type) {
