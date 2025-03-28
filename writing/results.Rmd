@@ -52,19 +52,21 @@ younger_infants <- trials_with_effect_vars |>
   filter(age_in_months < mean_age)
 ```
 
-```{r message=FALSE}
+```{r}
 
 
 prereg_main_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity)*scale(age_in_months)
                     + (scale(text_similarity) | SubjectInfo.subjID)
+                   # + scale(AoA_Est_target)
                     + (1|Trials.targetImage) 
                     + (1|Trials.imagePair), 
                     data = trials_with_effect_vars)
 
 image_sim_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
-                    + (scale(image_similarity) | SubjectInfo.subjID)
-                    + (1|Trials.targetImage) 
-                    + (1|Trials.imagePair), 
+                    #+ scale(AoA_Est_target)
+                    + (1 | SubjectInfo.subjID)
+                    + (1|Trials.targetImage), 
+                    #+ (1|Trials.imagePair), 
                     data = trials_with_effect_vars)
 
 multimodal_sim_effect <- lmer(scale(corrected_target_looking) ~ scale(multimodal_similarity)*scale(age_in_months)
@@ -77,8 +79,7 @@ main_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity)*sca
                     + (scale(text_similarity) | SubjectInfo.subjID)
                     + scale(MeanSaliencyDiff)
                     + scale(AoA_Est_target)
-                    + (1|Trials.targetImage) 
-                    + (1|Trials.imagePair), 
+                    + (1|Trials.targetImage), 
                     data = trials_with_effect_vars)
 
 
@@ -118,19 +119,20 @@ text_sim_predictor <- text_sim_model |> filter(Predictor == "scale(text_similari
 main_model <- tidy_model(main_effect)
 aoa_predictor <- main_model |> filter(Predictor == "scale(AoA_Est_target)")
 saliency_predictor <- main_model |> filter(Predictor == "scale(MeanSaliencyDiff)")
-
+age_predictor <- main_model |> filter(Predictor == "Age (scaled)")
 
 ```
 
 # Results
+We analyzed how well infants could identify the referents of common
+visual concepts in naturalistic visual images with distractors that varied in similarity to the
+target image. Overall, we found an increase in how often infants looked at the target image
+when the distractor was dissimilar to the target in either image or text similarity space (see
+Figure 1C, estimated using linear mixed-effect models, image similarity: b=`r image_sim_predictor |> pull(b)`, t=`r image_sim_predictor |> pull(t)`, p=`r image_sim_predictor |> pull(p)`; text similarity: b=`r text_sim_predictor |> pull(b)`, t=`r text_sim_predictor |> pull(t)`, p=`r text_sim_predictor |> pull(p)`); that is, children were more likely to look at the correct referent when the distractor was linguistically or visually dissimilar.
+However, this was not solely due to differences in visual saliency: visual saliency
+differences did not predict variance in infants’ looking behaviors (model: b=`r saliency_predictor |> pull(b)`, t=`r saliency_predictor |> pull(t)`, p=`r saliency_predictor |> pull(p)`). 
 
-We focused on analyzing how well infants' could identify the referents of common visual concepts in naturalistic visual images with distractors that varied in similarity to the target image.  Overall, we found an increase in how often infants looked at the target image when the distractor was dissimilar to the target in either image or word similarity space (see Figure 1C, estimated using linear mixed-effect models, image similarity: b=`r image_sim_predictor |> pull(b)`, t=`r image_sim_predictor |> pull(t)`, p=`r image_sim_predictor |> pull(p)`; text similarity: b=`r text_sim_predictor |> pull(b)`, t=`r text_sim_predictor |> pull(t)`, p=`r text_sim_predictor |> pull(p)`); that is, children were more likely to look at the correct referent when the distractor was linguistically or visually dissimilar. However, this was not solely due to difference in visual saliency: we measured visual saliency differences with the GBVS toolbox [@harelGraphBasedVisualSaliency2006], which did not predict significant variance in infants' looking behaviors (model: b=`r saliency_predictor |> pull(b)`, t=`r saliency_predictor |> pull(t)`, p=`r saliency_predictor |> pull(p)`).
-
-
-We next examined how differences in target word age-of-acquisition (measured using estimated AoA from [@kupermanAgeofacquisitionRatings300002012] determined accuracy. Age-of-acquisition correlated inversely with looking time (see Fig 1E; model: b=`r aoa_predictor |> pull(b)`, t=`r aoa_predictor |> pull(t)`, p=`r aoa_predictor |> pull(p)`), in line with our intuitive expectation that harder words would be harder to recognize. Accuracy was at chance for our most difficult words like 'coconut' and 'swan'. Additionally, we did not find any interaction between AoA, infant age, and our similarity measures, highlighting the separate roles that similarity and word difficulty play in predicting infants' target looking time. 
-
-Finally, we examined whether these effect would change with over the tested age range (14-24 months), expecting the effect of similarity to decrease with age as infants form more precise representations. Surprisingly, we did not find any interaction between infant age and embedding similarity. Corroborating this finding, looking time in general did not change with age. Younger infants (<`r mean_age` months) still showed above chance accuracy when collapsing across all trials (model: ).
-
+We next examined how differences in target word age-of-acquisition  determined accuracy. Age-of-acquisition correlated inversely with looking time (see Fig 1E; model: b=-0.10, t=-4.14, p=\textless.001), in line with our prediction that harder words would be harder to recognize. Accuracy was at chance for our most difficult words like ‘coconut’ and ‘swan’. Additionally, we did not find any interaction between AoA, infant age (age was additionally not predictive of variance (model: b=`r age_predictor |> pull(b)`, t=`r age_predictor |> pull(t)`, p=`r age_predictor |> pull(p)`), and our similarity measures. 
 
 \setlength{\parindent}{-0.1in} 
 \setlength{\leftskip}{0.125in}

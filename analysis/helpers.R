@@ -214,24 +214,69 @@ similarity_effect_plot <- function(data, x_var, y_var="mean_value", model_type) 
 
 multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", group_var, input_title) {
   sim_type <- strsplit(x_var, "_")[[1]][1]
-  ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]], color=.data[[group_var]])) +
-    geom_hline(yintercept=0,linetype="dashed")+
-    geom_point(size = 3, alpha = 0.6) +
-    geom_linerange(aes(ymin = .data[[y_var]] - ci, ymax = .data[[y_var]] + ci), alpha = 0.2) + 
-    geom_smooth (alpha=0.3, size=0, method="lm") +
-    stat_smooth (geom="line", alpha=0.9, size=1.5, method="lm") +
-    #geom_label_repel(aes(label = paste(Trials.targetImage, "-", Trials.distractorImage)), max.overlaps = 5) +
-    ylab("Baseline-corrected proportion target looking") +
+  label_data <- data %>% 
+    filter(Trials.targetImage == "bulldozer" | Trials.distractorImage == "bulldozer") %>%
+    mutate(label = paste(Trials.targetImage, "-", Trials.distractorImage))
+  
+  ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]], color = .data[[group_var]], shape = .data[[group_var]])) +  # Added shape aesthetic
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    geom_point(size = 5, alpha = 0.5) +
+    geom_smooth(alpha = 0.3, size = 0, method = "lm", show.legend = F) +
+    stat_smooth(geom = "line", alpha = 0.9, size = 1.5, method = "lm", show.legend = F) +
+    coord_cartesian(xlim = c(0.43, 0.94), ylim = c(-0.12, 0.22)) +
+    geom_label_repel(
+      data = label_data,
+      aes(label = label),
+      # Ensure labels are always connected with segments
+      segment.alpha = 0.7,       # Slightly transparent for subtlety
+      
+      # Improved positioning and spacing
+      nudge_y = ifelse(label_data$Trials.targetImage == "bulldozer", -0.02, 0.02),
+      force = 10,                # Increase repulsion between labels
+      force_pull = 0.1,          # Strength of pulling labels towards data points
+      
+      # Styling improvements
+      size = 9,
+      segment.size = 1.2,
+      point.padding = unit(1, "lines"),
+      
+      # Ensure labels are always connected
+      min.segment.length = 0,    # Always draw segment, even if very short
+      
+      # Additional spacing and visibility controls
+      box.padding = unit(0.5, "lines"),  # Padding around label
+      max.overlaps = Inf,        # Allow all labels to be shown
+      
+      # Styling for better readability
+      label.padding = unit(0.25, "lines"),
+      label.r = unit(0.5, "lines"),  # Rounded corners
+      show.legend = FALSE
+    )+
+    ylab("Baseline-corrected\nproportion target looking") +
     xlab("Target-distractor embedding similarity") +
-    #labs(title=input_title) +
-    #ggpubr::stat_cor(method = "spearman") +
-    scale_color_manual(values = c("#6BAED6", "#2171B5"), labels = c("Image", "Word"), name="Similarity type") +
-    theme(axis.title.x = element_text(face="bold", size=15, vjust=-1),
-          axis.text.x  = element_text(size=10,angle=0,vjust=0.5),
-          axis.title.y = element_text(face="bold", size=15),
-          axis.text.y  = element_text(size=10),
-          strip.text.x = element_text(size = 10,face="bold")
-    ) 
+    scale_color_manual(values = c("#215D89", "#73A87C"), labels = c("Image", "Text"), name = "Similarity type") +
+    scale_shape_manual(values = c(16, 17),labels = c("Image", "Text"), name = "Similarity type") +  # Define shape for groups (16 for circle, 17 for triangle, etc.)
+    scale_x_continuous(breaks = seq(0.5, 0.9, by = 0.1)) +
+    scale_y_continuous(breaks = seq(-0.1, 0.2, by = 0.1)) +
+    theme(
+      text = element_text(size = 16, face = "bold"),
+      axis.title.x = element_text(
+        face = "bold", 
+        size = 27,
+        margin = margin(t = 15, r = 0, b = 0, l = 0)
+      ),
+      legend.key = element_blank(),
+      axis.title.y = element_text(
+        face = "bold", 
+        size = 27,
+        margin = margin(t = 0, r = 10, b = 0, l = 0)
+      ),
+      axis.text = element_text(size = 24, face = "bold"),
+      legend.title = element_text(size = 22, face = "bold"),
+      legend.text = element_text(size = 22, face = "bold"),
+      legend.position = "bottom"
+    ) + guides(color = guide_legend(override.aes = list(fill = NA)), shape = guide_legend(override.aes = list(fill = NA))) +
+    labs(caption="Labels are in the order of target-distractor")
 }
 
 similarity_age_half_plot <- function(data, x_var, y_var="mean_value", group_var="age_half",model_type) {

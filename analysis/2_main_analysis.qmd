@@ -15,6 +15,7 @@ library(cowplot)
 library(ggtext)
 library(scales)
 
+
 source("helpers.R")
 
 load_dot_env(file=here(".env"))
@@ -94,7 +95,6 @@ ggsave(here("figures",PROJECT_VERSION,"prop_looking_across_time.png"),looking_ti
 ## Descriptive plots
 #### Usable trial stats
 ```{r}
-# TODO: 
 #Overall baseline-corrected proportion target looking by condition
 looking_data_exclusions <- trial_summary_data |>
   mutate(trial_exclusion_reason = as.factor(ifelse(is.na(trial_exclusion_reason), "included", trial_exclusion_reason))) |>
@@ -220,7 +220,7 @@ summarize_target <- looking_time_resampled_clean %>%
   left_join(trial_metadata) %>%
   filter(!is.na(accuracy_transformed)) %>%
   group_by(Trials.targetImage, time_normalized_corrected) %>%
-  filter(Trials.targetImage %in% c("acorn", "bulldozer", "cheese", "potato", "squirrel", "snail", "turkey", "turtle")) %>%
+  #filter(Trials.targetImage %in% c("acorn", "bulldozer", "cheese", "potato", "squirrel", "snail", "turkey", "turtle")) %>%
   summarized_data(., "Trials.targetImage", "accuracy_transformed", c("Trials.targetImage", "AoA_Est_target", "time_normalized_corrected")) %>%
   rename(mean_accuracy = mean_value)
 
@@ -234,6 +234,7 @@ target_aoa_mapping <- summarize_target %>%
 summarize_target <- summarize_target %>%
   mutate(Trials.targetImage = factor(Trials.targetImage, 
                                      levels = target_aoa_mapping$Trials.targetImage))
+aoa_values <- target_aoa_mapping$AoA_Est_target
 # Normalize aoa_values to range between 0 and 1
 aoa_scaled <- rescale(aoa_values, to = c(0, 1))
 
@@ -253,27 +254,69 @@ target_colors <- setNames(color_values, target_aoa_mapping$Trials.targetImage)
 looking_times_target <- ggplot(summarize_target, 
                               aes(time_normalized_corrected, 
                                   mean_accuracy, 
-                                  color = Trials.targetImage,  # Use target image for color mapping
-                                  group = Trials.targetImage)) +  # Group by target image
-  xlim(-2000, 4000) +
-  geom_errorbar(aes(ymin = mean_accuracy - ci, 
-                    ymax = mean_accuracy + ci), 
-                width = 0, 
-                alpha = 0.15) +
-  geom_smooth(method = "gam", alpha = 0.1) +
+                                  color = AoA_Est_target, group=Trials.targetImage)) +  # Group by target image
+  annotate("rect", xmin = 300, xmax = 3500, ymin = 0, ymax = 1, 
+          fill = "gray95", alpha = 0.5) +  
+ annotate("rect", xmin = -2000, xmax = 0, ymin = 0, ymax = 1, 
+           fill = "gray95", alpha = 0.5) + 
+
+  coord_cartesian(xlim = c(-2000, 3500), ylim = c(0, 1)) +
+     geom_line (alpha=0.2, size=0.8) +
+   geom_smooth(data=summarize_across_subj,
+              aes(x=time_normalized_corrected,
+                  y=accuracy,
+                  ymin=lower_ci,  # Assuming 'se' is your standard error column
+                  ymax=upper_ci,  # Adjust these to match your error metric
+                  group=NA),
+              stat="identity",  # Use identity instead of a smoothing method
+              color="black",
+              fill="gray40",
+              size=1.5) +
+   scale_color_viridis_c(option="B",direction=-1,name="Estimated target\nword AoA") +
+  guides(color = guide_colorbar(reverse = TRUE))+
   geom_vline(xintercept = 0, size = 1.5) +
   geom_hline(yintercept = 0.5, size = 1.2, linetype = "dashed") +
-  geom_vline(xintercept = 300, linetype = "dotted") +
-  ylim(0, 1) +
+  geom_vline(xintercept = 300, linetype = "dotted", size=1.2) +
   xlab("Time (normalized to target word onset) in ms") +
-  ylab("Proportion Target Looking") +
-   scale_color_manual(values = target_colors,
-                     name = "Primary Target Words \n(sorted in increasing\nage-of-acquisition\norder)") +
-  theme_minimal()
+  ylab("Proportion\nTarget Looking") +
+    # Add arrows
+  annotate("segment", x = -2000, xend = -50, y = 0.85, yend = 0.85, 
+           arrow = arrow(length = unit(0.2, "cm"), type="closed", ends="both"), size = 1, color = "black") + 
+  annotate("segment", x = 340, xend = 3490, y = 0.85, yend = 0.85, 
+           arrow = arrow(length = unit(0.2, "cm"),type="closed", ends="both"), size = 1, color = "black") + 
+
+  # Add text above arrows
+  annotate("text", x = -1000, y = 0.93, label = "Baseline window", 
+           size = 6, fontface = "bold") +
+  annotate("text", x = 2000, y = 0.93, label = "Critical window", 
+           size = 6, fontface = "bold") +
+  theme_minimal() +
+  scale_x_continuous(breaks=seq(-2000,3500,by=1000)) +
+  scale_y_continuous(breaks=seq(0,1,by=0.5))+
+  theme(
+    text = element_text(size=10,face = "bold"),              # All text bold
+    # Increase space between x-axis and its title
+    axis.title.x = element_text(
+      face = "bold", 
+      size = 18,
+      margin = margin(t = 10, r = 0, b = 0, l = 0)
+    ),
+    
+    # Increase space between y-axis and its title
+    axis.title.y = element_text(
+      face = "bold", 
+      size= 18,
+      margin = margin(t=0,r = 5, b = 0, l = 0)
+    ),      
+    axis.text = element_text(size=14,face = "bold"),         # Axis text bold
+    legend.title = element_text(size = 14, face = "bold"),  # Small bold legend title
+    legend.text = element_text(size = 14, face = "bold")    # Small bold legend text
+  )
 
 # Display the plot
 looking_times_target
-ggsave(here("figures",PROJECT_VERSION,"timecourse_plot.svg"),looking_times_target,width=8.5,height=5.5,bg = "white")
+
+ggsave(here("figures",PROJECT_VERSION,"timecourse_plot.svg"),looking_times_target, device="pdf",width=8.5,height=3.3,bg = "white")
 ```
 
 ## Age plots 
@@ -307,13 +350,14 @@ looking_times_age <- ggplot(summarize_across_age_halves,aes(time_normalized_corr
 
 looking_times_age
 
+
 ggsave(here("figures",PROJECT_VERSION,"prop_looking_across_time_age.png"),looking_times,width=9,height=6,bg = "white")
 ```
 
 #### Age-split performance
 ```{r}
 # note: using shorter window just because there's clearly no age-related effect with longer window 
-participant_age_halves = summarized_data(looking_data_summarized |> left_join(target_looking_item_level) |> rename(mean_looking = mean_value) |>  add_age_split() |> mutate(acc = corrected_target_looking_short), "age_half", "acc", 
+participant_age_halves = summarized_data(looking_data_summarized |> left_join(target_looking_item_level) |> rename(mean_looking = mean_value) |>  add_age_split() |> mutate(acc = corrected_target_looking), "age_half", "acc", 
                                          c("age_half", "SubjectInfo.subjID", "SubjectInfo.testAge")) 
 
 
@@ -348,7 +392,7 @@ age_continuous <- ggplot(participant_age_jittered, aes(x = x_jittered, y = mean_
   geom_smooth(method="lm",color="#2171B5") +
   geom_linerange(aes(ymin = mean_value - ci, ymax = mean_value + ci), alpha = 0.1) + 
   scale_y_continuous(breaks = seq(-0.4, 0.3, by = 0.1), limits = c(-0.3, 0.3)) +
-  #ggpubr::stat_cor()+
+  ggpubr::stat_cor()+
   labs(x = "Age in months", y = "Baseline-corrected proportion target looking") +
   #ggtitle("Corrected proportion of target looking by age") +
   theme_minimal()
@@ -466,7 +510,7 @@ clip_data_long <- clip_data_summarized |>
   pivot_longer(cols = c("text_similarity", "image_similarity"), names_to = "sim_type", values_to = "similarity")
 all_clip_plot <- multiple_similarity_effects_plot(clip_data_long, "similarity", group_var="sim_type", input_title="Looking time and CLIP embedding correlations")
 all_clip_plot
-ggsave(here("figures",PROJECT_VERSION,"clip_plot.svg"),all_clip_plot,width=8.5, height=8,bg = "white")
+ggsave(here("figures",PROJECT_VERSION,"clip_plot.svg"),all_clip_plot,width=8.5, height=9,bg = "white",device="pdf")
 ```
 
 
@@ -555,23 +599,37 @@ aoa_jittered <- target_looking_item_level %>%
 
 aoa_across_time <- ggplot(aoa_jittered, aes(x=aoa_x_jittered, y=mean_value))+
   geom_hline(yintercept=0,linetype="dashed")+
-  geom_point(size=6, alpha=0.4, color="#08306B")+
-  geom_linerange(aes(ymin = mean_value - ci, ymax = mean_value + ci), alpha = 0.1) + 
-  geom_smooth(method="lm", color="#08306B", alpha=0.5)+
-  geom_label_repel(aes(label=ifelse((Trials.targetImage %in% c("swan", "acorn", "key", "worm", "potato", "goat", "bulldozer")), Trials.targetImage, ""), force_pull=0.2)) +
-  xlab("Estimated age-of-acquisition of target words")+
-  ylab("Baseline-corrected prop. of target looking")+
+  geom_point(size=8, alpha=0.5, color="#CF784B")+
+  #geom_linerange(aes(ymin = mean_value - ci, ymax = mean_value + ci), alpha = 0.1) + 
+  geom_smooth(method="lm", color="#CF784B", alpha=0.5)+
+  geom_label_repel(size=5,aes(label=Trials.targetImage),force_pull=10,nudge_y=-0.03) +
+  xlab("Estimated target word age-of-acquisition (AoA)")+
+  ylab("Baseline-corrected\nprop. target looking")+
   #ggtitle("Prop. of target looking by estimated AoA of target words")+
   theme_minimal()+
-  theme(axis.title.x = element_text(face="bold", size=15, vjust=-1),
-        axis.text.x  = element_text(size=10,angle=0,vjust=0.5),
-        axis.title.y = element_text(face="bold", size=15),
-        axis.text.y  = element_text(size=10),
-        strip.text.x = element_text(size = 10,face="bold")
-        ) +
- scale_x_continuous(breaks = seq(3, 6, by = 0.5)) 
+ theme(
+    text = element_text(size=10,face = "bold"),              # All text bold
+    # Increase space between x-axis and its title
+    axis.title.x = element_text(
+      face = "bold", 
+      size = 20,
+      margin = margin(t = 10, r = 0, b = 0, l = 0)
+    ),
+    
+    # Increase space between y-axis and its title
+    axis.title.y = element_text(
+      face = "bold", 
+      size= 20,
+      margin = margin(t = 10, r = 5, b = 0, l = 0)
+    ),      
+    axis.text = element_text(size=16,face = "bold"),         # Axis text bold
+    legend.title = element_text(size = 12, face = "bold"),  # Small bold legend title
+    legend.text = element_text(size = 12, face = "bold")    # Small bold legend text
+  )+
+ scale_x_continuous(breaks = seq(3, 6, by = 0.5)) +
+   coord_cartesian(xlim = c(3.2,6.5), ylim = c(-0.12, 0.18))
 aoa_across_time
-ggsave(here("figures",PROJECT_VERSION,"aoa_plot.svg"),aoa_across_time,width=8.5,height=5.5,bg = "white")
+ggsave(here("figures",PROJECT_VERSION,"aoa_plot.svg"),aoa_across_time,width=8.5,height=3.3,bg = "white",device="pdf")
 
   #ggpubr::stat_cor(method = "spearman", label.y = max(target_looking_item_level$mean_value) + 0.05)
 
