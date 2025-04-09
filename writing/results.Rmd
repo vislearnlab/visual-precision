@@ -63,7 +63,6 @@ prereg_main_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similari
                     data = trials_with_effect_vars)
 
 image_sim_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
-                    #+ scale(AoA_Est_target)
                     + (1 | SubjectInfo.subjID)
                     + (1|Trials.targetImage), 
                     #+ (1|Trials.imagePair), 
@@ -75,18 +74,20 @@ multimodal_sim_effect <- lmer(scale(corrected_target_looking) ~ scale(multimodal
                     + (1|Trials.imagePair), 
                     data = trials_with_effect_vars)
 
-main_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity)*scale(age_in_months)
-                    + (scale(text_similarity) | SubjectInfo.subjID)
+main_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
+                    + (scale(image_similarity) | SubjectInfo.subjID)
                     + scale(MeanSaliencyDiff)
                     + scale(AoA_Est_target)
                     + (1|Trials.targetImage), 
                     data = trials_with_effect_vars)
 
+aoa_correlation <- tidy(cor.test(trial_metadata$image_similarity, trial_metadata$AoA_Est_target))
+
 
 tidy_model <- function(main_effect){
   table_data <- tidy(main_effect, effects = "fixed") %>%
   mutate(
-    p.value = 2 * (1 - pnorm(abs(statistic))),  # Calculate p-values for lmer
+    #p.value = 2 * (1 - pnorm(abs(statistic))),  # Calculate p-values for lmer
     p.value = case_when(
       p.value < .001 ~ "<.001", 
       p.value < .01 ~ "<.01",
@@ -124,15 +125,9 @@ age_predictor <- main_model |> filter(Predictor == "Age (scaled)")
 ```
 
 # Results
-We analyzed how well infants could identify the referents of common
-visual concepts in naturalistic visual images with distractors that varied in similarity to the
-target image. Overall, we found an increase in how often infants looked at the target image
-when the distractor was dissimilar to the target in either image or text similarity space (see
-Figure 1C, estimated using linear mixed-effect models, image similarity: b=`r image_sim_predictor |> pull(b)`, t=`r image_sim_predictor |> pull(t)`, p=`r image_sim_predictor |> pull(p)`; text similarity: b=`r text_sim_predictor |> pull(b)`, t=`r text_sim_predictor |> pull(t)`, p=`r text_sim_predictor |> pull(p)`); that is, children were more likely to look at the correct referent when the distractor was linguistically or visually dissimilar.
-However, this was not solely due to differences in visual saliency: visual saliency
-differences did not predict variance in infants’ looking behaviors (model: b=`r saliency_predictor |> pull(b)`, t=`r saliency_predictor |> pull(t)`, p=`r saliency_predictor |> pull(p)`). 
+We examined whether infants showed evidence for graded visual concept knowledge. To do so, we analyzed how well infants could identify the referents of visual concepts in naturalistic visual images using distractors that varied in similarity to target images. We found infants looked at the target image when the distractor was more dissimilar to the target image in image similarity space (see Figure 1B; estimated using a linear mixed-effect model: \textit{b}=`r image_sim_predictor |> pull(b)`, \textit{t}=`r image_sim_predictor |> pull(t)`, \textit{p}=`r image_sim_predictor |> pull(p)`). Text similarity measures trended in the same direction but were not significant (`r text_sim_predictor |> pull(b)`, t=`r text_sim_predictor |> pull(t)`, p=`r text_sim_predictor |> pull(p)`). In addition, we anticipated that more difficult words would be more challenging for infants to recognize. Consistent with this prediction, the AoA of the target word correlated inversely with the proportion of time infants looked at the target image (Figure 1C; \textit{b}=-0.10, \textit{t}=-4.14, p\textless.001). Yet, while target word AoA and target-distractor image similarity were not colinear (\textit{r}=`r aoa_correlation |> pull(round(estimate, 2))`, \textit{p}=`r aoa_correlation |> pull(round(p.value,2))`), they did not explain unique variance in this sample.
+Finally, we verified that these effects were not driven by differences in how well the stimuli captured infants' visual attention: target-distractor visual saliency differences from a GBVS model did not predict variance in infants’ looking behaviors in a linear mixed-effects model (b=`r saliency_predictor |> pull(b)`, t=`r saliency_predictor |> pull(t)`, p=`r saliency_predictor |> pull(p)`). 
 
-We next examined how differences in target word age-of-acquisition  determined accuracy. Age-of-acquisition correlated inversely with looking time (see Fig 1E; model: b=-0.10, t=-4.14, p=\textless.001), in line with our prediction that harder words would be harder to recognize. Accuracy was at chance for our most difficult words like ‘coconut’ and ‘swan’. Additionally, we did not find any interaction between AoA, infant age (age was additionally not predictive of variance (model: b=`r age_predictor |> pull(b)`, t=`r age_predictor |> pull(t)`, p=`r age_predictor |> pull(p)`), and our similarity measures. 
 
 \setlength{\parindent}{-0.1in} 
 \setlength{\leftskip}{0.125in}

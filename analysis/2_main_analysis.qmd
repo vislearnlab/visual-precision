@@ -519,7 +519,7 @@ clip_data_long <- clip_data_summarized |>
   pivot_longer(cols = c("text_similarity", "image_similarity"), names_to = "sim_type", values_to = "similarity")
 all_clip_plot <- multiple_similarity_effects_plot(clip_data_long, "similarity", group_var="sim_type", input_title="Looking time and CLIP embedding correlations")
 all_clip_plot
-ggsave(here("figures",PROJECT_VERSION,"clip_plot.svg"),all_clip_plot,width=8.5, height=9,bg = "white",device="pdf")
+ggsave(here("figures",PROJECT_VERSION,"clip_plot.svg"),all_clip_plot,width=10, height=10.5,bg = "white",device="pdf")
 ```
 
 

@@ -220,7 +220,7 @@ multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", gr
   
   ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]])) +  # Removed color from aes()
     geom_hline(yintercept = 0, linetype = "dashed") +
-    geom_point(size = 6, alpha = 0.5, color = "#215D89") +  # Set color outside aes()
+    geom_point(size = 8, alpha = 0.5, color = "#215D89") +  # Set color outside aes()
     geom_smooth(alpha = 0.3, size = 0, method = "lm", show.legend = F, color = "#215D89") +  # Set color outside aes()
     stat_smooth(geom = "line", alpha = 0.9, size = 1.5, method = "lm", show.legend = F, color = "#215D89") +  # Set color outside aes()
     coord_cartesian(ylim = c(-0.12, 0.22)) +
@@ -231,7 +231,7 @@ multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", gr
       nudge_y = ifelse(label_data$Trials.targetImage == "bulldozer", -0.02, 0.02),
       force = 10,
       force_pull = 0.1,
-      size = 5,
+      size = 6,
       segment.size = 1.2,
       point.padding = unit(1, "lines"),
       min.segment.length = 0,
@@ -245,25 +245,29 @@ multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", gr
     xlab("Target-distractor embedding similarity") +
     #scale_x_continuous(breaks = seq(0.5, 0.9, by = 0.1)) +
     scale_y_continuous(breaks = seq(-0.1, 0.2, by = 0.1)) +
-    theme_minimal() +
+    #ggthemes::theme_few() +
+    theme_minimal()+
     theme(
       text = element_text(size = 16, face = "bold"),
       axis.title.x = element_text(
         face = "bold", 
-        size = 27,
+        size = 29,
         margin = margin(t = 15, r = 0, b = 0, l = 0)
       ),
       legend.key = element_blank(),
       axis.title.y = element_text(
         face = "bold", 
-        size = 27,
+        size = 29,
         margin = margin(t = 0, r = 10, b = 0, l = 0)
       ),
       axis.text = element_text(size = 24, face = "bold"),
       legend.title = element_text(size = 22, face = "bold"),
       legend.text = element_text(size = 22, face = "bold"),
       legend.position = "bottom",
-      strip.text = element_text(size = 24, face = "bold"),
+      strip.text = element_text(size = 28, face = "bold"),
+      strip.background = element_rect(fill = "gray90", color = NA),
+      strip.text.x = element_text(margin = margin(t = 8, b = 8)), # Increase padding within strip
+      panel.spacing = unit(0.5, "cm")
       #strip.placement = "top"# Adjust facet label size
     ) +
     facet_wrap(facets=~ .data[[group_var]],dir="v", strip.position="top", labeller = as_labeller(c("image_similarity" = "Image Similarity", "text_similarity" = "Text Similarity")),
@@ -276,7 +280,7 @@ multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", gr
         ),
         text_similarity = scale_x_continuous(
           breaks = seq(0.7, 0.9, by = 0.05),
-          limits = c(0.7, 0.92)
+          limits = c(0.7, 0.91)
         )
       )
     )
