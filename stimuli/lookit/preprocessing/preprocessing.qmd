@@ -25,7 +25,7 @@ if (conda_env != "") {
 
 ```{r constants}
 # Storing stimuli on our Ubuntu server
-STIMULI_PATH = "https://ucsdlearninglabs.org/stimuli/"
+STIMULI_PATH = "https://[BLINDED]/stimuli/"
 PROJECT_VERSION = Sys.getenv("PROJECT_VERSION")
 # The directory the current file is located in
 SOURCE_CODE_PATH = here("stimuli", "lookit")
@@ -55,7 +55,7 @@ stimuli_exp3 <- read.csv(file.path(SOURCE_CODE_PATH, "preprocessing", "older_sti
 stimuli_metadata <- read_tsv(file.path(SOURCE_CODE_PATH, "preprocessing", "older_stimuli", "_images-metadata_things.tsv"))
 ```
 
-Only using the 'high similarity (hard)' and the 'medium similarity (easy)' trials because of the absence of much variation seen between medium similarity and low similarity (distal) trials. Since we're adapting the study for children under the age of 3 and it looks like the est. AoA listed in the Kuperman study are 1.5-2 years too high (more analysis below) we are choosing the lowest est. AoA limit that we can afford to. We are also aiming to use 24 regular trials in total to match Martin's Animal-LWL experiment and use 3 practice trials.
+Only using the 'high similarity (hard)' and the 'medium similarity (easy)' trials because of the absence of much variation seen between medium similarity and low similarity (distal) trials. Since we're adapting the study for children under the age of 3 and it looks like the est. AoA listed in the Kuperman study are 1.5-2 years too high (more analysis below) we are choosing the lowest est. AoA limit that we can afford to. We are also aiming to use 24 regular trials in total to match [BLINDED]'s Animal-LWL experiment and use 3 practice trials.
 ```{r}
 filtered_stimuli_exp1 <- stimuli_exp1 |>
   # Using words with higher estimated age-of-acquisition for word 2 since they are primarily distractors; and not using any practice trials

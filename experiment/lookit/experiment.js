@@ -756,7 +756,7 @@ function generateProtocol(child, pastSessions) {
                     ]
         }]
     
-    var debrief_text = "You just completed this study! After you exit this experiment, we will check that your consent video meets our eligibility criteria and send you a $5 Amazon gift card (US) within one week of participating. </br></br>In this study, we are interested in how babies learn that words, such as <i>bulldozer</i>, refer to different types of bulldozers, but not to similar looking categories, like types of tractors. Your baby saw some pictures of objects that are labeled (for example, a bulldozer), paired with objects that differ in how similar they are to the labeled object (for example, a tractor and an orange). We wonder if babies will make more mistakes with the more similar objects compared to the objects that are more different. All babies in this study were shown the same pairs of pictures but the order in which they appeared and the ordering of the pictures were both randomized.</br></br>Babies know more about words than they are able to say, so we look at what babies <i>understand</i> about words by seeing what they look at during the study. There are many reasons why your baby might look to one kind of object over another, and your baby likely looked at pictures differently than another child based on their unique experiences with these categories of words. For example, your baby may not know the word <i>squirrel</i> or maybe your baby eats a lot of oranges at home that look like the ones in our study. If we understand how this process changes and is supposed to change across development, we can provide better assessments and interventions for children who struggle with early category learning, including late talkers and children with ASD.<br/><br/>To learn more, <a href='https://pmc.ncbi.nlm.nih.gov/articles/PMC2630708/'>here</a> is a link to a study about how children with ASD process categories differently and <a href='https://www.nature.com/articles/s41467-023-44529-9'>here</a> is a link to a study led by the principal investigator of our lab, Dr. Bria Long, about how the way children think about categories changes as they get older. You can also <a href='https://www.vislearnlab.org/'>visit our website</a> to learn more about our research!"
+    var debrief_text = "You just completed this study! After you exit this experiment, we will check that your consent video meets our eligibility criteria and send you a $5 Amazon gift card (US) within one week of participating. </br></br>In this study, we are interested in how babies learn that words, such as <i>bulldozer</i>, refer to different types of bulldozers, but not to similar looking categories, like types of tractors. Your baby saw some pictures of objects that are labeled (for example, a bulldozer), paired with objects that differ in how similar they are to the labeled object (for example, a tractor and an orange). We wonder if babies will make more mistakes with the more similar objects compared to the objects that are more different. All babies in this study were shown the same pairs of pictures but the order in which they appeared and the ordering of the pictures were both randomized.</br></br>Babies know more about words than they are able to say, so we look at what babies <i>understand</i> about words by seeing what they look at during the study. There are many reasons why your baby might look to one kind of object over another, and your baby likely looked at pictures differently than another child based on their unique experiences with these categories of words. For example, your baby may not know the word <i>squirrel</i> or maybe your baby eats a lot of oranges at home that look like the ones in our study. If we understand how this process changes and is supposed to change across development, we can provide better assessments and interventions for children who struggle with early category learning, including late talkers and children with ASD.<br/><br/>To learn more, <a href='https://pmc.ncbi.nlm.nih.gov/articles/PMC2630708/'>here</a> is a link to a study about how children with ASD process categories differently and <a href='https://www.nature.com/articles/s41467-023-44529-9'>here</a> is a link to a study led by the principal investigator of our lab, Dr. [BLINDED], about how the way children think about categories changes as they get older. You can also <a href='https://www.vislearnlab.org/'>visit our website</a> to learn more about our research!"
 
     const condition = "pilot"
 
@@ -766,7 +766,7 @@ function generateProtocol(child, pastSessions) {
             "formSchema": {
                 "schema": {
                     "type": "object",
-                    "title": "Eligibility survey </br></br> <img src='https://ucsdlearninglabs.org/stimuli/img/USA_map.jpg' alt='US map'  class='center'>",
+                    "title": "Eligibility survey </br></br> <img src='https://[BLINDED]/stimuli/img/USA_map.jpg' alt='US map'  class='center'>",
                     "properties": {
                         "liveUS": {
                             "enum": [
@@ -831,7 +831,7 @@ function generateProtocol(child, pastSessions) {
         },
         "study-intro": {
             "kind": "exp-lookit-instruction-video",
-            "baseDir": "https://ucsdlearninglabs.org/stimuli/",
+            "baseDir": "https://[BLINDED]/stimuli/",
             "instructionsVideo": "instructions1",
             "videoTypes": [
                 "mp4"
@@ -897,7 +897,7 @@ function generateProtocol(child, pastSessions) {
         },
         "exp-get-ready": {
             "kind": "exp-lookit-images-audio",
-            "baseDir": "https://ucsdlearninglabs.org/stimuli/",
+            "baseDir": "https://[BLINDED]/stimuli/",
             "audio": "get_ready",
             "images": [{
                 "id": "begin",
@@ -922,11 +922,11 @@ function generateProtocol(child, pastSessions) {
         },
         "video-config": {
             "kind": "exp-video-config",
-            "troubleshootingIntro": "If you’re having any difficulties getting your webcam set up, please feel free to email the Visual Learning Learning Lab at vislearnlab@ucsd.edu."
+            "troubleshootingIntro": "If you’re having any difficulties getting your webcam set up, please feel free to email the Visual Learning Learning Lab at [BLINDED]."
         },
         "exp-calibration": {
             "kind": "exp-lookit-calibration",
-            "baseDir": "https://ucsdlearninglabs.org/stimuli/",
+            "baseDir": "https://[BLINDED]/stimuli/",
             "audioTypes": [
                 "ogg",
                 "mp3"
@@ -939,7 +939,7 @@ function generateProtocol(child, pastSessions) {
                 "right"
             ],
             "calibrationAudio": [{
-                "src": "https://ucsdlearninglabs.org/stimuli/mp3/pinwheel.mp3",
+                "src": "https://[BLINDED]/stimuli/mp3/pinwheel.mp3",
                 "type": "audio/mp3"
             }],
             "calibrationImageAnimation": "bounce",
@@ -957,7 +957,7 @@ function generateProtocol(child, pastSessions) {
             "frameList": pilotJSON,
             "commonFrameProperties": {
                 "kind": "exp-lookit-images-audio",
-                "baseDir": "https://ucsdlearninglabs.org/stimuli/",
+                "baseDir": "https://[BLINDED]/stimuli/",
                 "pageColor": "gray",
                 "maximizesDisplay": true,
                 "durationSeconds": 7.2,
@@ -986,18 +986,18 @@ function generateProtocol(child, pastSessions) {
         "video-consent": {
             "kind": "exp-lookit-video-consent",
             "template": "consent_005",
-            "PIName": "Bria Long",
-            "PIContact": "Visual Learning Lab at vislearnlab@ucsd.edu",
-            "institution": "University of California, San Diego",
+            "PIName": "[BLINDED]",
+            "PIContact": "[BLINDED] at [BLINDED]",
+            "institution": "[BLINDED]",
             "purpose": "We are running this study to better understand how children develop their language and category representations. This research study aims to to understand how differences in children’s language learning are related to how they learn categories from their everyday visual experiences. We will investigate how they represent and interpret different categories and objects across age and interact with different types and forms of objects.",
             "procedures": "During the study, your child will play different games and activities. The activities will examine your child's linguistic, categorization, or cognitive skills. In one game, your child may play a picture matching game where your child matches a word heard with one of up to 4 images on a screen. In other games, for example, your child may play a ball-identifying game where they identify the box a ball is placed in after the boxes are moved around, or an object-labeling game where your child sees an object or a drawing on the screen and then matches them with one of up to 4 new objects on the screen. All objects and words used in this study will be age-appropriate. Children will identify their choices in these games either by looking at it, pointing at it, or indicating their choice to a parent who then performs one of the actions. The alternative to being in this study is not to participate.",
             "voluntary_participation": "Refusal to participate will involve no penalty or loss of compensation. Further, if you decide to stop participating, you can email us and we can remove any information collected about you and your child if you would like us to. You can also email us at any point after the study to withdraw permission and any information collected about you and your child will be deleted and not used for future research. Any deletion of information will not be held against you.",
             "risk_statement": "There are minimal risks involved with this study. The main risk is a loss of confidentiality. The other associated risks are mild boredom or anxiety about task performance. Should the child participant experience mild boredom or anxiety, we do not believe this will leave a lasting impact.",
             "payment": "We cannot promise any benefit to you or to others from you participating in this research. However, possible benefits may include enjoyment from engaging in the study because of the stimulating nature of the experimental games. Parents may also benefit from the satisfaction of having contributed to research on development in early childhood. There are also potential benefits to educational and public policy regarding the benefits of supporting language development in diverse populations and in children who struggle with early category learning.",
-            "datause": "Study information stored by researchers will be labeled with a subject code instead of your name or other information that can easily identify you, which will be kept separate from the rest of the study information. While we cannot guarantee complete confidentiality, we will limit access to information, documents, or recordings of you and your child. Only people who have a need to review your information, documents, or recordings will have access. These people might include:<br><ul><li>Members of the research team and other staff or representatives of UCSD whose work is related to the research or to protecting your rights and safety.</li><li>Representatives of the study sponsor or product manufacturer</li><li>Representatives of Federal and other regulatory agencies who make sure the study is done properly and that your rights and safety are protected.</li></ul>According to the Lookit Terms of Use, we may download local copies of your Lookit data, including study data and video, and account, child, and demographic survey data from participants who have participated in their studies. Lookit may also keep copies of this data, including study data and video, indefinitely. Our research team also retains ownership of study data, including video, for our own studies. You cannot take part in this study without agreeing to the Lookit Terms of Use.",
+            "datause": "Study information stored by researchers will be labeled with a subject code instead of your name or other information that can easily identify you, which will be kept separate from the rest of the study information. While we cannot guarantee complete confidentiality, we will limit access to information, documents, or recordings of you and your child. Only people who have a need to review your information, documents, or recordings will have access. These people might include:<br><ul><li>Members of the research team and other staff or representatives of [BLINDED] whose work is related to the research or to protecting your rights and safety.</li><li>Representatives of the study sponsor or product manufacturer</li><li>Representatives of Federal and other regulatory agencies who make sure the study is done properly and that your rights and safety are protected.</li></ul>According to the Lookit Terms of Use, we may download local copies of your Lookit data, including study data and video, and account, child, and demographic survey data from participants who have participated in their studies. Lookit may also keep copies of this data, including study data and video, indefinitely. Our research team also retains ownership of study data, including video, for our own studies. You cannot take part in this study without agreeing to the Lookit Terms of Use.",
             "additional_video_privacy_statement": "These video recordings will include your and your child’s faces and/or parts of your or your child’s bodies. While these videos will be subject to the confidentiality conditions described in this form, it is possible that someone who knows you well may be able to identify you from the photos and know you are participating in this study. To minimize this possibility, your videos will only be shared within the research team and people who have a need to review your recordings listed above. It will not be used in publications or for external research unless you explicitly provide permission to do so. Further, if you would not like us to use your recordings at any point in the future, you can email us to withdraw permission and all recordings of your child and you will be deleted and not used for future research.",
             "gdpr": false,
-            "research_rights_statement": "If before or during your participation in the study you have questions about your rights as a research participant, or you want to talk to someone outside the research team, please contact UC San Diego Office of IRB Administration at 858-246-4777 or irb@ucsd.edu",
+            "research_rights_statement": "If before or during your participation in the study you have questions about your rights as a research participant, or you want to talk to someone outside the research team, please contact [BLINDED] Office of IRB Administration at [BLINDED]",
             "additional_segments": [
             {
                 "title": "Will I be compensated for participating in the research?",
@@ -1007,7 +1007,7 @@ function generateProtocol(child, pastSessions) {
         },
         "study-instructions": {
             "kind": "exp-lookit-instruction-video",
-            "baseDir": "https://ucsdlearninglabs.org/stimuli/",
+            "baseDir": "https://[BLINDED]/stimuli/",
             "instructionsVideo": "instructions2",
             "videoTypes": [
                 "mp4"
@@ -1089,7 +1089,7 @@ function generateProtocol(child, pastSessions) {
                     "text": "Because this is an online study, we will check to make sure your webcam is working so that we can only see your baby during the study. Please sit facing the monitor, holding your child on your lap, like you see below. Your child can sit or stand as long as <strong> the webcam is angled up or down so that your child's eyes are visible and your eyes are not</strong>. If you're not sure if only your child's eyes will be visible, you can check the video preview on the right side of the screen!",
                     "image": {
                         "alt": "Example image showing a mom holding her child on lap.",
-                        "src": "https://ucsdlearninglabs.org/stimuli/img/placeholder_lap_image.jpg"
+                        "src": "https://[BLINDED]/stimuli/img/placeholder_lap_image.jpg"
                     },
                     "title": "Holding your baby"
                 },
@@ -1100,11 +1100,11 @@ function generateProtocol(child, pastSessions) {
                         "text": "You should hear 'Ready to go?'",
                         "isVideo": false,
                         "sources": [{
-                                "src": "https://ucsdlearninglabs.org/stimuli/mp3/ready_to_go.mp3",
+                                "src": "https://[BLINDED]/stimuli/mp3/ready_to_go.mp3",
                                 "type": "audio/mp3"
                             },
                             {
-                                "src": "https://ucsdlearninglabs.org/stimuli/mp3/ready_to_go.mp3",
+                                "src": "https://[BLINDED]/stimuli/mp3/ready_to_go.mp3",
                                 "type": "audio/ogg"
                             }
                         ],
@@ -1134,7 +1134,7 @@ function generateProtocol(child, pastSessions) {
                 "text": debrief_text,
                 "image": {
                     "alt": "thank you",
-                    "src": "https://ucsdlearninglabs.org/stimuli/img/exit_survey_image.jpg"
+                    "src": "https://[BLINDED]/stimuli/img/exit_survey_image.jpg"
                 },
                 "title": "Thank you!"
             }

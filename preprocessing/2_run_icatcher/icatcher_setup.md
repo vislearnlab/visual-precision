@@ -6,6 +6,6 @@ We decided to use trial-by-trial recordings instead of a single recording becaus
 
 Set up with Torch and iCatcher is reproducible using Python 3.12.
 
-Existing shell script allows Slurm to analyze the data. That allowed us to run this configuration on the SSRDE cluster at UC San Diego. The original script used the MIT Singularity container which was fully removed since no containerization solution currently exists on SSRDE. All video data is also only be stored remotely on our Polygon server.
+Existing shell script allows Slurm to analyze the data. That allowed us to run this configuration on the SSRDE cluster at [BLINDED]. The original script used the MIT Singularity container which was fully removed since no containerization solution currently exists on SSRDE. All video data is also only be stored remotely on our [BLINDED] server.
 
 
