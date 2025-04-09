@@ -20,7 +20,7 @@ class FeatureGenerator(ABC):
         print(device)
         print(dataloader)
         if device is None:
-            self.device = "cuda:1" if torch.cuda.is_available() else "cpu"
+            self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         else:
             self.device = device
         self.model = model.to(self.device)

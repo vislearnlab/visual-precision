@@ -23,10 +23,10 @@ def load_openclip():
         model, _, preprocess = open_clip.create_model_and_transforms('ViT-H-14', pretrained=f'openclip/checkpoints/{epoch}', load_weights_only=False) 
         OpenCLIPGenerator(model, preprocess, epoch=i+1).lookit_similarities()
 
+# Working with CPU capacity
 torch.set_num_threads(1)
-#load_contrastives()
-#load_openclip()
-#load_vits()
-
+load_contrastives()
+load_openclip()
+load_vits()
 #CLIPGenerator(device="cuda:0").compute_tsne_visualization()
-CLIPGenerator(device="cuda:0").lookit_similarities()
+#CLIPGenerator(device="cuda:0").lookit_similarities()

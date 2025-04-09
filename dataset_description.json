@@ -2,7 +2,7 @@
     "@context" : "http://schema.org/",
     "@type" : "Dataset",
     "name" : "Visual Vocabulary dataset description",
-    "description" : "This file contains a list and definitions of variables used in this dataset for analysis and metadata, at different levels of processing. Some variable definitions can be found in the metadata sidecar JSON files within the data subfolder.",
+    "description" : "This file contains a list and definitions of variables used in this dataset for analysis and metadata, at different levels of processing. Some variable definitions can be found in metadata sidecar JSON files within the data subfolder.",
     "variableMeasured" : ["SubjectInfo.subjID", "Trials.trialID", "absolute_onset", "Trials.audio_lag_vs_video_lag", "absolute_offset",
 "SubjectInfo.testAge", "SubjectInfo.gender", "Trials.leftImage", "Trials.rightImage", "Trials.imagePair", "Trials.targetImage", "Trials.distractorImage",
 "Trials.targetAudio", "Trials.trialType", "Trials.carrier_onset", "Trials.target_onset", "Trials.target_offset", "Trials.article_length", "Trials.order",

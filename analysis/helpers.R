@@ -245,6 +245,7 @@ multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", gr
     xlab("Target-distractor embedding similarity") +
     #scale_x_continuous(breaks = seq(0.5, 0.9, by = 0.1)) +
     scale_y_continuous(breaks = seq(-0.1, 0.2, by = 0.1)) +
+    theme_minimal() +
     theme(
       text = element_text(size = 16, face = "bold"),
       axis.title.x = element_text(

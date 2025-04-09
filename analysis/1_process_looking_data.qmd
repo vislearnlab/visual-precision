@@ -8,11 +8,20 @@ library(dotenv)
 library(readr)
 library(rlang)
 source("helpers.R")
-load_dot_env(file=here(".env"))
+env_file = here(".env")
+default_project = "main"
+if (file.exists(env_file)) {
+  load_dot_env(file = env_file)
+  PROJECT_VERSION <- Sys.getenv("PROJECT_VERSION")
+  if (PROJECT_VERSION == "") {
+    PROJECT_VERSION <- default_project
+  }
+} else {
+  PROJECT_VERSION <- default_project
+}
 ```
 
 ```{r constants}
-PROJECT_VERSION = Sys.getenv("PROJECT_VERSION")
 METADATA_PATH = here("data", "metadata")
 
 DATA_TO_ANALYZE_PATH = here("data", PROJECT_VERSION, "data_to_analyze")
@@ -125,7 +134,7 @@ summarize_subj_usable_trials_baseline_window <- summarize_subj_usable_trials(
 
 #overall usable trials
 summarize_subj_trials <- all_looking_times %>%
-  distinct(SubjectInfo.subjID, SubjectInfo.testAge,Trials.trialID, Trials.ordinal, Trials.trialType, Trials.targetImage, Trials.distractorImage, Trials.imagePair) %>%
+  distinct(SubjectInfo.subjID, SubjectInfo.testAge,Trials.trialID, Trials.ordinal, Trials.trialType, Trials.targetImage, Trials.distractorImage, Trials.imagePair, Trials.targetAudio) %>%
   left_join(summarize_subj_usable_trials_critical_window) %>%
   left_join(summarize_subj_usable_trials_baseline_window) %>%
   mutate(

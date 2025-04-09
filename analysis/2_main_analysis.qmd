@@ -18,8 +18,17 @@ library(scales)
 
 source("helpers.R")
 
-load_dot_env(file=here(".env"))
-PROJECT_VERSION = Sys.getenv("PROJECT_VERSION")
+env_file = here(".env")
+default_project = "main"
+if (file.exists(env_file)) {
+  load_dot_env(file = env_file)
+  PROJECT_VERSION <- Sys.getenv("PROJECT_VERSION")
+  if (PROJECT_VERSION == "") {
+    PROJECT_VERSION <- default_project
+  }
+} else {
+  PROJECT_VERSION <- default_project
+}
 ```
 
 ### Load data
