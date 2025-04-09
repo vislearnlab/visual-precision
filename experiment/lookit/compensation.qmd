@@ -21,12 +21,22 @@ subjects_data <- read.csv(file.path(RAW_DATA_PATH, "subject_data.csv"), stringsA
 ```
 
 ```{r}
+hashed_gift_card_text = "As promised, here is the Amazon.com gift card code for participating:
+ 
+  [gift_card]
+ 
+ To use this code, please go to: https://www.amazon.com/gc/redeem/"
+
+url_gift_card_text = "As promised, here [gift_card] is the link to the Amazon.com gift card for participating."
+```
+
+```{r}
 email_template = 
   "Dear [parent_name],
 
 Thank you to [child_name] for participating in 'How do children think about categories?' on Children Helping Science, run by Bria Long in the Visual Learning Lab at the University of California, San Diego!
 
-As promised, here [gift_card] is the link to the Amazon.com gift card for participating.
+[gift_card_text]
 
 If you have any questions or concerns about your child's participation in this study, please email us at vislearnlab@ucsd.edu
 
@@ -41,7 +51,10 @@ Please do not reply to this message. If you have questions, please email us at v
 
 ```{r}
 fill_email <- function(parent_name, child_name, gift_card) {
-  email_filled <- email_template %>%
+  gift_card_text <- ifelse(grepl(".com", gift_card), url_gift_card_text, hashed_gift_card_text)
+  full_email_template <- email_template |>
+   str_replace_all("\\[gift_card_text\\]", gift_card_text)
+  email_filled <- full_email_template %>%
     str_replace_all("\\[parent_name\\]", parent_name) %>%
     str_replace_all("\\[child_name\\]", child_name) %>%
     str_replace_all("\\[gift_card\\]", gift_card)
