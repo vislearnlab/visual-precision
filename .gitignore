@@ -7,7 +7,10 @@
 
 .Rproj.user
 .RData
+.RData*
 .Rhistory
+analysis/**html**
+**/**_files
 
 venv/
 
@@ -25,6 +28,9 @@ data/raw/lookit/input_lookit_study.json
 data/raw/lookit/subject_data.csv
 data/raw/lookit/matched_gift_cards.txt
 data/raw/lookit/gift_cards.csv
+
+# excluding all figures by default
+figures/**/**png
 
 stimuli/lookit/preprocessing/older_stimuli/
 stimuli/lookit/instructions/**

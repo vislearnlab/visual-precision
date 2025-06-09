@@ -31,6 +31,9 @@ trial_timing_info = read.csv(file.path(DATA_TO_ANALYZE_PATH, "level-trials_sourc
 stimuli_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_data.csv"))
 saliency_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_added-saliency_data.csv"))
 similarities <- read.csv(here("data", "embeddings", "similarities-clip_data.csv"))
+
+#exploratory normalization strategies
+zscore <- read_csv(here("data/embeddings/zscore_similarities.csv"))
 ```
 
 Importing looking time data after initial preprocessing of iCatcher data in Python
@@ -47,6 +50,8 @@ all_looking_times <- trial_timing_info |>
   left_join(timestamp_data, by = c("Trials.trialID", "SubjectInfo.subjID")) |>
   # Filter out rows with missing IDs
   filter(!is.na(Trials.trialID) & !is.na(SubjectInfo.subjID)) |>
+  # scam participants
+  filter(SubjectInfo.subjID != "PH2RNZ") |>
   rowwise() |>
   mutate(
     Trials.imagePair = gsub("(easy-|hard-|-distractor)", "", Trials.trialID),
@@ -175,8 +180,20 @@ stimuli_metadata_by_word <- stimuli_metadata |>
   distinct(target, distractor, .keep_all=TRUE) |>
   select(-X)
 
+zscore_sims <- zscore |>
+   rename_with(~ gsub("Word1|word1|text1", "target", .)) |>
+  rename_with(~ gsub("Word2|word2|text2", "distractor", .)) |>
+  bind_rows(
+    zscore |>
+      rename_with(~ gsub("Word1|word1|text1", "distractor", .)) |>
+      rename_with(~ gsub("Word2|word2|text2", "target", .))
+  ) |>
+  distinct(target, distractor, .keep_all=TRUE)
+
 trial_metadata <- trial_metadata |>
-  left_join(stimuli_metadata_by_word, by = c("Trials.targetImage"="target", "Trials.distractorImage"="distractor"))
+  left_join(stimuli_metadata_by_word, by = c("Trials.targetImage"="target", "Trials.distractorImage"="distractor")) |>
+  left_join(zscore_sims, by=c("Trials.targetImage"="target", "Trials.distractorImage"="distractor")) |>
+  rename(image_sim_zscore = image_sim, text_sim_zscore = text_sim)
 ```
 
 # Exclusions

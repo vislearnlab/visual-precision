@@ -2,7 +2,9 @@ library(tidyverse)
 library(rlang)
 library(gghalves)
 library(ggh4x)
+library(stringr)
 
+median_aoa <- 4.44
 # Function to summarize whether a trial is usable based on whether the subject is looking at the screen for greater than 50% of the critical window
 summarize_subj_usable_trials <- function(data, critical_window, suffix, additional_fields=NULL) {
   additional_fields <- additional_fields %||% list()
@@ -149,15 +151,15 @@ resample_times <- function(df_table, sample_duration) {
 add_age_split <- function(data) {
   data |>
     mutate(
-      mean_age = mean(SubjectInfo.testAge) / 30,
-      age_half = ifelse(SubjectInfo.testAge > mean(SubjectInfo.testAge), "older", "younger")
+      median_age = median(SubjectInfo.testAge) / 30,
+      age_half = ifelse(SubjectInfo.testAge > median(SubjectInfo.testAge), "older", "younger")
     )
 }
 
 add_aoa_split <- function(data) {
   data |>
-    mutate(mean_aoa = mean(AoA_Est_target),
-           aoa_half = ifelse(AoA_Est_target > mean(AoA_Est_target), "higher", "lower"))
+    mutate(median_aoa = median(AoA_Est_target),
+           aoa_half = ifelse(AoA_Est_target > median(AoA_Est_target), "higher", "lower"))
 }
 
 half_violins_plot <- function(data, x_var, y_var, group_var, violin_conditions, input_xlab="Distractor Difficulty Condition",
@@ -186,6 +188,13 @@ half_violins_plot <- function(data, x_var, y_var, group_var, violin_conditions, 
     geom_line(data=overall_corrected_target_looking, aes(y=mean_value, group=1), color="black", size=3) +
     geom_errorbar(data=overall_corrected_target_looking, aes(y=mean_value, ymin=lower_ci, ymax=upper_ci), width=0, size=1.2, color="black") +
     geom_hline(yintercept=0, linetype="dashed") +
+    geom_blank() +  # allows stat_compare_means to work
+    ggpubr::stat_compare_means(
+      comparisons = list(violin_conditions),  # list of pairs to compare
+      method = "t.test",
+      aes(label = ..p.format..),  # or ..p.signif.. for stars
+      label.y = max(avg_corrected_target_looking$mean_value, na.rm=TRUE) + 0.05
+    ) +
     scale_color_manual(values = setNames(c("#77DD77", "#FF6961"), 
                                          as.character(sapply(violin_conditions, sym)))) +# Match point colors
     theme(legend.position="none") +
@@ -231,7 +240,7 @@ multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", gr
       nudge_y = ifelse(label_data$Trials.targetImage == "bulldozer", -0.02, 0.02),
       force = 10,
       force_pull = 0.1,
-      size = 6,
+      size = 7,
       segment.size = 1.2,
       point.padding = unit(1, "lines"),
       min.segment.length = 0,
@@ -276,42 +285,34 @@ multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", gr
       x = list(
         image_similarity = scale_x_continuous(
           breaks = seq(0.5, 0.9, by = 0.1),
-          limits = c(0.43, 0.85)
+           limits = c(0.43, 0.85)
+          #breaks = seq(-0.5, 0.5, by = 0.1),
+          #limits = c(-0.3, 0.6)
         ),
         text_similarity = scale_x_continuous(
           breaks = seq(0.7, 0.9, by = 0.05),
           limits = c(0.7, 0.91)
+          #breaks = seq(-0.4, 0.6, by = 0.1),
+          #limits = c(-0.42, 0.61)
         )
       )
     )
 }
 
-similarity_age_half_plot <- function(data, x_var, y_var="mean_value", group_var="age_half",model_type) {
-  sim_type <- strsplit(x_var, "_")[[1]][1]
-  ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]], color = .data[[group_var]])) +
-    geom_hline(yintercept=0,linetype="dashed")+
-    geom_point(size = 3, alpha = 0.5) +
-    geom_smooth(method = "lm") +
-    geom_linerange(aes(ymin = .data[[y_var]] - ci, ymax = .data[[y_var]] + ci), alpha = 0.1) + 
-    scale_color_brewer(palette = "Set1", name="Age half") +  # Using RColorBrewer for colors
-    ylab("Baseline-corrected proportion target looking") +
-    xlab(paste(model_type,"target-distractor",sim_type,"similarity")) +
-    ggpubr::stat_cor(method = "spearman") +
-    labs(caption=paste0("Labels are in the order of target-distractor. M=",mean_age," months"))
-}
-
 age_half_plot <- function(data, x_var, y_var="mean_value", group_var="age_half", x_label, y_label="Baseline-corrected proportion target looking", labels=c(), title="") {
+  readable_gv <- str_replace_all(group_var, "_", " ")
+  readable_gv <- str_to_sentence(readable_gv)
   sim_type <- strsplit(x_var, "_")[[1]][1]
   ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]], color = .data[[group_var]])) +
     geom_hline(yintercept=0,linetype="dashed")+
     geom_point(size = 3, alpha = 0.5) +
     geom_smooth(method = "lm") +
     geom_linerange(aes(ymin = .data[[y_var]] - ci, ymax = .data[[y_var]] + ci), alpha = 0.1) + 
-    scale_color_brewer(palette = "Set1", name="Age half") +  # Using RColorBrewer for colors
+    scale_color_brewer(palette = "Set1", name=readable_gv) +  # Using RColorBrewer for colors
     ylab("Baseline-corrected proportion target looking") +
     xlab(x_label) +
     ggpubr::stat_cor(method = "spearman") +
-    labs(caption=paste0("M=",mean_age," months"), title=title)
+    labs(caption=paste0("median=",median_age," months"), title=title)
 }
 
 epoch_age_half_plot <- function(data, x_var) {
@@ -335,9 +336,9 @@ epoch_age_half_plot <- function(data, x_var) {
 
 
 summarize_similarity_data <- function(data, extra_fields=NULL) {
-  group_vars = c("Trials.trialID", "Trials.targetImage", "Trials.distractorImage", "image_similarity", "cor")
+  group_vars = c("Trials.trialID", "Trials.targetImage", "Trials.distractorImage", "image_similarity", "image_sim", "cor")
   if ("text_similarity" %in% colnames(data)) {
-    group_vars = c(group_vars, "text_similarity", "multimodal_similarity")
+    group_vars = c(group_vars, "text_similarity", "multimodal_similarity", "text_sim")
   }
   if (!is.null(extra_fields)) {
     group_vars = c(group_vars, extra_fields)
@@ -394,29 +395,8 @@ generate_multimodal_plots <- function(data, model_type, suffix = "") {
   grid
 }
 
-
-# Function to generate plots correlating the looking time of infants across two age groups with image pair similarities across vision, language and text correlations
-generate_multimodal_age_effect_plots <- function(data, model_type, suffix = "") {
-  # Initialize an empty list to store the plots
-  plot_list <- list()
-  
-  # Conditionally add plots for existing columns
-  for (col in c("text_similarity", "image_similarity", "multimodal_similarity")) {
-    if (col %in% colnames(data)) {
-      plot_list[[length(plot_list) + 1]] <- similarity_age_half_plot(data, x_var=paste0(col, suffix), model_type=model_type)
-    }
-  }
-  
-  # Create the combined plot grid
-  plots <- cowplot::plot_grid(plotlist = plot_list, nrow = 2)
-  title <- cowplot_title(paste0("Target looking and semantic similarity correlations by age for ", model_type))
-  grid <- cowplot::plot_grid(title, plots, rel_heights = c(0.2, 1), ncol=1)
-  cowplot::save_plot(here("figures",PROJECT_VERSION,paste0(model_type,"_age_similarities.png")), grid, base_width = 10, base_height = 12, bg="white")
-  grid
-}
-
 # Create correlational and age-split plots for a model 
-create_model_plots <- function(input_similarities, name="CVCL") {
+create_model_plots <- function(input_similarities, median_age, name="CVCL") {
   similarities_combined <- input_similarities |>
     rename(word_a = word1, word_b = word2) |>
     bind_rows(
@@ -435,6 +415,224 @@ create_model_plots <- function(input_similarities, name="CVCL") {
     summarize_similarity_data(extra_fields = c("age_half"))
   
   generate_multimodal_plots(data_summarized, name)
-  generate_multimodal_age_effect_plots(age_half_summarized, model_type=name)
+  generate_multimodal_age_effect_plots(age_half_summarized, median_age=median_age, model_type=name)
+}
+
+generate_aoa_facet_plots <- function(data, model_type, median_age, age_grouping = "age_half", 
+                                     include_multimodal = FALSE, suffix = "") {
+  
+  # Split data by AoA threshold (4.44)
+  low_aoa_data <- data %>% filter(AoA_Est_target <= median_aoa)
+  high_aoa_data <- data %>% filter(AoA_Est_target > median_aoa)
+  
+  # Add AoA group labels
+  low_aoa_data$aoa_group <- paste0("AoA ≤ ", median_aoa)
+  high_aoa_data$aoa_group <- paste0("AoA > ", median_aoa)
+  
+  # Combine data
+  combined_data <- bind_rows(low_aoa_data, high_aoa_data)
+  
+  # Determine which similarity types to include
+  similarity_types <- c("text_similarity", "image_similarity")
+  if (include_multimodal && "multimodal_similarity" %in% colnames(data)) {
+    similarity_types <- c(similarity_types, "multimodal_similarity")
+  }
+  
+  # Filter to only existing columns
+  existing_types <- similarity_types[similarity_types %in% colnames(combined_data)]
+  
+  if (length(existing_types) == 0) {
+    stop("No similarity columns found in data")
+  }
+  
+  # Create the facet plot
+  facet_plot <- create_similarity_facet_plot(
+    data = combined_data, 
+    similarity_types = existing_types, 
+    model_type = model_type,
+    age_grouping = age_grouping,
+    median_age = median_age,
+    suffix = suffix
+  )
+  
+  # Save plot
+  filename <- paste0(model_type, "_aoa_facet_similarities.png")
+  cowplot::save_plot(
+    here("figures", PROJECT_VERSION, filename), 
+    facet_plot, 
+    base_width = 12, 
+    base_height = 8, 
+    bg = "white"
+  )
+  
+  return(facet_plot)
+}
+
+# Helper function to create the actual facet plot
+create_similarity_facet_plot <- function(data, similarity_types, model_type, median_age,
+                                         age_grouping = "age_half", suffix = "") {
+  
+  # Reshape data for faceting
+  plot_data <- data %>%
+    select(all_of(c(similarity_types, "mean_value", "ci", age_grouping, "aoa_group"))) %>%
+    pivot_longer(
+      cols = all_of(similarity_types),
+      names_to = "similarity_type",
+      values_to = "similarity_value"
+    ) %>%
+    # Clean up similarity type labels
+    mutate(
+      similarity_type = case_when(
+        similarity_type == "text_similarity" ~ "Text Similarity",
+        similarity_type == "image_similarity" ~ "Image Similarity", 
+        similarity_type == "multimodal_similarity" ~ "Multimodal Similarity",
+        TRUE ~ str_replace_all(similarity_type, "_", " ") %>% str_to_title()
+      )
+    )
+  
+  # Calculate mean age for caption
+  median_age <- round(median_age, 2)
+  
+  # Create readable age grouping label
+  readable_age_group <- str_replace_all(age_grouping, "_", " ") %>% str_to_title()
+  
+  # Create the plot
+  p <- ggplot(plot_data, aes(x = similarity_value, y = mean_value, 
+                             color = .data[[age_grouping]])) +
+    geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.7) +
+    geom_point(size = 2.5, alpha = 0.7) +
+    geom_smooth(method = "lm", se = TRUE, alpha = 0.3) +
+    geom_linerange(aes(ymin = mean_value - ci, ymax = mean_value + ci), 
+                   alpha = 0.3, linewidth = 0.5) +
+    
+    # Faceting by both similarity type and AoA group
+    facet_grid(aoa_group ~ similarity_type, scales = "free_x") +
+    
+    # Styling
+    scale_color_brewer(palette = "Set1", name = readable_age_group) +
+    theme_minimal() +
+    theme(
+      legend.position = "bottom",
+      strip.text = element_text(size = 11, face = "bold"),
+      axis.title = element_text(size = 12),
+      legend.title = element_text(size = 11),
+      plot.title = element_text(size = 14, hjust = 0.5),
+      plot.caption = element_text(size = 9, hjust = 0.5)
+    ) +
+    
+    # Labels
+    labs(
+      title = paste("Target Looking vs Similarity by Age of Acquisition -", model_type),
+      x = "Target-Distractor Similarity",
+      y = "Baseline-corrected Proportion Target Looking",
+      caption = paste0("Median age: ", median_age, " months. Error bars show 95% CI.")
+    ) +
+    
+    # Add correlation statistics
+    ggpubr::stat_cor(method = "spearman", size = 3, 
+                     label.x.npc = 0.1, label.y.npc = 0.9)
+  
+  return(p)
+}
+
+# Enhanced version of your original function with better age grouping support
+generate_multimodal_age_effect_plots <- function(data, model_type, median_age,
+                                                          age_grouping = "age_half",
+                                                          include_multimodal = TRUE, 
+                                                          suffix = "") {
+  # Initialize an empty list to store the plots
+  plot_list <- list()
+  
+  # Determine which columns to include
+  similarity_cols <- c("text_similarity", "image_similarity")
+  if (include_multimodal) {
+    similarity_cols <- c(similarity_cols, "multimodal_similarity")
+  }
+  
+  # Only include existing columns
+  existing_cols <- similarity_cols[similarity_cols %in% colnames(data)]
+  
+  # Create plots for each existing similarity type
+  for (col in existing_cols) {
+    col_with_suffix <- paste0(col, suffix)
+    if (col_with_suffix %in% colnames(data)) {
+      plot_list[[length(plot_list) + 1]] <- similarity_age_plot(
+        data, 
+        x_var = col_with_suffix, 
+        model_type = model_type,
+        age_grouping = age_grouping,
+        median_age = median_age
+      )
+    }
+  }
+  
+  if (length(plot_list) == 0) {
+    stop("No valid similarity columns found")
+  }
+  
+  # Determine grid layout
+  ncol <- ifelse(length(plot_list) <= 2, length(plot_list), 2)
+  nrow <- ceiling(length(plot_list) / ncol)
+  
+  # Create the combined plot grid
+  plots <- cowplot::plot_grid(plotlist = plot_list, nrow = nrow, ncol = ncol)
+  title <- cowplot_title(paste0("Target Looking and Similarity by Age - ", model_type))
+  grid <- cowplot::plot_grid(title, plots, rel_heights = c(0.1, 1), ncol = 1)
+  
+  # Save plot
+  filename <- paste0(model_type, "_age_similarities.png")
+  cowplot::save_plot(
+    here("figures", PROJECT_VERSION, filename), 
+    grid, 
+    base_width = 10, 
+    base_height = 6 * nrow, 
+    bg = "white"
+  )
+  
+  return(grid)
+}
+
+# Enhanced version of your similarity plot function
+similarity_age_plot <- function(data, x_var, y_var = "mean_value", 
+                                         age_grouping = "age_half", model_type, median_age) {
+  
+  # Clean up labels
+  sim_type <- str_replace_all(x_var, "_", " ") %>% 
+    str_replace_all("similarity", "Similarity") %>%
+    str_to_title()
+  
+  readable_age_group <- str_replace_all(age_grouping, "_", " ") %>% str_to_title()
+  
+  # Round mean age for display
+  median_age <- round(median_age, 2)
+  
+  ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]], 
+                   color = .data[[age_grouping]])) +
+    geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.7) +
+    geom_point(size = 3, alpha = 0.7) +
+    geom_smooth(method = "lm", se = TRUE, alpha = 0.3) +
+    geom_linerange(aes(ymin = .data[[y_var]] - ci, ymax = .data[[y_var]] + ci), 
+                   alpha = 0.3, linewidth = 0.5) + 
+    
+    # Improved styling
+    scale_color_brewer(palette = "Set1", name = readable_age_group) +
+    theme_minimal() +
+    theme(
+      legend.position = "bottom",
+      axis.title = element_text(size = 11),
+      legend.title = element_text(size = 10),
+      plot.title = element_text(size = 12)
+    ) +
+    
+    # Clear labels
+    labs(
+      title = paste(model_type, sim_type),
+      x = paste("Target-Distractor", sim_type),
+      y = "Baseline-corrected Proportion\nTarget Looking",
+      caption = paste0("Median age: ", median_age, " months")
+    ) +
+    
+    # Add correlation
+    ggpubr::stat_cor(method = "spearman", size = 3.5)
 }
 
