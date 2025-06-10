@@ -78,7 +78,7 @@ regex==2024.11.6
 requests==2.32.3
 safetensors==0.5.2
 scipy==1.14.1
-setuptools==75.8.0
+setuptools==78.1.1
 six==1.16.0
 sixdrepnet==0.1.6
 stack-data==0.6.2
