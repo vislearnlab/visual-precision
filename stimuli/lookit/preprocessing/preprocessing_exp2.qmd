@@ -1,0 +1,571 @@
+---
+title: "Choosing stimuli for experiment 2 of VVI"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+```{r echo=FALSE}
+library(tidyverse)
+library(here)
+library(reticulate)
+library(dotenv)
+library(readr)
+#devtools::install_github("langcog/wordbankr")
+library(wordbankr)
+library(ggrepel)
+library(jsonlite)
+```
+
+## Stimuli selection and formatting
+```{r constants}
+# Storing stimuli on our Ubuntu server
+STIMULI_PATH = "https://ucsdlearninglabs.org/stimuli/"
+PROJECT_VERSION = Sys.getenv("PROJECT_VERSION")
+# The directory the current file is located in
+SOURCE_CODE_PATH = here("stimuli", "lookit")
+DEST_PATH <- file.path(SOURCE_CODE_PATH, "exp2")
+# Using regular destination path so that our file converter script can convert them and store them in mp3 and ogg folders
+DEST_AUDIO_PATH <- file.path(DEST_PATH)
+```
+
+## Grabbing trial, AoA and THINGS metadata 
+Grabbing all THINGSplus data
+```{r}
+things_stimuli_metadata <- read_tsv(file.path(SOURCE_CODE_PATH, "preprocessing", "older_stimuli", "_concepts-metadata_things.tsv")) |> mutate(is_animate = grepl("animal", `Top-down Category (WordNet)`), food_item = grepl("food|fruit|vegetable", `Top-down Category (WordNet)`))
+things_images_metadata <- read_tsv(file.path(SOURCE_CODE_PATH, "preprocessing", "older_stimuli", "_images-metadata_things.tsv")) |> filter(grepl("1b", image))
+exp1_metadata <- read_csv(here("data", "metadata", "level-trialtype_data.csv")) |> filter(!grepl("distractor", Trials.trialID)) 
+aoa_ratings_kuperman <- read_csv(file.path(SOURCE_CODE_PATH, "preprocessing", "older_stimuli", "aoa_ratings_kuperman.csv"))
+aoa_ratings_wordbank <- read_csv(file.path(SOURCE_CODE_PATH,
+                                           "preprocessing", "older_stimuli",
+                                           "wordbank_aoa_ratings.csv")) 
+things_images_dir <- here("data", "raw", "THINGS")
+```
+Looking at existing similarity values, it's clear that the distribution is neither uniform nor normal. Our goal is to try to make this distribution more uniform with our stimuli choices for experiment 2.
+```{r}
+exp1_long <- exp1_metadata %>%
+  pivot_longer(cols = c(text_similarity, image_similarity),
+               names_to = "similarity_type",
+               values_to = "similarity")
+
+
+ggplot(exp1_long, aes(x = similarity)) +
+  geom_histogram(bins = 10, fill = "steelblue", color = "white") +
+  labs(x = "Similarity", y = "Count") +
+  theme_minimal() +
+  facet_wrap(~ similarity_type, scales = "free_x")
+```
+
+# Filtering down stimuli based on AoAs and category
+```{r}
+aoa_ratings_wordbank <- aoa_ratings_wordbank %>% 
+  ##--- 1.  normalise the item names ------------------------------------------
+  mutate(
+    # drop parentheses and what’s inside, e.g. "call (on phone)" -> "call"
+    item_definition = str_remove(item_definition, "\\s*\\([^)]*\\)"),
+    # tidy whitespace that might be left behind
+    item_definition = str_trim(item_definition)
+  ) %>% 
+  # split on “/”, making extra rows: "soda/pop" -> "soda" + "pop"
+  separate_rows(item_definition, sep = "/") %>% 
+  
+  ##--- 2.  deal with duplicates *within* each measure -------------------------
+  group_by(item_definition, measure) %>% 
+  summarise(aoa = mean(aoa, na.rm = TRUE), .groups = "drop") %>% 
+  
+  ##--- 3.  pivot wider --------------------------------------------------------
+  pivot_wider(
+    names_from   = measure,
+    values_from  = aoa,
+    names_prefix = "aoa_"
+  )
+
+stimuli_with_aoa <- things_stimuli_metadata |> left_join(aoa_ratings_kuperman, by="Word") |> left_join(aoa_ratings_wordbank, by=c("Word"="item_definition")) |> filter(!is.na(Rating.Mean) | !is.na(aoa_produces)) |> filter(!(Word %in% c(exp1_metadata$Trials.targetImage, exp1_metadata$Trials.distractorImage)))
+```
+
+```{r}
+library(tidyverse)
+library(fuzzyjoin)   # install.packages("fuzzyjoin") if needed
+
+# 1. Select only the columns we need
+stim_sub <- stimuli_with_aoa %>% 
+  filter(!food_item) |>
+  select(
+    Word, is_animate,
+    Rating.Mean,
+    aoa_produces,
+    uniqueID
+  ) 
+
+# 2. ------------------ KUPERMAN PAIRS (Rating.Mean)
+kuper_pairs <- stim_sub %>% 
+  filter(!is.na(Rating.Mean), Rating.Mean < 6) -> kuper_df
+
+kuper_pairs <- difference_inner_join(
+    kuper_df, kuper_df,
+    by = "Rating.Mean",
+    max_dist = 0.5, distance_col = NULL
+  ) %>% 
+  filter(is_animate.x == is_animate.y,
+         Word.x < Word.y) %>% 
+  transmute(
+    text1 = Word.x,
+    text2 = Word.y,
+    source = "Kuperman",
+    aoa_word1 = Rating.Mean.x,
+    aoa_word2 = Rating.Mean.y,
+    is_animate = is_animate.x,
+    image1 = paste0(uniqueID.x, ".jpg"),
+    image2= paste0(uniqueID.y, ".jpg")
+  )
+
+# 3. ------------------ WORDBANK PAIRS (aoa_produces) 
+wb_df <- stim_sub %>% filter(!is.na(aoa_produces))
+
+wb_pairs <- difference_inner_join(
+    wb_df, wb_df,
+    by = "aoa_produces",
+    # 2 months
+    max_dist = 2, distance_col = NULL
+  ) %>%
+  filter(is_animate.x == is_animate.y,
+         Word.x < Word.y) %>% 
+  transmute(
+    text1 = Word.x,
+    text2 = Word.y,
+    source = "Wordbank",
+    aoa_word1 = round(aoa_produces.x/12, 2),
+    aoa_word2 = round(aoa_produces.y/12, 2),
+    is_animate = is_animate.x,
+    image1 = paste0(uniqueID.x, ".jpg"),
+    image2= paste0(uniqueID.y, ".jpg")
+  )
+
+# ------------------ COMBINE
+paired_words <- bind_rows(kuper_pairs, wb_pairs)
+
+paired_words
+```
+## Make sure the .jpg files exist
+```{r}
+# Initialize list to store valid row indices
+valid_indices <- c()
+
+# Loop to check if both image files exist
+for (i in seq_len(nrow(paired_words))) {
+  file1 <- file.path(things_images_dir, paired_words$image1[i])
+  file2 <- file.path(things_images_dir, paired_words$image2[i])
+  
+  if (file.exists(file1) && file.exists(file2)) {
+    valid_indices <- c(valid_indices, i)
+  }
+}
+
+# Subset to only rows with both images present
+paired_words <- paired_words[valid_indices, ] |> distinct(image1, image2, .keep_all=TRUE)
+```
+
+```{r}
+write.csv(paired_words, "exp2_pairs.csv")
+```
+
+# Grabbing similarity values for further filtering
+```{r}
+# Read and deduplicate
+sims <- read.csv("exp2_sims.csv") |> 
+  distinct(image1, image2, .keep_all = TRUE)
+
+# Create symmetric lookup table once (cleaner for multiple 1/2 columns)
+flip_12_columns <- function(df) {
+  df |> rename_with(
+    ~ str_replace_all(., c("1$" = "TEMP", "2$" = "1", "TEMP" = "2")),
+    .cols = matches("(1|2)$")
+  )
+}
+
+sims_expanded <- bind_rows(sims, flip_12_columns(sims)) |> distinct()
+paired_words_expanded <- bind_rows(paired_words, flip_12_columns(paired_words)) |> distinct()
+
+# Simple join
+sim_vals <- paired_words_expanded |>
+  left_join(sims_expanded)
+
+# images that are either too hard, are food, or have some weird saliency issuess
+bad_images = c("cassette", "lollipop", "cornbread", "pitcher", "hopscotch", "milkshake", "skin", "puddle", "wall", "treasure", "pump", "elbow", "scoop", "tadpole", "screwdriver", "sparkler", "dessert", "vegetable", "raspberry", "face", "tongue", "dryer", "stair", "tongue",  "nose", "chipmunk", "rim", "pinball", "ruby", "toe", "quilt", "asparagus", "bedpost", "gun", "shoulder", "broccoli", "brownie", "bacon", "shovel", "donut", "meat", "thumb", "bottle", "corn", "mouth", "wrist", "ashtray", "cabbage", "pasta", "tooth", "strap",
+               "birdbath", "sandcastle", "baseball", "football", "glove", "mitten", "snowsuit", "handprint", "clover", "boot", "stockings", "drink", "jacket", "sword", "coat", "finger", "ant", "arm", "leg", "bird", "splinter", "girl", "boy", "flyswatter", "vest", "baby")
+
+bad_pairs <- tibble(text1 = c("sunglasses", "bark", "ant", "dandelion", "ant", "shirt", "lamb", "seahorse", "bin", "book", "bathtub"), 
+                    text2 = c("tool", "block", "bull", "fireworks", "elephant", "clothes", "sheep", "shark", "trashcan", "paper", "crayon"))
+
+sim_vals_filtered_some <- sim_vals %>%
+    filter(!(text1 %in% bad_images) & !(text2 %in% bad_images)) |> 
+  anti_join(bad_pairs, by = c("text1", "text2")) |>
+  group_by(source, text1) %>%
+  arrange(desc(text_sim)) %>%  # sort descending first
+  slice_head(n = 3) %>%  # top 3
+  mutate(sim_type = "high") |>
+  bind_rows(
+    sim_vals %>%
+        filter(!(text1 %in% bad_images) & !(text2 %in% bad_images)) |> 
+      anti_join(bad_pairs, by = c("text1", "text2")) |>
+      group_by(source, text1) %>%
+      arrange(text_sim) %>%
+      slice_head(n = 3) |>
+      mutate(sim_type="low") # bottom 3
+    # making sure that the range is big enough 
+  ) %>% filter(any(text_sim < 0.75) | any(text_sim > 0.85)) |> distinct() |> filter(n() >= 2) |>
+  ungroup() 
+
+sim_vals_wb_only <- sim_vals_filtered_some |>
+  filter(source == "Wordbank" & !(text1 %in% bad_images) & !(text2 %in% bad_images))
+
+
+ggplot(sim_vals_wb_only, aes(x = text_sim)) +
+  geom_histogram(bins = 10, fill = "steelblue", color = "white") +
+  labs(x = "Similarity", y = "Count") +
+  theme_minimal() 
+```
+
+
+# Sampling to make a uniform distribution
+```{r}
+# 1. Bin individual values
+breaks <- seq(0.6, 0.95, by = 0.05)
+individual_vals <- sim_vals_filtered_some %>%
+  mutate(bin = cut(text_sim, breaks = breaks, include.lowest = TRUE))
+
+# 2. Define bin targets
+exp1_hist <- hist(exp1_metadata$text_similarity, breaks = breaks, plot = FALSE)
+target_count <- ceiling((nrow(exp1_metadata) + 128) / length(breaks))
+
+bin_info <- data.frame(
+  bin = levels(cut(exp1_metadata$text_similarity, breaks, include.lowest = TRUE)),
+  current = exp1_hist$counts,
+  needed = pmax(0, target_count - exp1_hist$counts)
+)
+
+# 3. Filter individual_vals to only keep those that can fill needed bins
+bin_contributions <- individual_vals %>%
+  left_join(bin_info, by = "bin") %>%
+  filter(needed > 0)
+
+# 4. Initialize sampled pair tracking
+sampled_pairs <- data.frame()
+used_text2_high <- character(0)
+used_text2_low <- character(0)
+
+# 5. Make all possible pairs (text1 x high x low)
+possible_pairs <- sim_vals_filtered_some %>%
+  filter(sim_type == "high") %>%
+  select(text1, source, text2_high = text2) %>%
+  inner_join(
+    sim_vals_filtered_some %>%
+      filter(sim_type == "low") %>%
+      select(text1, source, text2_low = text2),
+    by = c("text1", "source")
+  ) %>%
+  mutate(pair_id = row_number())
+
+
+
+# 6. Score pairs by contribution to needed bins
+pair_bins <- individual_vals %>%
+  select(text1, text2, bin) %>%
+  distinct()
+
+# Get all bins contributed by each pair (text1 + high/low)
+pair_priorities <- possible_pairs %>%
+  left_join(pair_bins, by = c("text1", "text2_high" = "text2")) %>%
+  rename(bin_high = bin) %>%
+  left_join(pair_bins, by = c("text1", "text2_low" = "text2")) %>%
+  rename(bin_low = bin) %>%
+  mutate(all_bins = map2(bin_high, bin_low, ~na.omit(c(.x, .y)))) %>%
+  mutate(
+    priority_score = map_dbl(all_bins, function(bins) {
+      if (length(bins) == 0) return(0)
+      sum(bin_info$needed[match(bins, bin_info$bin)], na.rm = TRUE)
+    })
+  ) %>%
+  filter(priority_score > 0) %>%
+  arrange(desc(priority_score))
+
+# 7. Get text1 priority order
+text1_priority <- pair_priorities %>%
+  group_by(text1, source) %>%
+  summarise(priority_score = sum(priority_score), .groups = "drop") %>%
+  arrange(desc(priority_score))
+
+# 8. Track text1 contributions
+text1_bin_contributions <- individual_vals %>%
+  group_by(text1, bin) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  filter(!is.na(bin)) %>%
+  left_join(bin_info, by = "bin") %>%
+  filter(needed > 0)
+
+# 9. Simple sampling using pair_priorities
+sampled_pairs <- data.frame()
+used_text2_high <- character(0)
+used_text2_low <- character(0)
+
+while (sum(bin_info$needed) > 0) {
+  # Recalculate pair_priorities with current bin_info
+  available_pairs <- possible_pairs %>%
+    filter(!(text2_high %in% used_text2_high), !(text2_low %in% used_text2_low))
+  
+  if (nrow(available_pairs) == 0) break
+  
+  pair_priorities <- available_pairs %>%
+    left_join(pair_bins, by = c("text1", "text2_high" = "text2")) %>%
+    rename(bin_high = bin) %>%
+    left_join(pair_bins, by = c("text1", "text2_low" = "text2")) %>%
+    rename(bin_low = bin) %>%
+    mutate(all_bins = map2(bin_high, bin_low, ~na.omit(c(.x, .y)))) %>%
+    mutate(
+      priority_score = map_dbl(all_bins, function(bins) {
+        if (length(bins) == 0) return(0)
+        sum(bin_info$needed[match(bins, bin_info$bin)], na.rm = TRUE)
+      })
+    ) %>%
+    filter(priority_score > 0) %>%
+    arrange(desc(priority_score))
+  
+  if (nrow(pair_priorities) == 0) break
+  
+  # Select top priority pair
+  current_pair <- pair_priorities[1, ]
+  sampled_pairs <- bind_rows(sampled_pairs, current_pair)
+  used_text2_high <- c(used_text2_high, current_pair$text2_high)
+  used_text2_low <- c(used_text2_low, current_pair$text2_low)
+  
+  # Update bin_info
+  contributions <- individual_vals %>% 
+    filter((text1 == current_pair$text1 & text2 == current_pair$text2_high) |
+           (text1 == current_pair$text1 & text2 == current_pair$text2_low)) %>%
+    count(bin) %>%
+    filter(!is.na(bin))
+  
+  for (j in 1:nrow(contributions)) {
+    bin_info$needed[bin_info$bin == contributions$bin[j]] <- 
+      pmax(0, bin_info$needed[bin_info$bin == contributions$bin[j]] - contributions$n[j])
+  }
+}
+
+
+# 10. Final sampled values
+sim_vals_sampled <- sim_vals_filtered_some %>%
+  inner_join(
+    sampled_pairs %>%
+      pivot_longer(cols = c(text2_high, text2_low),
+                   names_to = "sim_type_selected", 
+                   values_to = "text2") %>%
+      select(text1, source, text2),
+    by = c("text1", "source", "text2")
+  )
+
+# 11. Combine with exp1 metadata
+things_stim_path <- "https://ucsdlearninglabs.org/all_stimuli/THINGSplus/"
+exp1_metadata_transmuted <- exp1_metadata %>%
+    filter(!grepl("distractor", Trials.trialID)) %>%
+    transmute(
+      text_similarity,
+      text1 = Trials.targetImage,
+      text2 = Trials.distractorImage,
+      aoa_word1 = AoA_Est_target,
+      aoa_word2 = AoA_Est_distractor,
+      image_similarity,
+      source = "exp1"
+    )
+
+combined_stimuli <- bind_rows(
+ exp1_metadata_transmuted,
+  sim_vals_sampled %>%
+    transmute(
+      text1,
+      text2,
+      image1 = paste0(things_stim_path, image1),
+      image2 = paste0(things_stim_path, image2),
+      text_similarity = text_sim,
+      image_similarity = image_sim,
+      aoa_source = source,
+      aoa_word1,
+      aoa_word2,
+      source = "exp2"
+    )
+)
+
+# 12. Plot histogram
+ggplot(combined_stimuli |> pivot_longer(cols=c(text_similarity, image_similarity), names_to="sim_type", values_to="sim_value"), aes(x = sim_value, fill = source)) +
+  geom_histogram(breaks = breaks, color = "white", position = "stack", alpha = 0.6) +
+  scale_x_continuous(breaks = breaks) +
+  labs(x = "Cosine similarity", y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(~sim_type)
+
+# 13. Print summary
+cat("Selected", nrow(sampled_pairs), "pairs total\n")
+cat("From", length(unique(sampled_pairs$text1)), "unique text1 values\n")
+cat("Average pairs per text1:", round(nrow(sampled_pairs) / length(unique(sampled_pairs$text1)), 2), "\n")
+cat("Total sampled rows:", nrow(sim_vals_sampled), "\n")
+
+```
+
+```{r}
+library(magick)
+library(purrr)
+
+# Example data frame: update with your actual image paths
+# df <- data.frame(image1 = c("img1a.png", "img2a.png"),
+#                  image2 = c("img1b.png", "img2b.png"))
+
+# Function to combine two images with gray background and spacing
+combine_images <- function(image1, image2, height = 300, gap = 30, bg_color = "gray90") {
+  img1 <- image_read(image1) |> image_scale(paste0("x", height))
+  img2 <- image_read(image2) |> image_scale(paste0("x", height))
+
+  info1 <- image_info(img1)
+  info2 <- image_info(img2)
+
+  total_width <- info1$width + info2$width + gap
+  max_height <- max(info1$height, info2$height)
+  canvas <- image_blank(width = total_width, height = max_height, color = bg_color)
+
+  result <- canvas |>
+    image_composite(img1, offset = "+0+0") |>
+    image_composite(img2, offset = paste0("+", info1$width + gap, "+0"))
+
+  return(result)
+} 
+
+# Apply across rows of df and get list of combined images
+stim_exp2 <- combined_stimuli |> 
+  filter(source == "exp2")
+combined_images <- pmap(stim_exp2 |> select(image1, image2), combine_images)
+
+# Optionally display first combined image
+print(combined_images[[8]])
+
+# Optionally save each combined image
+filenames <- stim_exp2 |> 
+  mutate(filename = paste0("exp2_images_v4/",text1,
+                           "_",
+                           text2,
+                           ".png")) |> 
+  pull(filename)
+
+# Step 4: Save each image
+walk2(combined_images, filenames, ~image_write(.x, .y))
+```
+
+```{r}
+write.csv(combined_stimuli, here("stimuli/lookit/preprocessing/combined.csv"))
+ggplot(combined_stimuli, aes(x=image_similarity, y=text_similarity, color=source)) +
+  geom_point() +
+  ggrepel::geom_label_repel(aes(label=paste(text1,text2))) +
+  geom_smooth(method="lm") +
+  ggpubr::stat_cor()
+```
+# Now choosing stimuli that I think are good based on filtering
+```{r}
+# pairs I'd want to include
+good_pairs <- tibble(text1 = c("duck", "lizard", "bus", "cloud", "camel", "fork", "flashlight", "crow", "airplane", "truck", "bed", "bathtub", "pencil", "balloon", "seahorse", "ball", "backpack", "beaver"), 
+                    text2_high = c("chicken", "snake", "truck", "tree", "elephant", "spoon", "lightbulb", "penguin", "train", "car", "bathtub", "shower", "broom", "lamp", "shark", "rock", "purse", "seal"),
+                    text2_low = c("ladybug", "peacock", "washcloth", "zipper", "ladybug", "slide", "bathmat", "seahorse", "washcloth", "swing", "soap", "sock", "bib", "dresser", "pony", "toothpaste", "icicle", "zebra"))
+
+
+sim_vals_adhoc <- sim_vals %>%
+  inner_join(
+    good_pairs %>%
+      pivot_longer(cols = c(text2_high, text2_low),
+                   names_to = "sim_type_selected", 
+                   values_to = "text2") %>%
+      select(text1, text2),
+    by = c("text1", "text2")
+  ) |> distinct()
+
+combined_stimuli_adhoc <- bind_rows(
+ exp1_metadata_transmuted,
+  sim_vals_adhoc %>%
+    transmute(
+      text1,
+      text2,
+      image1 = paste0(things_stim_path, image1),
+      image2 = paste0(things_stim_path, image2),
+      text_similarity = text_sim,
+      image_similarity = image_sim,
+      aoa_source = source,
+      aoa_word1,
+      aoa_word2,
+      source = "exp2"
+    )
+) |> mutate(filename = ifelse(source == "exp2", paste0("vvi_exp2_images/",text1,
+                           "_",
+                           text2,
+                           ".png"), ""))
+
+ggplot(combined_stimuli_adhoc |> pivot_longer(cols=c(text_similarity, image_similarity), names_to="sim_type", values_to="sim_value"), aes(x = sim_value, fill = source)) +
+  geom_histogram(breaks = breaks, color = "white", position = "stack", alpha = 0.6) +
+  scale_x_continuous(breaks = breaks) +
+  labs(x = "Cosine similarity", y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(~sim_type)
+
+stim_exp2 <- combined_stimuli_adhoc |> 
+  filter(source == "exp2")
+combined_images <- pmap(stim_exp2 |> select(image1, image2), combine_images)
+
+# Optionally save each combined image
+filenames <- stim_exp2 |> 
+  pull(filename)
+
+# Step 4: Save each image
+walk2(combined_images, filenames, ~image_write(.x, .y))
+
+vvi_path = "https://ucsdlearninglabs.org/all_stimuli/"
+write.csv(combined_stimuli_adhoc |> mutate(filename = paste0(vvi_path, filename)), here("stimuli/lookit/preprocessing/combined_adhoc.csv"))
+```
+
+## image vs text sim
+```{r}
+ggplot(combined_stimuli_adhoc, aes(x=image_similarity, y=text_similarity, color=source)) +
+  geom_point() +
+  ggrepel::geom_label_repel(aes(label=paste(text1,text2))) +
+  geom_smooth(method="lm") +
+  ggpubr::stat_cor()
+```
+
+# Looking back at exp1 z-scoring
+```{r}
+unique_trials <- exp1_metadata |> distinct(Trials.imagePair, .keep_all=TRUE)
+model <- lm(image_sim_zscore ~ image_similarity, data = unique_trials)
+
+# Compute residuals and add to dataframe
+unique_trials$resid <- abs(residuals(model))
+
+# Flag outliers (e.g., residuals > 2 SD from mean)
+threshold <- mean(unique_trials$resid) + sd(unique_trials$resid)
+unique_trials$outlier <- unique_trials$resid > threshold | unique_trials$Trials.imagePair == "bulldozer-orange"
+
+
+ggplot(unique_trials, aes(x = image_similarity, y = image_sim_zscore)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE) +
+  xlab("Raw embeddings") +
+  ylab("Z-scored embeddings") +
+  ggtitle("LWL study-specific Image Embeddings") +
+  ggpubr::stat_cor(method = "pearson") +
+  geom_label_repel(
+    data = subset(unique_trials, outlier),
+    aes(label = Trials.imagePair),
+    box.padding = 0.35,
+    point.padding = 0.3,
+    segment.color = 'grey50'
+  )
+```
+
+

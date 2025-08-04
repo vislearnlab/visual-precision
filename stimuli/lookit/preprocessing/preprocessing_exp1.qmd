@@ -210,6 +210,7 @@ ggplot(aoa_aggregated_diff, aes(x = AoA_Kuperman, y = AoA_WB)) +
   scale_y_continuous(breaks = seq(min(aoa_aggregated_diff$AoA_WB), 
                                     max(aoa_aggregated_diff$AoA_WB), 
                                     by = 2)) + # More ticks on y-axis +
+  ggpubr::stat_cor() +
   theme_minimal()
 
 ggsave(here("stimuli", "lookit", "preprocessing", "plots", "kupermanWordbank.png"), bg="white")
