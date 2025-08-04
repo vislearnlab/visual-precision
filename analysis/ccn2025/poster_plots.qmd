@@ -1,0 +1,717 @@
+```{r echo=FALSE}
+library(tidyverse)
+library(here)
+library(reticulate)
+library(dotenv)
+library(readr)
+library(gghalves)
+#devtools::install_github("langcog/wordbankr")
+library(ggrepel)
+library(relayer) # devtools::install_github("clauswilke/relayer")
+library(viridis)
+library(RColorBrewer)
+library(lmerTest)
+library(cowplot)
+library(ggtext)
+library(scales)
+source(here("analysis/helpers.R"))
+
+env_file = here(".env")
+default_project = "main"
+if (file.exists(env_file)) {
+  load_dot_env(file = env_file)
+  PROJECT_VERSION <- Sys.getenv("PROJECT_VERSION")
+  if (PROJECT_VERSION == "") {
+    PROJECT_VERSION <- default_project
+  }
+} else {
+  PROJECT_VERSION <- default_project
+}
+```
+
+```{r}
+PROCESSED_DATA_PATH = here("data","main","processed_data")
+trial_summary_data <- read.csv(here(PROCESSED_DATA_PATH, "level-trials_data.csv"))
+trial_metadata <- read.csv(here("data", "metadata", "level-trialtype_data.csv"))
+cvcl_similarities <- read.csv(here("data", "embeddings", "similarities-cvcl_data.csv"))
+openclip_similarities <- read.csv(here("data", "embeddings", "similarities-openclip_data.csv"))
+saycamvit_similarities <- read.csv(here("data", "embeddings", "similarities-saycamvit_data.csv"))
+imagenetvit_similarities <- read.csv(here("data", "embeddings", "similarities-imagenetvit_data.csv"))
+target_looking_trial_level <- read.csv(here("data", PROJECT_VERSION, "processed_data", "level-trialType_added-accuracy_data.csv"))
+looking_data_summarized <- trial_summary_data |>
+  filter(trial_exclusion == 0 & exclude_participant == 0 & exclude_participant_insufficient_data == 0) |>
+  left_join(trial_metadata) |>
+  arrange(AoA_Est_target)
+```
+
+# helpers
+```{r}
+fit_image_model <- function(summary_data) {
+  lmer(
+    scale(corrected_target_looking) ~ 
+      scale(image_similarity) * scale(age_in_months) + 
+      scale(AoA_Est_target) + 
+      scale(MeanSaliencyDiff) +
+      (1 | SubjectInfo.subjID) +
+      (1 | Trials.targetImage),
+    data = summary_data |> 
+      mutate(age_in_months = SubjectInfo.testAge / 30)
+  )
+}
+
+fit_text_model <- function(summary_data) {
+  lmer(
+    scale(corrected_target_looking) ~ 
+      scale(text_similarity) * scale(age_in_months) + 
+      scale(AoA_Est_target) + 
+      scale(MeanSaliencyDiff) +
+      (1 | SubjectInfo.subjID) +
+      (1 | Trials.targetImage),
+    data = summary_data |> 
+      mutate(age_in_months = SubjectInfo.testAge / 30)
+  )
+}
+```
+
+# CLIP plot
+```{r}
+multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", group_var, input_title, prod = FALSE) {
+  sim_type <- strsplit(x_var, "_")[[1]][1]
+  
+  # Conditionally filter data if prod is TRUE
+  if (prod) {
+    label_data <- data %>% 
+      filter(Trials.targetImage == "acorn" | Trials.distractorImage == "acorn") %>%
+      mutate(label = paste("Target:", Trials.targetImage, "\nDistractor:", Trials.distractorImage))
+  } else {
+    label_data <- data %>%
+      mutate(label = paste("Target:", Trials.targetImage, "\nDistractor:", Trials.distractorImage))
+  }
+  
+  # Create base plot
+  p <- ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]])) +  # Removed color from aes()
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    geom_point(size = 8, alpha = 0.5, color = "#215D89") +  # Set color outside aes()
+    geom_smooth(alpha = 0.3, size = 0, method = "lm", show.legend = F, color = "#215D89") +  # Set color outside aes()
+    stat_smooth(geom = "line", alpha = 0.9, size = 1.5, method = "lm", show.legend = F, color = "#215D89") +  # Set color outside aes()
+    coord_cartesian(ylim = c(-0.12, 0.22)) +
+    geom_label_repel(
+      data = label_data,
+      aes(label = label),
+      segment.alpha = 0.7,
+      nudge_y = ifelse(label_data$Trials.targetImage == "bulldozer", -0.02, 0.02),
+      force = 10,
+      force_pull = 0.1,
+      size = 4,
+      segment.size = 1.2,
+      point.padding = unit(1, "lines"),
+      min.segment.length = 0,
+      box.padding = unit(0.5, "lines"),
+      max.overlaps = Inf,
+      label.padding = unit(0.25, "lines"),
+      label.r = unit(0.5, "lines"),
+      show.legend = FALSE
+    )+
+    ylab("Baseline-corrected\nproportion target looking") +
+    xlab("Target-distractor embedding similarity") +
+    scale_y_continuous(breaks = seq(-0.1, 0.2, by = 0.1)) +
+    theme_minimal()+
+    theme(
+      text = element_text(size = 16, face = "bold"),
+      axis.title.x = element_text(
+        face = "bold", 
+        size = 29,
+        margin = margin(t = 15, r = 0, b = 0, l = 0)
+      ),
+      legend.key = element_blank(),
+      axis.title.y = element_text(
+        face = "bold", 
+        size = 29,
+        margin = margin(t = 0, r = 10, b = 0, l = 0)
+      ),
+      axis.text = element_text(size = 24, face = "bold"),
+      legend.title = element_text(size = 22, face = "bold"),
+      legend.text = element_text(size = 22, face = "bold"),
+      legend.position = "bottom",
+      strip.text = element_text(size = 28, face = "bold"),
+      strip.background = element_rect(fill = "gray90", color = NA),
+      strip.text.x = element_text(margin = margin(t = 8, b = 8)), # Increase padding within strip
+      panel.spacing = unit(0.5, "cm")
+    ) +
+    facet_wrap(facets=~ .data[[group_var]],dir="v", strip.position="top", labeller = as_labeller(c("image_similarity" = "Image Similarity", "text_similarity" = "Text Similarity")),
+               ncol=1, scales = "free")
+  
+  # Conditionally add facetted_pos_scales if prod is TRUE
+  if (prod) {
+    p <- p + facetted_pos_scales(
+      x = list(
+        image_similarity = scale_x_continuous(
+          breaks = seq(0.5, 0.9, by = 0.1),
+          limits = c(0.43, 0.85)
+        ),
+        text_similarity = scale_x_continuous(
+          breaks = seq(0.7, 0.9, by = 0.05),
+          limits = c(0.7, 0.91)
+        )
+      )
+    )
+  }
+  
+  return(p)
+}
+```
+
+```{r}
+clip_data_summarized <- summarize_similarity_data(looking_data_summarized)
+clip_data_long <- clip_data_summarized |>
+  pivot_longer(cols = c("text_similarity", "image_similarity"), names_to = "sim_type", values_to = "similarity")
+all_clip_plot <- multiple_similarity_effects_plot(clip_data_long, "similarity", group_var="sim_type", input_title="Looking time and CLIP embedding correlations", prod=TRUE)
+all_clip_plot
+ggsave(here("figures",PROJECT_VERSION,"clip_plot_poster.svg"),all_clip_plot,width=7.5, height=10,bg = "white",device="pdf")
+```
+
+# Saliency plots
+```{r}
+# Prepare the data by combining both datasets with a grouping variable
+trialid_level_summary <- target_looking_trial_level |> left_join(trial_metadata)
+baseline_looking_trial_level <- summarized_data(looking_data_summarized |> rename("mean_looking"="mean_target_looking_baseline_window"), "Trials.trialID", "mean_looking", c("Trials.trialID")) |> left_join(trial_metadata) 
+
+trialid_level_summary$plot_type <- "Baseline-corrected"
+baseline_looking_trial_level$plot_type <- "Baseline window"
+
+combined_data <- bind_rows(trialid_level_summary, baseline_looking_trial_level)
+
+# Create labels for trials where target is acorn and distractor is coconut
+combined_data$label_text <- ifelse(
+  combined_data$Trials.targetImage == "acorn" & combined_data$Trials.distractorImage == "coconut",
+  paste("Target:", combined_data$Trials.targetImage, "\nDistractor:", combined_data$Trials.distractorImage),
+  ""
+)
+
+# Create the combined faceted plot
+combined_saliency_plot <- ggplot(combined_data, aes(x = MeanSaliencyDiff, y = mean_value)) +
+  geom_smooth(method = "lm", color = "#182B49", fill = "#182B49", alpha = 0.5) +
+  geom_point(size = 8, alpha = 0.8, color = "#182B49") +
+  geom_label_repel(aes(label = label_text), 
+                   color = "black", 
+                   fill = "white", 
+                   alpha = 0.8,
+                         segment.alpha = 0.7,
+      nudge_y = 0.02,
+      force = 10,
+      force_pull = 0.1,
+      segment.size = 1.2,
+                   size = 8) +
+  facet_wrap(~ plot_type, scales = "free_y", ncol = 2) +
+  xlab("Target-distractor GBVS mean saliency difference") +
+  ylab("Proportion of target looking") +
+  theme_minimal() +
+  theme(
+    text = element_text(size = 16, face = "bold"),
+    axis.title.x = element_text(
+      face = "bold", 
+      size = 29,
+      margin = margin(t = 15, r = 0, b = 0, l = 0)
+    ),
+    legend.key = element_blank(),
+    axis.title.y = element_text(
+      face = "bold", 
+      size = 29,
+      margin = margin(t = 0, r = 10, b = 0, l = 0)
+    ),
+    axis.text = element_text(size = 24, face = "bold"),
+    legend.title = element_text(size = 22, face = "bold"),
+    legend.text = element_text(size = 22, face = "bold"),
+    legend.position = "bottom",
+    strip.text = element_text(size = 28, face = "bold"),
+    strip.background = element_rect(fill = "gray90", color = NA),
+    strip.text.x = element_text(margin = margin(t = 8, b = 8)),
+    panel.spacing = unit(0.5, "cm")
+  )
+
+# Display the plot
+combined_saliency_plot
+
+# Save the combined plot
+ggsave(here("figures", PROJECT_VERSION, "saliency_plot_poster_combined.svg"), 
+       combined_saliency_plot, width = 15, height = 12, bg = "white", device = "pdf")
+
+```
+
+## Saliency lmers
+The singular effect for the baseline window here throws me off. When I add in a random effect for the target image the effect disappears?
+```{r}
+## Baseline window looking
+looking_data_summarized <- looking_data_summarized |>
+  mutate(age_in_months = SubjectInfo.testAge / 30)
+
+baseline_looking_image <- lmer(scale(mean_target_looking_baseline_window) ~ scale(MeanSaliencyDiff) 
+                    + (1 | SubjectInfo.subjID)
+                    + (1 | Trials.targetImage)
+                    + (1 | Trials.ordinal)
+                    + (1 | Trials.imagePair), 
+                    data = looking_data_summarized)
+
+baseline_looking_imagepair <- lmer(scale(mean_target_looking_baseline_window) ~ scale(MeanSaliencyDiff) 
+                    + (1 | SubjectInfo.subjID)
+                    + (1 | Trials.imagePair), 
+                    data = looking_data_summarized)
+
+critical_looking_image <- lmer(scale(mean_target_looking_critical_window) ~ scale(MeanSaliencyDiff)
+                    + (1 | SubjectInfo.subjID)
+                     + (1 | Trials.imagePair)
+                    + (1 | Trials.targetImage), 
+                    data = looking_data_summarized)
+
+baseline_corrected_looking_image <- lmer(scale(corrected_target_looking) ~ scale(MeanSaliencyDiff)
+                    + (1 | SubjectInfo.subjID)
+                     + (1 | Trials.imagePair)
+                    + (1 | Trials.targetImage), 
+                    data = looking_data_summarized)
+
+baseline_covariate_looking_image <- lmer(scale(mean_target_looking_critical_window) ~ scale(MeanSaliencyDiff)
+                    + scale(mean_target_looking_baseline_window)
+                    + (1 |  SubjectInfo.subjID) 
+                    + (1 | Trials.imagePair)
+                    + (1|Trials.targetImage), 
+                    data = looking_data_summarized)
+
+
+summary(baseline_looking_image)
+summary(baseline_looking_imagepair)
+summary(critical_looking_image)
+summary(baseline_corrected_looking_image)
+summary(baseline_covariate_looking_image)
+```
+
+Do we see an interaction with window type?
+```{r}
+trials_window_type_separated <- looking_data_summarized |>
+  pivot_longer(cols=c(mean_target_looking_critical_window, mean_target_looking_baseline_window), names_to="window_type", values_to="target_looking") |>
+  mutate(window_type = str_replace(window_type, "mean_target_looking_", "")) |>
+  mutate(trial_window_c = case_when(
+    window_type=="critical_window" ~ 0.5,
+    window_type=="baseline_window" ~ -0.5))
+
+window_type_looking <- lmer(scale(target_looking) ~ trial_window_c*scale(MeanSaliencyDiff) + 
+                    + scale(AoA_Est_target)
+                    + (1 | SubjectInfo.subjID) 
+                    + (1 | Trials.ordinal)
+                    + (1 | Trials.targetImage), 
+                    data = trials_window_type_separated)
+
+summary(window_type_looking)
+```
+I could check the difference between baseline window looking and baseline-corrected looking even though that is a little strange
+```{r}
+trials_window_type_separated_baselinecorrected <- looking_data_summarized |>
+  mutate(corrected_target_looking = scale(corrected_target_looking),
+         mean_target_looking_baseline_window = scale(mean_target_looking_baseline_window)) |>
+  pivot_longer(cols=c(corrected_target_looking, mean_target_looking_baseline_window), names_to="window_type", values_to="target_looking") |>
+  mutate(window_type = str_replace(window_type, "mean_target_looking_", "")) |>
+  mutate(trial_window_c = case_when(
+    window_type=="corrected_target_looking" ~ 0.5,
+    window_type=="baseline_window" ~ -0.5))
+
+window_type_looking_baselinecorrected <- lmer(scale(target_looking) ~ trial_window_c*scale(MeanSaliencyDiff) + 
+                    + (1 | SubjectInfo.subjID)
+                    + (1 | Trials.targetImage), 
+                    data = trials_window_type_separated_baselinecorrected)
+
+summary(window_type_looking_baselinecorrected)
+```
+
+Collapsing across trial types
+```{r}
+looking_data_summarized_image_pair <- looking_data_summarized %>%
+  mutate(across(
+    c(mean_target_looking_baseline_window, MeanSaliencyDiff),
+    ~ ifelse(grepl("distractor", Trials.trialID), -.x, .x)
+  ))
+baseline_looking_collapsed <- lmer(scale(mean_target_looking_baseline_window) ~ scale(MeanSaliencyDiff)
+                    + (1 | SubjectInfo.subjID)
+                    + (1 | Trials.imagePair), 
+                    data = looking_data_summarized_image_pair)
+summary(baseline_looking_collapsed)
+```
+
+checking variance across predictors
+```{r}
+looking_data_summarized %>%
+  group_by(Trials.targetImage) %>%
+  summarize(var_saliency = var(MeanSaliencyDiff),
+            var_similarity = var(image_similarity))
+```
+
+what about across excluded participants as well: this is a little sketchy.
+```{r}
+baseline_looking_image_full_sample <- lmer(scale(mean_target_looking_baseline_window) ~ scale(MeanSaliencyDiff)
+                    + (1 | SubjectInfo.subjID)
+                    + (1 | Trials.targetImage)
+                    + (1 | Trials.imagePair), 
+                    data = trial_summary_data |> left_join(trial_metadata))
+
+
+summary(baseline_looking_image_full_sample)
+```
+
+
+## saliency order effects
+this is interesting! order effects showing up in the baseline window
+```{r}
+order_ranked_trials <- looking_data_summarized |>
+  group_by(SubjectInfo.subjID, Trials.targetImage) |>
+  arrange(Trials.ordinal, .by_group = TRUE) |>
+  mutate(
+    slice_num = row_number(),
+    order = case_when(
+      slice_num == 1 ~ -0.5,
+      slice_num == 2 ~ 0.5,
+      TRUE ~ NA
+    )
+  )
+main_image_effect_ranked <- lmer(scale(mean_target_looking_baseline_window) ~ (scale(order))
+                    + scale(age_in_months)
+                    + scale(MeanSaliencyDiff)                                     
+                    + (1 | SubjectInfo.subjID) 
+                    + (1|Trials.targetImage), 
+                    data = order_ranked_trials |> mutate(age_in_months = SubjectInfo.testAge / 30))
+# |> filter(Trials.trialType %in% c("easy", "hard")
+summary(main_image_effect_ranked)
+
+looking_data_first_appearance <- looking_data_summarized |>
+  group_by(SubjectInfo.subjID, Trials.targetImage) |>
+  arrange(Trials.ordinal, .by_group = TRUE) |>
+  slice(1) |>
+  ungroup()
+
+baseline_looking_first_appearance_model <- lmer(scale(mean_target_looking_baseline_window) ~ scale(MeanSaliencyDiff) 
+                    + (1 | SubjectInfo.subjID)
+                    + (1 | Trials.targetImage)
+                    + (1 | Trials.imagePair), 
+                    data = looking_data_first_appearance)
+# |> filter(Trials.trialType %in% c("easy", "hard")
+summary(baseline_looking_first_appearance_model)
+```
+
+# OpenCLIP training
+```{r}
+openclip_similarities_combined <- openclip_similarities |>
+  rename(word_a = word1, word_b = word2) |>
+  bind_rows(
+    openclip_similarities |>
+      rename(word_a = word2, word_b = word1)
+  )
+looking_data_w_openclip <- looking_data_summarized |>
+  select(-text_similarity, -multimodal_similarity, -image_similarity) |>
+  left_join(openclip_similarities_combined, by = c("Trials.distractorImage"="word_a", "Trials.targetImage"="word_b"))
+
+common_cols <- intersect(colnames(looking_data_w_openclip), colnames(looking_data_summarized))
+
+looking_data_w_openclip_clip <- looking_data_w_openclip |> bind_rows(
+    looking_data_summarized %>%
+      mutate(epoch = 33) %>%
+      select(all_of(common_cols), epoch)
+  )
+
+
+openclip_data_summarized <- summarize_similarity_data(looking_data_w_openclip, extra_fields=c("epoch"))
+openclip_clip_data_summarized <- summarize_similarity_data(looking_data_w_openclip_clip, extra_fields=c("epoch"))
+openclip_age_half_summarized <- looking_data_w_openclip |>
+  add_age_split() |>
+  summarize_similarity_data(extra_fields = c("age_half", "epoch"))
+
+# Function to calculate Pearson's correlation per epoch
+calculate_correlations <- function(data, x_var, y_var, group_var = c("epoch"), conf_level = 0.95) {
+  data |>
+    group_by(across(all_of(group_var))) |>
+    summarize(
+      {
+        cor_test <- cor.test(.data[[x_var]], .data[[y_var]], method = "pearson", conf.level = conf_level)
+        tibble(
+          pearson_cor = cor_test$estimate,
+          p_value = cor_test$p.value,
+          ci_lower = cor_test$conf.int[1],
+          ci_upper = cor_test$conf.int[2]
+        )
+      },
+      .groups = "drop"
+    )
+}
+
+image_correlation_results_age_split <- calculate_correlations(openclip_age_half_summarized, "image_similarity", "mean_value", group_var=c("epoch", "age_half"))
+
+text_correlation_results <- calculate_correlations(openclip_data_summarized, "text_similarity", "mean_value")
+image_correlation_results <- calculate_correlations(openclip_data_summarized, "image_similarity", "mean_value")
+
+ggplot(image_correlation_results, aes(x = epoch, y = pearson_cor)) +
+  geom_point(aes(color = p_value < 0.05), size = 3) + 
+  geom_smooth(span=2) +
+  labs(title = "Image similarity correlation across Open-CLIP training",
+       x = "log (Epoch)",
+       y = "Pearson Correlation") +
+  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +  # Set color for significance
+  theme_minimal() +
+  ggpubr::stat_cor() +
+  theme(legend.position = "none")
+
+ggplot(text_correlation_results, aes(x = epoch, y = pearson_cor)) +
+  geom_point(aes(color = p_value < 0.05), size = 3) + 
+  geom_smooth(span=2) +
+  labs(title = "Word similarity correlation across Open-CLIP training",
+       x = "log (Epoch)",
+       y = "Pearson Correlation") +
+  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +  # Set color for significance
+  theme_minimal() +
+  ggpubr::stat_cor() +
+  theme(legend.position = "none")
+``` 
+The more I think about it the more I remember that it's unadvised to do model comparisons with such few items!
+
+## checking out epoch 3 which had the highest correlation
+still had to remove the random slope for image_similarity because of a singular fit but we definitely see a stronger effect
+```{r}
+stopifnot(nrow(looking_data_w_openclip |> filter(epoch == 3)) == nrow(looking_data_summarized))
+epoch3_data_summarized <- summarize_similarity_data(looking_data_w_openclip |> filter(epoch == 3))
+openclip_data_long <-  epoch3_data_summarized |>  
+  pivot_longer(cols = c("text_similarity", "image_similarity"), names_to = "sim_type", values_to = "similarity")
+all_clip_plot <- multiple_similarity_effects_plot(openclip_data_long, "similarity", group_var="sim_type", input_title="Looking time and Open CLIP epoch 3 embedding correlations")
+all_clip_plot
+```
+
+## Comparing models from different epochs
+```{r}
+library(MuMIn)
+epoch3_image_effect <- fit_image_model(looking_data_w_openclip |> filter(epoch == 3))
+summary(epoch3_image_effect)
+epoch32_image_effect <- fit_image_model(looking_data_w_openclip |> filter(epoch == 28))
+summary(epoch32_image_effect)
+fully_trained_clip_effect <- fit_image_model(looking_data_summarized)
+summary(fully_trained_clip_effect)
+```
+
+```{r}
+library(dplyr)
+library(MuMIn)
+library(ggplot2)
+library(patchwork)  # for combining plots
+
+# Define the epochs you want to analyze
+epochs <- 1:33
+
+# Initialize results storage
+results <- data.frame(epoch = numeric(),
+                      r2_marginal = numeric(),
+                      corr_similarity_behavior = numeric())
+
+common_cols <- intersect(colnames(looking_data_w_openclip), colnames(looking_data_summarized))
+
+# Bind rows using only common columns, adding epoch = 33 to summarized data
+looking_data_w_openclip_clip <- looking_data_w_openclip %>%
+  bind_rows(
+    looking_data_summarized %>%
+      mutate(epoch = 33) %>%
+      select(all_of(common_cols), epoch)
+  )
+
+# Loop over epochs
+for (e in epochs) {
+  df <- looking_data_w_openclip_clip |> filter(epoch == e)
+
+  # Skip if not enough data
+  if (nrow(df) < 10) next
+
+  # Fit model (update to your exact model formula if needed)
+  model <- fit_image_model(df)
+
+  # Extract marginal R²
+  r2 <- tryCatch(r.squaredGLMM(model)[1, "R2m"], error = function(e) NA)
+
+  # Compute Pearson correlation between image similarity and behavior
+ coefs <- summary(model)$coefficients
+  p_val <- NA
+  if ("scale(image_similarity)" %in% rownames(coefs)) {
+    p_val <- coefs["scale(image_similarity)", "Pr(>|t|)"]
+  }
+  # Store results
+  results <- rbind(results, data.frame(epoch = e,
+                                       r2_marginal = r2,
+                                       p_value = p_val))
+}
+
+# Plot R²
+plot_r2 <- ggplot(results, aes(x = epoch, y = r2_marginal)) +
+  geom_smooth(color = "steelblue", size = 1.2) +
+  geom_point(size = 2) +
+  labs(title = "Marginal R² of image similarity LMER vs. CLIP Epoch",
+       x = "Epoch",
+       y = "Marginal R²") +
+  theme_minimal()
+
+# Plot correlation
+plot_corr <- ggplot(results, aes(x = epoch, y = p_value)) +
+  geom_smooth(color = "firebrick", size = 1.2) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 0.05, linetype = "dotted", color = "gray40") +
+  annotate("text", x = max(results$epoch), y = 0.055, 
+           label = "p = 0.05", hjust = 4, vjust = 0, size = 4, color = "gray40") +
+  labs(title = "p-value of image similarity in full LMER vs. CLIP epoch",
+       x = "Epoch",
+       y = "p-value") +
+  theme_minimal()
+
+# Combine and display
+plot_r2 / plot_corr
+
+```
+
+
+Looking time across epochs
+```{r}
+epoch_model <- lmer(
+    scale(corrected_target_looking) ~ 
+      scale(image_similarity) * scale(epoch) + 
+      scale(age_in_months) +
+      scale(AoA_Est_target) + 
+      scale(MeanSaliencyDiff) +
+      (1 | SubjectInfo.subjID) +
+      (1 | Trials.targetImage) +
+      (1 | Trials.imagePair),
+    data = looking_data_w_openclip_clip |> 
+      mutate(age_in_months = SubjectInfo.testAge / 30)
+  )
+summary(epoch_model)
+r.squaredGLMM(epoch_model)
+```
+
+
+# Additional models
+```{r}
+create_model_plots <- function(input_similarities, median_age, name="CVCL") {
+  similarities_combined <- input_similarities |>
+    rename(word_a = word1, word_b = word2) |>
+    bind_rows(
+      input_similarities |>
+        rename(word_a = word2, word_b = word1)
+    )
+  
+  looking_data_w_model <- looking_data_summarized |>
+    select(-text_similarity, -multimodal_similarity, -image_similarity) |>
+    left_join(similarities_combined, by = c("Trials.distractorImage"="word_a", "Trials.targetImage"="word_b"))
+  
+  data_summarized <- summarize_similarity_data(looking_data_w_model)
+  
+  age_half_summarized <- looking_data_w_model |>
+    add_age_split() |>
+    summarize_similarity_data(extra_fields = c("age_half"))
+  
+  p <- generate_multimodal_plots(data_summarized, name)
+  return(list(
+    plot = p,
+    data = looking_data_w_model
+  ))
+}
+```
+
+### CVCL
+```{r}
+cvcl_similarities
+cvcl_summary <- create_model_plots(cvcl_similarities, name="CVCL", median_age=input_median_age)
+imagenet_vit_summary <- create_model_plots(imagenetvit_similarities, name="ImageNetVIT", median_age=input_median_age)
+saycamvit_summary <- create_model_plots(saycamvit_similarities, name="SayCamVIT",median_age=input_median_age)
+
+cvcl_model <- fit_image_model(cvcl_summary$data)
+summary(cvcl_model)
+cvcl_summary$plot
+```
+
+### SayCAM-VIT
+```{r}
+saycamvit_model <- fit_image_model(saycamvit_summary$data)
+summary(saycamvit_model)
+saycamvit_summary$plot
+```
+
+### ImageNet-VIT
+```{r}
+imagenet_vit_model <- fit_image_model(imagenet_vit_summary$data)
+summary(imagenet_vit_model)
+imagenet_vit_summary$plot
+```
+
+With both SayCAM VIT and ImageNet VIT we do see this interesting interaction between age and similarity, where the influence of similarity decreases with age.
+
+# comparing similarity values across our measures
+```{r}
+library(dplyr)
+library(GGally)
+library(ggplot2)
+
+# Join all similarity datasets with trial metadata
+combined_data <- cvcl_similarities %>%
+  # Join with imagenetvit similarities
+  left_join(imagenetvit_similarities, 
+            by = c("word1", "word2"), 
+            suffix = c("_cvcl", "_imagenetvit")) %>%
+  # Join with saycamvit similarities  
+  left_join(saycamvit_similarities, 
+            by = c("word1", "word2")) %>%
+  rename(image_similarity_saycamvit = image_similarity) %>%
+  # Join with openclip epoch 32
+  left_join(openclip_similarities %>% filter(epoch == 32), 
+            by = c("word1", "word2")) %>%
+  rename(image_similarity_openclip32 = image_similarity) %>%
+  # Join with openclip epoch 3
+  left_join(openclip_similarities %>% filter(epoch == 3), 
+            by = c("word1", "word2")) %>%
+  rename(image_similarity_openclip3 = image_similarity) %>%
+  
+  # Join with trial metadata to get saliency diff and clip_sim
+  left_join(trial_metadata %>% 
+            distinct(Trials.imagePair, .keep_all = TRUE) %>%
+            # Create word1/word2 columns from target/distractor images
+            mutate(word1 = Trials.targetImage,
+                   word2 = Trials.distractorImage) %>%
+            select(word1, word2, MeanSaliencyDiff, image_similarity),
+            by = c("word1", "word2")) %>%
+  rename(clip_sim = image_similarity) %>%
+  distinct(word1, word2, .keep_all = TRUE) |>
+  # Select and rename the six variables for visualization
+  select(
+    cvcl_sim = image_similarity_cvcl,
+    imagenetvit_sim = image_similarity_imagenetvit, 
+    saycamvit_sim = image_similarity_saycamvit,
+    openclip_epoch3_sim = image_similarity_openclip3,
+    openclip_epoch32_sim = image_similarity_openclip32,
+    mean_saliency_diff = MeanSaliencyDiff,
+    clip_sim = clip_sim,
+    word1 = word1, 
+    word2 = word2
+  ) 
+
+ggplot(combined_data, aes(x=clip_sim, y=openclip_epoch3_sim)) +
+  geom_point(size=3)+
+  ggrepel::geom_label_repel(aes(label=paste0(word1, "-", word2))) +
+  ggpubr::stat_cor() +
+  geom_smooth(method="lm")
+```
+
+```{r}
+# Create ggpairs plot
+similarity_plot <- ggpairs(
+  combined_data,
+  columns = c("cvcl_sim", "imagenetvit_sim", "saycamvit_sim", 
+              "openclip_epoch3_sim", "openclip_epoch32_sim", 
+              "mean_saliency_diff", "clip_sim"),
+  title = "Correlations Between Different Similarity Measures")
+ggsave("similarity_correlations.png", similarity_plot, 
+       width = 16, height = 12, dpi = 300, bg = "white")
+
+# Display the plot
+print(similarity_plot)
+
+# Print correlation matrix
+cat("Correlation matrix:\n")
+cor_matrix <- cor(combined_data |> select(-word1, -word2), use = "complete.obs")
+print(round(cor_matrix, 3))
+```
