@@ -4,7 +4,8 @@ import re
 import json
 import csv
 from datetime import datetime
-from config import PROJECT_PATH, SERVER_PATH, CONSENT_PATH
+import pandas as pd
+from config import PROJECT_PATH, SERVER_PATH, CONSENT_PATH, PROJECT_VERSION
 hashed_ids = {}
 
 # Making a map of the response UUIDs to the child hashed IDs for easier storage
@@ -18,14 +19,14 @@ def hashed_id_map(responses_path):
         }
 
 # Ensure that clean Lookit JSON file does not include any identifiable subject data
-def clean_lookit_json(input_lookit_json, cleaned_path, subject_data_path):
+def clean_lookit_json(input_lookit_json, cleaned_path, subject_data_path, local_id_count = 0):
     f = open(input_lookit_json)
     lookit_json = json.load(f)
     identifiable_fields = ['birthday', 'age_in_days', 'name', 'global_id', 'nickname', 'additional_information']
     child_subject_fields = ['name', 'birthday', 'age_in_days', 'global_id', 'age_at_birth', 'age_rounded','gender', 'additional_information']
     subject_csv_rows = []
     subject_csv_header = ['local_id', 'hashed_id'] + child_subject_fields + ['parent_nickname', 'parent_global_id', 'parent_hashed_id', 'date_created', 'response_id']
-    local_id_count = 0
+    local_id_count = local_id_count
     # Read existing response IDs in subject_data.csv
     existing_response_ids = set()
     if os.path.exists(subject_data_path):
@@ -41,7 +42,10 @@ def clean_lookit_json(input_lookit_json, cleaned_path, subject_data_path):
                 continue
             hashed_id = session['child']['hashed_id']
             # Build row data: adding a local_id which is a unique identifier for each row in the CSV file in the format VVIXX where XX is the subject number
-            row_data = {'local_id': f"VVI{'0' if local_id_count < 10 else ''}{local_id_count}", 'hashed_id': hashed_id}
+            row_data = {
+                'local_id': f"VVI{local_id_count:03d}",
+                'hashed_id': hashed_id
+            }
             row_data.update({field: session['child'].get(field, '') for field in child_subject_fields})
             
             if 'participant' in session:
@@ -152,15 +156,19 @@ def convert_webm_to_mp4(input_path, output_path, consent_path):
 def preprocess_raw_data():  
     raw_project_dir = os.path.join(PROJECT_PATH, "data", "raw")
     raw_server_dir = os.path.join(SERVER_PATH, "data", "raw")
+    project_version = PROJECT_VERSION if PROJECT_VERSION != "pilot" else "sample1"
     # Only storing the input_lookit_study.json file in the server directory since it might contain identifiable data
-    input_lookit_responses_path = os.path.join(raw_server_dir, "lookit", "input_lookit_study.json")
+    input_lookit_responses_path = os.path.join(raw_server_dir, "lookit", project_version, "input_lookit_study.json")
     # Storing the lookit_study.json file in the project directory since it does not contain identifiable data
-    lookit_responses_path = os.path.join(raw_project_dir, "lookit", "lookit_study.json")
+    lookit_responses_path = os.path.join(raw_project_dir, "lookit", project_version, "lookit_study.json")
     # Storing the identifiable data in a separate file
-    identifiable_data_path = os.path.join(raw_server_dir, "lookit", "subject_data.csv")
-    # Storing the consent videos in a separate lab directory
+    identifiable_data_path = os.path.join(raw_server_dir, "lookit", project_version, "subject_data.csv")
+    if project_version == "sample2":
+        df = pd.read_csv(os.path.join(raw_server_dir, "lookit", "sample1", "subject_data.csv"))
+        last_local_id = df["local_id"].iloc[-1]   # safely get last row
+        current_id = int(last_local_id[-3:])      # get last 3 characters    
     # Clean the lookit_study.json file to remove identifiable data and place in a separate file
-    clean_lookit_json(input_lookit_responses_path, lookit_responses_path, identifiable_data_path)
+    clean_lookit_json(input_lookit_responses_path, lookit_responses_path, identifiable_data_path, current_id)
     # Specify the directory containing .webm files
     videos_path = os.path.join(raw_server_dir, "original_videos")
     # Make a map of the response UUIDs to the child hashed IDs for easier storage: videos are coming in from Lookit with response UUIDs
@@ -173,7 +181,7 @@ def preprocess_raw_data():
         child_path = os.path.join(mp4_dir, child_dir)
         if os.path.isdir(child_path):
             mp4_files = [f for f in os.listdir(child_path) if f.endswith('.mp4')]
-            if len(mp4_files) < 34:
+            if len(mp4_files) < 34 or len(mp4_files) > 34:
                 print(f"Warning: Directory {child_dir} has {len(mp4_files)} videos instead of expected 34")
 
 if __name__ == "__main__":

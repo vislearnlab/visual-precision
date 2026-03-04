@@ -17,15 +17,16 @@ venv/
 misc/
 
 # excluding full looking time file because it's too big
-data/main/processed_data/level-looks_added-metadata_data.csv
+data/**/processed_data/level-looks_added-metadata_data.csv
 
 data/raw/icatcher_videos/
 data/pilot/*
 peekbank/*
 data/raw/icatcher_annotations/
 data/raw/original_videos/
-data/raw/lookit/input_lookit_study.json
-data/raw/lookit/subject_data.csv
+data/raw/lookit/**/input_lookit_study.json
+data/raw/lookit/**/lookit_study.json
+data/raw/lookit/**/subject_data.csv
 data/raw/lookit/matched_gift_cards.txt
 data/raw/lookit/gift_cards.csv
 
