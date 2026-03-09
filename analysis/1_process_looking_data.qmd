@@ -9,7 +9,7 @@ library(readr)
 library(rlang)
 source("helpers.R")
 env_file = here(".env")
-default_project = "main"
+default_project = "sample1"
 if (file.exists(env_file)) {
   load_dot_env(file = env_file)
   PROJECT_VERSION <- Sys.getenv("PROJECT_VERSION")
@@ -31,9 +31,6 @@ trial_timing_info = read.csv(file.path(DATA_TO_ANALYZE_PATH, "level-trials_sourc
 stimuli_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_data.csv"))
 saliency_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_added-saliency_data.csv"))
 similarities <- read.csv(here("data", "embeddings", "similarities-clip_data.csv"))
-
-#exploratory normalization strategies
-zscore <- read_csv(here("data/embeddings/zscore_similarities.csv"))
 ```
 
 Importing looking time data after initial preprocessing of iCatcher data in Python
@@ -180,20 +177,8 @@ stimuli_metadata_by_word <- stimuli_metadata |>
   distinct(target, distractor, .keep_all=TRUE) |>
   select(-X)
 
-zscore_sims <- zscore |>
-   rename_with(~ gsub("Word1|word1|text1", "target", .)) |>
-  rename_with(~ gsub("Word2|word2|text2", "distractor", .)) |>
-  bind_rows(
-    zscore |>
-      rename_with(~ gsub("Word1|word1|text1", "distractor", .)) |>
-      rename_with(~ gsub("Word2|word2|text2", "target", .))
-  ) |>
-  distinct(target, distractor, .keep_all=TRUE)
-
 trial_metadata <- trial_metadata |>
-  left_join(stimuli_metadata_by_word, by = c("Trials.targetImage"="target", "Trials.distractorImage"="distractor")) |>
-  left_join(zscore_sims, by=c("Trials.targetImage"="target", "Trials.distractorImage"="distractor")) |>
-  rename(image_sim_zscore = image_sim, text_sim_zscore = text_sim)
+  left_join(stimuli_metadata_by_word, by = c("Trials.targetImage"="target", "Trials.distractorImage"="distractor"))
 ```
 
 # Exclusions

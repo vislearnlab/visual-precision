@@ -202,7 +202,9 @@ item_performances <- ggplot(target_looking_item_level, aes(reorder(Trials.target
   ) 
 item_performances
 ggsave(here("figures",PROJECT_VERSION,"item_performances.png"),item_performances,width=15,height=10,bg = "white")
+```
 
+```{r}
 trial_performances <- ggplot(summarized_data(looking_data_summarized, "Trials.trialID", "corrected_target_looking", c("Trials.trialID", "AoA_Est_target")), aes(reorder(Trials.trialID, mean_value), mean_value)) +
    geom_hline(yintercept=0,linetype="dashed")+
   geom_errorbar(aes(ymin=lower_ci,ymax=upper_ci),width=0, alpha=0.2)+
@@ -835,16 +837,6 @@ ggplot(baseline_looking_trial_level, aes(x=MeanSaliencyDiff, y=mean_value)) +
 
 # Embedding type comparisons
 
-## Luce vs logit
-```{r}
-luce_vs_logit10 <- read.csv(here("data/embeddings/similarities_clip.csv"))
-ggplot(luce_vs_logit10, aes(x=luce, y=softmax_logit_scale_10)) +
-  geom_point() +
-  geom_smooth() +
-  ggpubr::stat_cor() +
-  labs(title="Luce vs Logit10 similarity", x="Luce similarity", y="Logit10 similarity")
-```
-
 ```{r}
 cor.test(trial_metadata$text_similarity, trial_metadata$image_similarity)
 cor.test(trial_metadata$multimodal_similarity, trial_metadata$image_similarity)
@@ -853,81 +845,4 @@ cor.test(trial_metadata$AoA_Est_target, trial_metadata$image_similarity)
 cor.test(trial_metadata$MeanSaliencyDiff, trial_metadata$AoA_Est_target)
 ```
 
-## Z-scoring
-```{r}
-zscore <- read.csv(here("data/embeddings/zscore_similarities.csv"))
-l2_zscore <- read.csv(here("data/embeddings/l2_zscore_similarities.csv"))
-raw <- read.csv(here("data/embeddings/raw_similarities.csv"))
-cor_df <- data.frame(
-  zscore = zscore$image_sim,
-  raw = raw$image_sim,
-  l2_zscore = l2_zscore$image_sim,
-  text = paste(zscore$text1,"-",zscore$text2)
-)
-
-cor_df_text <- data.frame(
-  zscore = zscore$text_sim,
-  raw = raw$text_sim,
-  l2_zscore = l2_zscore$text_sim
-)
-
-cor(cor_df |> select(-text))
-cor.test(cor_df_text$zscore, cor_df_text$raw)
-cor(cor_df |> select(-text), method="spearman")
-cor.test(trial_metadata$text_similarity, trial_metadata$cor)
-```
-
-```{r}
-model <- lm(zscore ~ raw, data = cor_df)
-
-# 2. Compute residuals and add to dataframe
-cor_df$resid <- abs(residuals(model))
-
-# 3. Flag outliers (e.g., residuals > 2 SD from mean)
-threshold <- mean(cor_df$resid) + 2 * sd(cor_df$resid)
-cor_df$outlier <- cor_df$resid > threshold | cor_df$text == "bulldozer - orange"
-
-# 4. Plot
-ggplot(cor_df, aes(x = raw, y = zscore)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = TRUE) +
-  xlab("Raw embeddings") +
-  ylab("Z-scored embeddings") +
-  ggtitle("LWL Pairwise Image Embeddings") +
-  ggpubr::stat_cor(method = "pearson") +
-  geom_label_repel(
-    data = subset(cor_df, outlier),
-    aes(label = text),
-    box.padding = 0.35,
-    point.padding = 0.3,
-    segment.color = 'grey50'
-  )
-```
-
-```{r}
-unique_trials <- trial_metadata |> distinct(Trials.imagePair, .keep_all=TRUE)
-model <- lm(image_sim_zscore ~ image_similarity, data = unique_trials)
-
-# Compute residuals and add to dataframe
-unique_trials$resid <- abs(residuals(model))
-
-# Flag outliers (e.g., residuals > 2 SD from mean)
-threshold <- mean(unique_trials$resid) + sd(unique_trials$resid)
-unique_trials$outlier <- unique_trials$resid > threshold | unique_trials$Trials.imagePair == "bulldozer-orange"
-
-ggplot(unique_trials, aes(x = image_similarity, y = image_sim_zscore)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = TRUE) +
-  xlab("Raw embeddings") +
-  ylab("Z-scored embeddings") +
-  ggtitle("LWL study-specific Image Embeddings") +
-  ggpubr::stat_cor(method = "pearson") +
-  geom_label_repel(
-    data = subset(unique_trials, outlier),
-    aes(label = Trials.imagePair),
-    box.padding = 0.35,
-    point.padding = 0.3,
-    segment.color = 'grey50'
-  )
-```
 
