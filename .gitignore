@@ -16,8 +16,10 @@ venv/
 
 misc/
 
-# excluding full looking time file because it's too big
+# excluding full looking time file and icatcher data because they are too big, might zip in final sample
 data/**/processed_data/level-looks_added-metadata_data.csv
+data/**/processed_data/level-looks_data.csv
+data/**/data_to_analyze/level-looks_source-icatcher_data.csv
 
 data/raw/icatcher_videos/
 data/pilot/*

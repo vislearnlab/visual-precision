@@ -11,3 +11,4 @@ CONSENT_PATH = os.environ.get("CONSENT_PATH", PROJECT_PATH)
 # Project version
 PROJECT_VERSION = os.environ.get("PROJECT_VERSION")
 PROJECT_VERSION = PROJECT_VERSION.lower() if PROJECT_VERSION is not None else "pilot" 
+VALID_SECTIONS = ["sample1", "sample2"]

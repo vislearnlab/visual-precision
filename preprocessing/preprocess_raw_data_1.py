@@ -5,7 +5,7 @@ import json
 import csv
 from datetime import datetime
 import pandas as pd
-from config import PROJECT_PATH, SERVER_PATH, CONSENT_PATH, PROJECT_VERSION
+from config import PROJECT_PATH, SERVER_PATH, CONSENT_PATH, PROJECT_VERSION, VALID_SECTIONS
 hashed_ids = {}
 
 # Making a map of the response UUIDs to the child hashed IDs for easier storage
@@ -19,13 +19,13 @@ def hashed_id_map(responses_path):
         }
 
 # Ensure that clean Lookit JSON file does not include any identifiable subject data
-def clean_lookit_json(input_lookit_json, cleaned_path, subject_data_path, local_id_count = 0):
+def clean_lookit_json(input_lookit_json, cleaned_path, subject_data_path, local_id_count = 0, section = None):
     f = open(input_lookit_json)
     lookit_json = json.load(f)
     identifiable_fields = ['birthday', 'age_in_days', 'name', 'global_id', 'nickname', 'additional_information']
     child_subject_fields = ['name', 'birthday', 'age_in_days', 'global_id', 'age_at_birth', 'age_rounded','gender', 'additional_information']
     subject_csv_rows = []
-    subject_csv_header = ['local_id', 'hashed_id'] + child_subject_fields + ['parent_nickname', 'parent_global_id', 'parent_hashed_id', 'date_created', 'response_id']
+    subject_csv_header = ['local_id', 'hashed_id'] + child_subject_fields + ['parent_nickname', 'parent_global_id', 'parent_hashed_id', 'date_created', 'response_id', 'section']
     local_id_count = local_id_count
     # Read existing response IDs in subject_data.csv
     existing_response_ids = set()
@@ -59,7 +59,8 @@ def clean_lookit_json(input_lookit_json, cleaned_path, subject_data_path, local_
              
             row_data.update({
                     'date_created': session['response']['date_created'].split(" ")[0],
-                    'response_id': session['response']['uuid']
+                    'response_id': session['response']['uuid'],
+                    'section': section
             })
             
             subject_csv_rows.append(row_data)
@@ -153,35 +154,51 @@ def convert_webm_to_mp4(input_path, output_path, consent_path):
             except subprocess.CalledProcessError as e:
                 print(f"Error converting {file}: {e}")
 
-def preprocess_raw_data():  
+def preprocess_raw_data():
+    VALID_SECTIONS = ['sample1', 'sample2']
+    sections_to_process = VALID_SECTIONS if PROJECT_VERSION == 'main' else [PROJECT_VERSION]
+
     raw_project_dir = os.path.join(PROJECT_PATH, "data", "raw")
     raw_server_dir = os.path.join(SERVER_PATH, "data", "raw")
-    project_version = PROJECT_VERSION if PROJECT_VERSION != "pilot" else "sample1"
-    # Only storing the input_lookit_study.json file in the server directory since it might contain identifiable data
-    input_lookit_responses_path = os.path.join(raw_server_dir, "lookit", project_version, "input_lookit_study.json")
-    # Storing the lookit_study.json file in the project directory since it does not contain identifiable data
-    lookit_responses_path = os.path.join(raw_project_dir, "lookit", project_version, "lookit_study.json")
-    # Storing the identifiable data in a separate file
-    identifiable_data_path = os.path.join(raw_server_dir, "lookit", project_version, "subject_data.csv")
-    if project_version == "sample2":
-        df = pd.read_csv(os.path.join(raw_server_dir, "lookit", "sample1", "subject_data.csv"))
-        last_local_id = df["local_id"].iloc[-1]   # safely get last row
-        current_id = int(last_local_id[-3:])      # get last 3 characters    
-    # Clean the lookit_study.json file to remove identifiable data and place in a separate file
-    clean_lookit_json(input_lookit_responses_path, lookit_responses_path, identifiable_data_path, current_id)
-    # Specify the directory containing .webm files
+
+    # Identifiable subject data is shared across all sections
+    identifiable_data_path = os.path.join(raw_server_dir, "lookit", "subject_data.csv")
+
+    # Determine the current local_id count from existing subject data
+    current_id = 0
+    if os.path.exists(identifiable_data_path):
+        df = pd.read_csv(identifiable_data_path)
+        if not df.empty:
+            current_id = int(df["local_id"].iloc[-1][-3:])
+
+    # Clean each section's JSON, tag with section name, and build the hashed_ids map
+    for section in sections_to_process:
+        input_lookit_responses_path = os.path.join(raw_server_dir, "lookit", section, "input_lookit_study.json")
+        lookit_responses_path = os.path.join(raw_project_dir, "lookit", section, "lookit_study.json")
+        os.makedirs(os.path.dirname(lookit_responses_path), exist_ok=True)
+
+        clean_lookit_json(input_lookit_responses_path, lookit_responses_path, identifiable_data_path, current_id, section=section)
+
+        # Build hashed_ids map from this section's cleaned JSON (accumulates across sections)
+        hashed_id_map(lookit_responses_path)
+
+        # Update current_id so the next section continues numbering from where this one left off
+        if os.path.exists(identifiable_data_path):
+            df = pd.read_csv(identifiable_data_path)
+            if not df.empty:
+                current_id = int(df["local_id"].iloc[-1][-3:])
+
+    # Convert all .webm files to .mp4 using the combined hashed_ids map
     videos_path = os.path.join(raw_server_dir, "original_videos")
-    # Make a map of the response UUIDs to the child hashed IDs for easier storage: videos are coming in from Lookit with response UUIDs
-    hashed_id_map(lookit_responses_path)
-    # Convert the .webm files to .mp4 files
     convert_webm_to_mp4(os.path.join(videos_path, "webm"), os.path.join(videos_path, "mp4"), CONSENT_PATH)
+
     # Sanity check that each participant directory has at least 34 videos
     mp4_dir = os.path.join(videos_path, "mp4")
     for child_dir in os.listdir(mp4_dir):
         child_path = os.path.join(mp4_dir, child_dir)
         if os.path.isdir(child_path):
             mp4_files = [f for f in os.listdir(child_path) if f.endswith('.mp4')]
-            if len(mp4_files) < 34 or len(mp4_files) > 34:
+            if len(mp4_files) != 34:
                 print(f"Warning: Directory {child_dir} has {len(mp4_files)} videos instead of expected 34")
 
 if __name__ == "__main__":

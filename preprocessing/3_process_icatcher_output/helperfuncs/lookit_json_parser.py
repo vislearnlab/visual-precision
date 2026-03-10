@@ -7,17 +7,18 @@ import os
 from config import *
 
 def get_lookit_trial_times(lookit_json):
+    subject_data = pd.read_csv(os.path.join(SERVER_PATH, "data", "raw", "lookit", "subject_data.csv"))
     audio_duration_info = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "level-syllables_added-audio_data.csv"))
     subject_sections = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "level-section_data.csv"))
     word_onset_syllable_info = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "level-wordtype_added-audio_data.csv"))
+    # The article and word were spliced together in the first sample. In the second sample, the article was correctly not included with the word during preprocessing
+    article_onset_added = PROJECT_VERSION == "pilot" or PROJECT_VERSION == "sample1"
     # Get section info for this project
     section_row = subject_sections[subject_sections['section_name'] == PROJECT_VERSION].iloc[0]
     start_date = datetime.strptime(section_row['start_date'], '%Y-%m-%d')
     end_date = section_row['end_date']
     if end_date and not pd.isna(end_date):
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
-    carrier_onset = audio_duration_info.loc[0, 'silence_before']
-    target_onset = carrier_onset + audio_duration_info.loc[0, 'carrier']
     f = open(lookit_json)
     study_info = json.load(f)
 
@@ -32,7 +33,11 @@ def get_lookit_trial_times(lookit_json):
             continue
         if end_date and not pd.isna(end_date) and session_date >= end_date:
             continue
-        child_id = session_info['child']['hashed_id']
+        hashed_id = session_info['child']['hashed_id']
+        child_id = subject_data.loc[
+            subject_data["hashed_id"] == hashed_id, 
+            "local_id"
+        ].iloc[0] 
         age_at_test = session_info['child']['age_rounded']
         gender = session_info['child']['gender']
         age_at_birth = session_info['child']['age_at_birth']
@@ -79,21 +84,27 @@ def get_lookit_trial_times(lookit_json):
                 [target_audio, target_image] = value["audioPlayed"].split("/")[-1].replace(".mp3", "").rsplit("_", 1)
                 
                 # Determine which word to match based on target_audio: 'find' and 'see' are question phrases and use a different version of the same word 
-                if target_audio in ['find', 'see']:
+                if target_audio in ['find', 'see'] and article_onset_added:
                     match_word = f"{target_image}2"
                 else:
                     match_word = target_image
-                    
-                # Get onset info by matching word column
-                current_onset_syllable_info = word_onset_syllable_info[word_onset_syllable_info['word'] == match_word]
-                if not current_onset_syllable_info.empty:
-                    article_length = current_onset_syllable_info['article_length'].iloc[0]
-                    current_target_onset = target_onset + article_length
-                else:
+                matches = word_onset_syllable_info[word_onset_syllable_info['word'] == match_word]
+                if matches.empty:
                     print(f"No onset info found for word: {match_word}")
+                    raise Exception
+                current_onset_syllable_info = matches.iloc[0]
+                num_syllables = current_onset_syllable_info['syllable_count']
+                current_audio_duration_info = audio_duration_info.loc[
+                    (audio_duration_info['syllables'] == num_syllables) & (audio_duration_info['version'] == PROJECT_VERSION)
+                ].iloc[0]                
+                carrier_onset = current_audio_duration_info['silence_before']
+                target_onset = carrier_onset + current_audio_duration_info['carrier']
+
+                article_length = current_onset_syllable_info['article_length'] or 0
+                current_target_onset = target_onset + article_length
                 
                 num_syllables = current_onset_syllable_info['syllable_count']
-                target_offset = current_target_onset + audio_duration_info[audio_duration_info['syllables'] == num_syllables.iloc[0]]['target_word'].iloc[0]
+                target_offset = current_target_onset + current_audio_duration_info['target_word']
 
                 if any(videoStartedIdx) and any(audioStartedIdx):
                     trial_timestamps = \

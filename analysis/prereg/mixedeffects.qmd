@@ -1,0 +1,40 @@
+---
+title: "Infant visual concept precision - mixed effects modeling"
+format: html
+---
+
+```{r output=FALSE}
+library(tidyverse)
+library(here)
+library(lmerTest)
+```
+
+## Load data
+```{r output=FALSE}
+trial_metadata <- read.csv(here("data","metadata","level-trialtype_data.csv"))
+trial_summary_data <- read.csv(here("data", "main", "processed_data","level-trials_data.csv"))
+
+usable_trials <- trial_summary_data |>
+  filter(exclude_participant_insufficient_data == 0 & trial_exclusion == 0 & exclude_participant == 0) 
+
+# Merging with similarity information and mean-centering main effects
+trials_with_effect_vars <- usable_trials |>
+  left_join(trial_metadata)
+```
+
+## Run mixed-effects models
+```{r output=FALSE}
+word_sim_model <- lmer(corrected_target_looking ~ scale(text_similarity) + scale(SubjectInfo.testAge) 
+                    + scale(AoA_Est_target)
+                    + scale(MeanSaliencyDiff)
+                    + (scale(text_similarity) | SubjectInfo.subjID) 
+                    + (1|Trials.targetImage) 
+                    + (1|Trials.imagePair), 
+                    data = trials_with_effect_vars)
+
+high_level_vis_sim_model <- lmer(corrected_target_looking ~ scale(image_similarity) + scale(SubjectInfo.testAge) 
+                    + (scale(image_similarity) | SubjectInfo.subjID) 
+                    + (1|Trials.targetImage) 
+                    + (1|Trials.imagePair), 
+                    data = trials_with_effect_vars)
+```

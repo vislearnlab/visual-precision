@@ -11,32 +11,38 @@ library(effects)
 library(emmeans)
 
 env_file = here(".env")
-default_project = "main"
 if (file.exists(env_file)) {
   load_dot_env(file = env_file)
   PROJECT_VERSION <- Sys.getenv("PROJECT_VERSION")
-  if (PROJECT_VERSION == "") {
-    PROJECT_VERSION <- default_project
-  }
+  if (PROJECT_VERSION == "") PROJECT_VERSION <- "main"
 } else {
-  PROJECT_VERSION <- default_project
+  PROJECT_VERSION <- "main"
 }
+
+VALID_SECTIONS <- c("sample1", "sample2")
+DATA_FOLDER    <- if (PROJECT_VERSION %in% c(VALID_SECTIONS, "main")) "main" else PROJECT_VERSION
+SECTION_FILTER <- if (PROJECT_VERSION %in% VALID_SECTIONS) PROJECT_VERSION else NULL
 source("lmer_helpers.R")
 ```
 
 # Load data
 ```{r}
 trial_metadata <- read.csv(here("data","metadata","level-trialtype_data.csv"))
-trial_summary_data <- read.csv(here("data",PROJECT_VERSION, "processed_data","level-trials_data.csv"))
+trial_summary_data <- read.csv(here("data", DATA_FOLDER, "processed_data", "level-trials_data.csv"))
 
 usable_trials <- trial_summary_data |>
   # excluding possible scam participant
-  filter(exclude_participant_insufficient_data == 0 & trial_exclusion == 0 & exclude_participant == 0 & SubjectInfo.subjID != "PH2RNZ") 
+  filter(exclude_participant_insufficient_data == 0 & trial_exclusion == 0 & exclude_participant == 0 & SubjectInfo.subjID != "PH2RNZ")
 
 # Merging with similarity information and mean-centering main effects
 trials_with_effect_vars <- usable_trials |>
   left_join(trial_metadata) |>
   mutate(age_in_months = SubjectInfo.testAge/30)
+
+# Filter by section if PROJECT_VERSION specifies a particular sample
+if (!is.null(SECTION_FILTER)) {
+  trials_with_effect_vars <- trials_with_effect_vars |> filter(section == SECTION_FILTER)
+}
 ```
 Sanity check - making sure all participants have at least 16 trials and that we have 83 participants
 ```{r}
@@ -107,7 +113,7 @@ summary(image_similarity_effect)
 ## Adding in covariates
 Now for the fun stuff: adding in our covariates using our original model -- only doing this for text similarity for now because of the singular effects
 ```{r}
-main_image_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity) * scale(age_in_months) + scale(AoA_Est_target)
+main_image_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity) * scale(age_in_months) * scale(AoA_Est_target)
                     + (1 | SubjectInfo.subjID) 
                     + (1|Trials.targetImage), 
                     data = trials_with_effect_vars)

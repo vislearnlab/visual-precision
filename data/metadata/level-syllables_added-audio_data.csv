@@ -1,4 +1,7 @@
-﻿syllables,carrier,target_word,phrase_length,silence_before,silence_after,total_length
-1,0.980748,0.880159,1.860907,2,3.339093,7.2
-2,0.980748,0.97932,1.960068,2,3.239932,7.2
-3,0.980748,1.122767,2.103515,2,3.096485,7.2
+﻿syllables,carrier,target_word,phrase_length,silence_before,silence_after,total_length,version
+1,0.980748,0.880159,1.860907,2,3.339093,7.2,sample1
+2,0.980748,0.97932,1.960068,2,3.239932,7.2,sample1
+3,0.980748,1.122767,2.103515,2,3.096485,7.2,sample1
+1,1.013,0.588,1.601,1.987,3.612,7.2,sample2
+2,0.967,0.652,1.619,2.033,3.548,7.2,sample2
+3,0.975,0.809,1.784,2.025,3.391,7.2,sample2

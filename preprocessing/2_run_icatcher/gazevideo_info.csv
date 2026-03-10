@@ -1,10 +1,4 @@
 video_name,crop_amount,crop_side,face_classifier
-hard-turtle-frog_DEGCRc,30,top,lowest
-easy-squirrel-eagle-distractor_DEGCRc,60,top,lowest
-easy-snail-cow_DEGCRc,60,top,lowest
-hard-cheese-butter-distractor_DEGCRc,60,top,lowest
-hard-turkey-goat_DEGCRc,70,top,lowest
-hard-potato-pot_DEGCRc,70,top,lowest
-easy-snail-cow_d4HUR3,50,top,lowest
-hard-acorn-coconut_dKKWAR,30,left,lowest
-hard-snail-worm_dKKWAR,30,left,lowest
+easy-snail-cow_VVI011,50,top,lowest
+hard-acorn-coconut_VVI008,30,left,lowest
+hard-snail-worm_VVI008,30,left,lowest

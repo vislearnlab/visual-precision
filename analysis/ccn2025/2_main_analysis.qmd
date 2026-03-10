@@ -1,0 +1,861 @@
+```{r echo=FALSE}
+library(tidyverse)
+library(here)
+library(reticulate)
+library(dotenv)
+library(readr)
+library(gghalves)
+#devtools::install_github("langcog/wordbankr")
+library(ggrepel)
+library(relayer) # devtools::install_github("clauswilke/relayer")
+library(viridis)
+library(RColorBrewer)
+library(lmerTest)
+library(cowplot)
+library(ggtext)
+library(scales)
+library(glue)
+
+source("helpers.R")
+
+env_file = here(".env")
+default_project = "main"
+if (file.exists(env_file)) {
+  load_dot_env(file = env_file)
+  PROJECT_VERSION <- Sys.getenv("PROJECT_VERSION")
+  if (PROJECT_VERSION == "") {
+    PROJECT_VERSION <- default_project
+  }
+} else {
+  PROJECT_VERSION <- default_project
+}
+```
+
+### Load data
+```{r}
+PROCESSED_DATA_PATH = here("data",PROJECT_VERSION,"processed_data")
+looking_time_resampled_clean <- read.csv(file.path(PROCESSED_DATA_PATH, "level-looks_data.csv"))
+all_looking_times <- read.csv(file.path(PROCESSED_DATA_PATH,"level-looks_added-metadata_data.csv"))
+trial_metadata <- read.csv(here("data","metadata","level-trialtype_data.csv"))
+raw_metadata <- read.csv(here("stimuli/lookit/preprocessing/data/level-imagepair_raw_data.csv")) |>
+  filter((source == "exp1" | source == "exp2") & tarun.cut. == "") |>
+  select(text1, text2, text_similarity, image_similarity, aoa_word1, aoa_word2, aoa_source, source, animacy, wordPairing) |>
+  mutate(
+    aoa_source = ifelse(is.na(aoa_source) | aoa_source == "", "Kuperman", aoa_source),
+    section = case_when(
+      source == "exp1" ~ "sample1",
+      source == "exp2" ~ "sample2",
+      TRUE ~ NA_character_
+    )
+  )
+trial_metadata <- trial_metadata |> select(-image_similarity, -text_similarity) |> 
+  left_join(raw_metadata |> transmute(Trials.imagePair = paste0(text1, "-", text2), image_similarity, text_similarity))
+trial_summary_data <- read.csv(file.path(PROCESSED_DATA_PATH,"level-trials_data.csv"))
+# TODO: move similarity correlations to exploratory qmd file
+cvcl_similarities <- read.csv(here("data", "embeddings", "similarities-cvcl_data.csv"))
+openclip_similarities <- read.csv(here("data", "embeddings", "similarities-openclip_data.csv"))
+saycamvit_similarities <- read.csv(here("data", "embeddings", "similarities-saycamvit_data.csv"))
+imagenetvit_similarities <- read.csv(here("data", "embeddings", "similarities-imagenetvit_data.csv"))
+looking_data_summarized <- trial_summary_data |>
+  filter(trial_exclusion == 0 & exclude_participant == 0 & exclude_participant_insufficient_data == 0) |>
+  left_join(trial_metadata) |>
+  arrange(AoA_Est_target)
+
+median_age <- looking_data_summarized %>%
+  distinct(SubjectInfo.subjID, .keep_all = TRUE) %>%  # Keep only distinct subjects
+  summarize(overall_median_age = median(SubjectInfo.testAge, na.rm = TRUE))  %>%
+  pull(overall_median_age) / 30
+
+median_age <- round(median_age, 2)
+
+aoa_summary <- trial_metadata |>
+  summarize(median_aoa = median(AoA_Est_target), 
+            mean_aoa = mean(AoA_Est_target))
+median_aoa <- aoa_summary$median_aoa
+```
+
+util function to see what the order of trials were for individual participants
+```{r}
+order_of_trials <- function(data, subjID) {
+  curr_order <- data |>
+  filter(SubjectInfo.subjID == subjID) |>
+  distinct(Trials.trialID, .keep_all=TRUE) |>
+  arrange(Trials.ordinal) |>
+  select(Trials.ordinal, Trials.trialID, Trials.targetImage, Trials.distractorImage, Trials.trialType, Trials.leftImage, Trials.rightImage, Trials.targetAudio)
+  write_csv(curr_order, paste0(subjID,".csv"))
+}
+
+#order_of_trials(all_looking_times, "L7Y4Y6")
+```
+
+### Overall timecourse plot of proportion target looking 
+```{r}
+#summarizing within subject for each time point
+summarize_subj <- looking_time_resampled_clean %>%
+  filter(trial_exclusion == 0 & exclude_participant ==0 & exclude_participant_insufficient_data == 0 & SubjectInfo.subjID != "PH2RNZ") %>%
+  filter(!is.na(accuracy_transformed)) %>%
+  group_by(SubjectInfo.subjID, time_normalized_corrected, SubjectInfo.testAge) %>%
+  summarized_data(., "SubjectInfo.subjID", "accuracy_transformed", c("SubjectInfo.testAge", "time_normalized_corrected")) %>%
+  rename(mean_accuracy = mean_value)
+
+#summarizing across subjects for each time point
+summarize_across_subj <- summarize_subj %>%
+  group_by(time_normalized_corrected) %>%
+  summarized_data(., "time_normalized_corrected", "mean_accuracy", c("time_normalized_corrected")) |>
+  rename(accuracy = mean_value)
+
+looking_times <- ggplot(summarize_across_subj,aes(time_normalized_corrected,accuracy))+
+  xlim(-2000,4000)+
+  geom_errorbar(aes(ymin=accuracy-ci,ymax=accuracy+ci),width=0, alpha=0.2)+
+  #geom_point(alpha=0.2)+
+    geom_smooth(method="gam")+
+  geom_vline(xintercept=0,size=1.5)+
+  geom_hline(yintercept=0.5,size=1.2,linetype="dashed")+
+  geom_vline(xintercept=300,linetype="dotted")+
+  ylim(0,1)+
+  xlab("Time (normalized to target word onset) in ms")+
+  ylab("Proportion Target Looking")
+looking_times
+ggsave(here("figures",PROJECT_VERSION,"prop_looking_across_time.png"),looking_times,width=9,height=6,bg = "white")
+```
+
+## Descriptive plots
+#### Usable trial stats
+```{r}
+#Overall baseline-corrected proportion target looking by condition
+looking_data_exclusions <- trial_summary_data |>
+  mutate(trial_exclusion_reason = as.factor(ifelse(is.na(trial_exclusion_reason), "included", trial_exclusion_reason))) |>
+  mutate(trial_exclusion_reason = factor(trial_exclusion_reason, levels=c(setdiff(unique(trial_exclusion_reason), "included"), "included")))
+
+# Compute the number of included trials per subject
+included_counts <- looking_data_exclusions |>
+  filter(trial_exclusion_reason == "included") |>
+  count(SubjectInfo.subjID, name = "included_trials")
+
+
+excluded_subjects <- setdiff(unique(looking_data_exclusions$SubjectInfo.subjID), 
+                             unique(looking_data_summarized$SubjectInfo.subjID))
+
+# Ensure all subjects are included and replace NA with 0
+exclusions_by_subject <- looking_data_exclusions |>
+  summarize(N = n(), .by = c(SubjectInfo.subjID, trial_exclusion_reason)) |>
+  left_join(included_counts, by = "SubjectInfo.subjID") |>
+  mutate(included_trials = replace_na(included_trials, 0)) |>  # Replace NA values
+  # Ordering subject IDs so that the 'red' colored label to mark excluded subjects is placed on the subjects who are actually excluded
+  mutate(SubjectInfo.subjID = factor(SubjectInfo.subjID, 
+                                     levels = unique(SubjectInfo.subjID[order(-included_trials)])),
+         color = ifelse(SubjectInfo.subjID %in% excluded_subjects, "red", "black")) |>
+  arrange(color)
+
+looking_data_exclusions_combined <- looking_data_exclusions |>
+  summarize(N = n(),
+    .by=c(trial_exclusion_reason))
+# Format labels with HTML <span> for colors
+
+exclusions_color_labels <- exclusions_by_subject |> 
+  distinct(SubjectInfo.subjID, .keep_all = TRUE) |>
+  mutate(colored_labels = paste0("<span style='color:", color, "'>", SubjectInfo.subjID, "</span>")) |>
+  arrange(desc(included_trials)) |>
+  mutate(colored_labels = factor(colored_labels, levels = colored_labels))
+
+ggplot(exclusions_by_subject, aes(x = SubjectInfo.subjID, y = N, fill = trial_exclusion_reason)) +
+  geom_bar(stat = "identity", position = "stack") +  
+  labs(x = "Subject ID", y = "Count (N)", title = "Trial Exclusions by Subject", fill = "Trial Exclusion Reason") +
+  theme_minimal() +  
+  theme(
+    axis.text.x = ggtext::element_markdown(angle = 45, hjust = 1),  # Enable HTML-styled labels
+    strip.text = element_text(size = 8)
+  ) +
+  scale_x_discrete(labels = exclusions_color_labels$colored_labels) +  # Apply colored labels
+  scale_fill_brewer(palette = "Set3")
+
+
+#TODO: we have a participant who participated twice but their first session only had 2 trials. figure out how to deal with this/discard first session trials. Also have to figure out how to deal with participants who are excluded by default
+```
+
+
+#### Estimating item and subject-level noise
+```{r}
+target_looking_item_subject_level <- summarized_data(looking_data_summarized, "Trials.targetImage", "corrected_target_looking", c("SubjectInfo.subjID", "SubjectInfo.testAge", "AoA_Est_target"))
+
+target_looking_item_level <- summarized_data(target_looking_item_subject_level |> rename(mean_target_looking = mean_value), "Trials.targetImage", "mean_target_looking", "AoA_Est_target")
+
+target_looking_item_age_level <- summarized_data(target_looking_item_subject_level |> rename(mean_target_looking = mean_value) |> add_age_split(), "Trials.targetImage", "mean_target_looking", c("AoA_Est_target", "age_half"))
+
+target_looking_trial_subject_level <- summarized_data(looking_data_summarized, "Trials.trialID", "corrected_target_looking", c("SubjectInfo.subjID", "SubjectInfo.testAge", "AoA_Est_distractor", "AoA_Est_target", "Trials.targetImage", "Trials.distractorImage", "Trials.imagePair"))
+
+target_looking_trial_level <- summarized_data(target_looking_trial_subject_level |> rename(mean_target_looking = mean_value), "Trials.trialID", "mean_target_looking", c("AoA_Est_distractor", "AoA_Est_target", "Trials.targetImage", "Trials.distractorImage", "Trials.imagePair"))
+
+target_looking_subject_level <- summarized_data(looking_data_summarized, "SubjectInfo.subjID", "corrected_target_looking", "SubjectInfo.testAge")
+```
+
+#### Item-level performance
+```{r fig.width=15, fig.height=10}
+item_performances <- ggplot(target_looking_item_level, aes(reorder(Trials.targetImage, mean_value), mean_value)) +
+   geom_hline(yintercept=0,linetype="dashed")+
+  geom_errorbar(aes(ymin=lower_ci,ymax=upper_ci),width=0, alpha=0.2)+
+  (geom_point(aes(aoa_size=AoA_Est_target)) |> rename_geom_aes(new_aes = c("size" = "aoa_size")))+
+  (geom_jitter(data=target_looking_item_subject_level, aes(x=Trials.targetImage, y=mean_value, color=SubjectInfo.subjID, age_size = SubjectInfo.testAge/30), alpha=0.3, width=0.2) |> rename_geom_aes(new_aes = c("size" = "age_size"))) +
+  xlab("Target image")+
+  ylab("Proportion of target looking")+
+  ggtitle("Mean proportion of target looking across target items") +
+  theme(axis.title.x = element_text(face="bold", size=15, vjust=-1),
+        axis.text.x  = element_text(size=10,angle=45,vjust=0.5),
+        axis.title.y = element_text(face="bold", size=15),
+        axis.text.y  = element_text(size=10),
+        strip.text.x = element_text(size = 10,face="bold"),
+        plot.margin = margin(t = 10, r = 10, b = 30, l = 10)
+        ) +
+  scale_y_continuous(breaks = seq(-1, 1, by = 0.2)) +
+  scale_size_c(aesthetics = "age_size",name = "Age of participant in months", range=c(2,4), guide = guide_legend(order = 2)) +
+  scale_size_c( aesthetics = "aoa_size",name = "Est. AoA of target words in years", guide = guide_legend(order = 1)) +
+  scale_color_viridis_d(name = "Participant IDs",option="D") +
+  guides(
+    color = "none"
+  ) 
+item_performances
+ggsave(here("figures",PROJECT_VERSION,"item_performances.png"),item_performances,width=15,height=10,bg = "white")
+```
+
+```{r}
+trial_performances <- ggplot(summarized_data(looking_data_summarized, "Trials.trialID", "corrected_target_looking", c("Trials.trialID", "AoA_Est_target")), aes(reorder(Trials.trialID, mean_value), mean_value)) +
+   geom_hline(yintercept=0,linetype="dashed")+
+  geom_errorbar(aes(ymin=lower_ci,ymax=upper_ci),width=0, alpha=0.2)+
+  (geom_point(aes(aoa_size=AoA_Est_target)) |> rename_geom_aes(new_aes = c("size" = "aoa_size")))+
+  (geom_jitter(data=looking_data_summarized,aes(x=Trials.trialID, y=corrected_target_looking, color=SubjectInfo.subjID, age_size = SubjectInfo.testAge/30), alpha=0.3, width=0.2) |> rename_geom_aes(new_aes = c("size" = "age_size"))) +
+  xlab("Trial type")+
+  ylab("Proportion of target looking")+
+  ggtitle("Mean proportion of target looking across trial types") +
+  scale_size_c(aesthetics = "age_size",name = "Age of participant in months", range=c(2,4), guide = guide_legend(order = 2)) +
+  scale_size_c( aesthetics = "aoa_size",name = "Est. AoA of target words in years", guide = guide_legend(order = 1)) +
+  scale_color_viridis_d(name = "Participant IDs",option="D") +
+  coord_cartesian(ylim = c(-1, 1)) +
+    theme(axis.title.x = element_text(face="bold", size=15, vjust=-1),
+        axis.text.x  = element_text(size=8,angle=45,hjust=1),
+        axis.title.y = element_text(face="bold", size=15),
+        axis.text.y  = element_text(size=15),
+        strip.text.x = element_text(size = 10,face="bold"),
+        aspect.ratio = 1,
+        plot.margin = margin(t = 10, r = 10, b = 30, l = 10)
+        ) +
+  guides(
+    color = "none"
+  ) 
+trial_performances
+```
+####Item-level timecourses
+```{r}
+# First, let's make sure we have the correct data
+summarize_target <- looking_time_resampled_clean %>%
+  filter(trial_exclusion == 0 & exclude_participant == 0 & exclude_participant_insufficient_data == 0) %>%
+  left_join(trial_metadata) %>%
+  filter(!is.na(accuracy_transformed)) %>%
+  group_by(Trials.targetImage, time_normalized_corrected) %>%
+  #filter(Trials.targetImage %in% c("acorn", "bulldozer", "cheese", "potato", "squirrel", "snail", "turkey", "turtle")) %>%
+  summarized_data(., "Trials.targetImage", "accuracy_transformed", c("Trials.targetImage", "AoA_Est_target", "time_normalized_corrected")) %>%
+  rename(mean_accuracy = mean_value)
+
+# Create a mapping of target images to their AoA values
+target_aoa_mapping <- summarize_target %>%
+  select(Trials.targetImage, AoA_Est_target) %>%
+  distinct() %>%
+  arrange(AoA_Est_target)  # Sort by AoA
+
+# Convert Trials.targetImage to a factor with levels ordered by AoA (descending)
+summarize_target <- summarize_target %>%
+  mutate(Trials.targetImage = factor(Trials.targetImage, 
+                                     levels = target_aoa_mapping$Trials.targetImage))
+aoa_values <- target_aoa_mapping$AoA_Est_target
+# Normalize aoa_values to range between 0 and 1
+aoa_scaled <- rescale(aoa_values, to = c(0, 1))
+
+# Generate a high-resolution color gradient (e.g., 1000 colors)
+num_colors <- 1000
+color_palette <- viridis(num_colors, option = "E",alpha=0.8)
+
+# Map scaled values to colors using interpolation
+color_values <- color_palette[ceiling((1-aoa_scaled) * (num_colors - 1)) + 1]
+
+
+# Create named color vector
+target_colors <- setNames(color_values, target_aoa_mapping$Trials.targetImage)
+
+
+# Create the plot with a discrete legend but gradient colors
+looking_times_target <- ggplot(summarize_target, 
+                              aes(time_normalized_corrected, 
+                                  mean_accuracy, 
+                                  color = AoA_Est_target, group=Trials.targetImage)) +  # Group by target image
+  annotate("rect", xmin = 300, xmax = 3500, ymin = 0, ymax = 1, 
+          fill = "gray95", alpha = 0.5) +  
+ annotate("rect", xmin = -2000, xmax = 0, ymin = 0, ymax = 1, 
+           fill = "gray95", alpha = 0.5) + 
+
+  coord_cartesian(xlim = c(-2000, 3500), ylim = c(0, 1)) +
+     geom_line (alpha=0.2, size=0.8) +
+   geom_smooth(data=summarize_across_subj,
+              aes(x=time_normalized_corrected,
+                  y=accuracy,
+                  ymin=lower_ci,  # Assuming 'se' is your standard error column
+                  ymax=upper_ci,  # Adjust these to match your error metric
+                  group=NA),
+              stat="identity",  # Use identity instead of a smoothing method
+              color="black",
+              fill="gray40",
+              size=1.5) +
+   scale_color_viridis_c(option="B",direction=-1,name="Estimated target\nword AoA") +
+  guides(color = guide_colorbar(reverse = TRUE))+
+  geom_vline(xintercept = 0, size = 1.5) +
+  geom_hline(yintercept = 0.5, size = 1.2, linetype = "dashed") +
+  geom_vline(xintercept = 300, linetype = "dotted", size=1.2) +
+  xlab("Time (normalized to target word onset) in ms") +
+  ylab("Proportion\nTarget Looking") +
+    # Add arrows
+  annotate("segment", x = -2000, xend = -50, y = 0.85, yend = 0.85, 
+           arrow = arrow(length = unit(0.2, "cm"), type="closed", ends="both"), size = 1, color = "black") + 
+  annotate("segment", x = 340, xend = 3490, y = 0.85, yend = 0.85, 
+           arrow = arrow(length = unit(0.2, "cm"),type="closed", ends="both"), size = 1, color = "black") + 
+
+  # Add text above arrows
+  annotate("text", x = -1000, y = 0.93, label = "Baseline window", 
+           size = 6, fontface = "bold") +
+  annotate("text", x = 2000, y = 0.93, label = "Critical window", 
+           size = 6, fontface = "bold") +
+  theme_minimal() +
+  scale_x_continuous(breaks=seq(-2000,3500,by=1000)) +
+  scale_y_continuous(breaks=seq(0,1,by=0.5))+
+  theme(
+    text = element_text(size=10,face = "bold"),              # All text bold
+    # Increase space between x-axis and its title
+    axis.title.x = element_text(
+      face = "bold", 
+      size = 18,
+      margin = margin(t = 10, r = 0, b = 0, l = 0)
+    ),
+    
+    # Increase space between y-axis and its title
+    axis.title.y = element_text(
+      face = "bold", 
+      size= 18,
+      margin = margin(t=0,r = 5, b = 0, l = 0)
+    ),      
+    axis.text = element_text(size=14,face = "bold"),         # Axis text bold
+    legend.title = element_text(size = 14, face = "bold"),  # Small bold legend title
+    legend.text = element_text(size = 14, face = "bold")    # Small bold legend text
+  )
+
+# Display the plot
+looking_times_target
+
+ggsave(here("figures",PROJECT_VERSION,"timecourse_plot.svg"),looking_times_target, device="pdf",width=8.5,height=3.3,bg = "white")
+ggsave(here("figures",PROJECT_VERSION,"timecourse_plot.png"),looking_times_target,width=9.5,height=5.3,bg = "white")
+
+```
+
+## Age plots 
+
+#### Age-split timecourses
+```{r}
+ 
+summarize_across_age_halves <- summarize_subj |> add_age_split() |>
+  group_by(time_normalized_corrected, age_half) |>
+  dplyr::summarize(n=n(),
+            non_na_n = sum(!is.na(mean_accuracy)),
+            mean_value=mean(mean_accuracy,na.rm=TRUE),
+            sd_accuracy=sd(mean_accuracy,na.rm=TRUE),
+            se_accuracy=sd_accuracy/sqrt(n),
+            ci = ifelse(n > 1, qt(0.975, n - 1) * sd_accuracy / sqrt(n), NA)) %>%
+  filter(n > 5)
+
+looking_times_age <- ggplot(summarize_across_age_halves,aes(time_normalized_corrected,mean_value,color=age_half))+
+  xlim(-2000,4000)+
+  geom_errorbar(aes(ymin=mean_value-ci,ymax=mean_value+ci),width=0, alpha=0.2)+
+  #geom_point(alpha=0.2)+
+    geom_smooth(method="gam")+
+  geom_vline(xintercept=0,size=1.5)+
+  geom_hline(yintercept=0.5,size=1.2,linetype="dashed")+
+  geom_vline(xintercept=300,linetype="dotted")+
+  ylim(0,1)+
+  xlab("Time (normalized to target word onset) in ms")+
+  ylab("Proportion Target Looking") +
+  labs(title="Proportion of looking time across age and time", caption = (paste0("14-24 month olds age split at median=",median_age," months"))) +
+  scale_color_brewer(palette = "Set1", name="Age half")
+
+looking_times_age
+
+
+ggsave(here("figures",PROJECT_VERSION,"prop_looking_across_time_age.png"),looking_times,width=9,height=6,bg = "white")
+```
+
+#### Age-split performance
+```{r}
+# note: using shorter window just because there's clearly no age-related effect with longer window 
+participant_age_halves = summarized_data(looking_data_summarized |> left_join(target_looking_item_level) |> rename(mean_looking = mean_value) |>  add_age_split() |> mutate(acc = corrected_target_looking), "age_half", "acc", 
+                                         c("age_half", "SubjectInfo.subjID", "SubjectInfo.testAge")) 
+
+
+participant_age_halves$age_half <- factor(participant_age_halves$age_half, levels = rev(levels(factor(participant_age_halves$age_half))))
+
+participant_age_halves_summarized = summarized_data(participant_age_halves |> rename(looking_time = mean_value), "age_half", "looking_time", c("age_half"))
+accuracy_age <- ggplot(participant_age_halves,
+       aes(x = age_half, y = mean_value, color = age_half)) +
+    geom_violin(aes(color=age_half), alpha=0.3) +
+  geom_jitter(size = 3, alpha = 0.3, width=0.2) +
+  geom_hline(yintercept=0,size=1.2,linetype="dashed")+ 
+  geom_point(data = participant_age_halves_summarized, size = 3) +
+  geom_linerange(data = participant_age_halves_summarized, aes(ymin = mean_value - ci, ymax = mean_value + ci), alpha = 0.9) + 
+  scale_color_brewer(palette = "Set1", name="Age half", direction=-1) +  # Using RColorBrewer for colors
+  ylab("Baseline-corrected proportion of target looking") +
+  xlab("Age half of child") +
+  ggpubr::stat_cor(method = "pearson") +
+  labs(caption = (paste0("14-24 month olds age split at median=",median_age, " months")), title="Word recognition acuracy by age")
+accuracy_age
+ggsave(here("figures",PROJECT_VERSION,"accuracy_age.png"),accuracy_age,width=9,height=6,bg = "white")
+```
+
+#### Age continuous
+```{r}
+participant_age_jittered <- participant_age_halves %>%
+  rowwise() %>%
+  mutate(x_jittered = SubjectInfo.testAge/30 + runif(n(), -0.25, 0.25))
+jitterer <- position_jitter(width = .5,seed=1)
+age_continuous <- ggplot(participant_age_jittered, aes(x = x_jittered, y = mean_value)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_point(size = 4, alpha = 0.4, color="#2171B5") +
+  geom_smooth(method="lm",color="#2171B5") +
+  geom_linerange(aes(ymin = mean_value - ci, ymax = mean_value + ci), alpha = 0.1) + 
+  scale_y_continuous(breaks = seq(-0.4, 0.3, by = 0.1), limits = c(-0.3, 0.3)) +
+  ggpubr::stat_cor()+
+  labs(x = "Age in months", y = "Baseline-corrected proportion target looking") +
+  #ggtitle("Corrected proportion of target looking by age") +
+  theme_minimal()
+age_continuous
+```
+
+younger group mean
+```{r}
+younger_mean <- participant_age_halves |>
+  filter(age_half == "younger") |>
+  summarize(mean_value = mean(SubjectInfo.testAge)/30) |>
+  pull(mean_value)
+```
+
+## Order effects
+### First vs second instances for primary targets
+```{r}
+first_instance_target <- looking_data_summarized |>
+  group_by(SubjectInfo.subjID, Trials.targetImage) |>
+  arrange(Trials.ordinal, .by_group = TRUE) |>
+  filter(Trials.trialType %in% c("easy", "hard")) |>
+  slice(1) |>
+  ungroup() |>
+  mutate(order_id = "one")
+  
+second_instance_target <- looking_data_summarized |>
+  group_by(SubjectInfo.subjID, Trials.targetImage) |>
+  arrange(Trials.ordinal, .by_group = TRUE) |>
+  filter(Trials.trialType %in% c("easy", "hard")) |>
+  slice(2) |>
+  ungroup() |>
+  mutate(order_id = "two")
+
+ordered_conditions <- rbind(first_instance_target, second_instance_target)
+
+order_plot <- half_violins_plot(ordered_conditions, "order_id", "corrected_target_looking", "SubjectInfo.subjID", c("one", "two"), input_xlab = "Target image order")
+order_plot
+```
+## Easy vs hard trial plots
+
+#### Proportion of target looking for easy vs hard trials
+```{r}
+avg_corrected_target_looking_by_condition <- summarized_data(looking_data_summarized,
+                                                             "Trials.trialType", "corrected_target_looking", "SubjectInfo.subjID")
+high_accuracy_subjects <- avg_corrected_target_looking_by_condition |>
+  filter(lower_ci > 0 & N > 5) |>
+  distinct(SubjectInfo.subjID)
+
+overall_condition_plot <- half_violins_plot(looking_data_summarized |> group_by(SubjectInfo.subjID, Trials.targetImage) |>
+  arrange(Trials.ordinal, .by_group = TRUE) |>
+  slice(2) |>
+  ungroup() |> mutate(
+  Trials.trialType = ifelse(Trials.trialType == "easy-distractor", "easy", Trials.trialType),
+  Trials.trialType = ifelse(Trials.trialType == "hard-distractor", "hard", Trials.trialType)) |> filter(Trials.trialType == "easy" | Trials.trialType == "hard"), "Trials.trialType", "corrected_target_looking", "SubjectInfo.subjID", c("easy", "hard"))
+overall_condition_plot
+```
+
+#### Target image difficulty
+```{r}
+# summarize average accuracy within participant (by word alone)
+condition_based_looking <- looking_data_summarized  |>
+  filter(!grepl("distractor", Trials.trialType)) |>
+  distinct(SubjectInfo.subjID, Trials.trialID, Trials.targetImage, corrected_target_looking, Trials.trialType, AoA_Est_target)
+
+target_looking_by_target_word <- looking_data_summarized  |>
+  filter(!grepl("distractor", Trials.trialType)) |>
+  group_by(SubjectInfo.subjID, Trials.targetImage) |>
+  summarize(target_looking_diff = corrected_target_looking[match("easy", Trials.trialType)] - corrected_target_looking[match("hard", Trials.trialType)],
+            baseline_window_looking_diff = mean_target_looking_baseline_window[match("easy", Trials.trialType)] - mean_target_looking_baseline_window[match("hard", Trials.trialType)], 
+            critical_window_looking_diff = mean_target_looking_critical_window[match("easy", Trials.trialType)] - mean_target_looking_critical_window[match("hard", Trials.trialType)]) |>
+  filter(!is.na(target_looking_diff))
+
+#clean names for individual images for plot
+overall_target_looking_by_word <- target_looking_by_target_word %>%
+  filter(!is.na(target_looking_diff)) %>%
+  group_by(Trials.targetImage) %>%
+  summarize(N=n(),
+            corrected_target_looking=mean(target_looking_diff,na.rm=TRUE),
+            ci=qt(0.975, N-1)*sd(target_looking_diff,na.rm=T)/sqrt(N),
+            lower_ci=corrected_target_looking-ci,
+            upper_ci=corrected_target_looking+ci
+          ) 
+
+
+word_prefs <- ggplot(overall_target_looking_by_word,aes(reorder(Trials.targetImage,corrected_target_looking),corrected_target_looking))+
+  geom_hline(yintercept=0,linetype="dashed")+
+  geom_errorbar(aes(ymin=lower_ci,ymax=upper_ci),width=0, alpha=0.3)+
+  geom_jitter(data=target_looking_by_target_word, aes(x=Trials.targetImage, y=target_looking_diff, color=SubjectInfo.subjID), size = 2.5, alpha = 0.3, width=0.1) +
+  geom_point(size = 2.4)+
+  xlab("Target Word")+
+  ylab("Easy trial prefered target looking")+
+  theme(axis.title.x = element_text(face="bold", size=15),
+        axis.text.x  = element_text(size=10,angle=90,vjust=0.5,hjust=1),
+        axis.title.y = element_text(face="bold", size=15),
+        axis.text.y  = element_text(size=10),
+        strip.text.x = element_text(size = 10,face="bold")
+        ) +
+  scale_y_continuous(breaks = seq(-1, 1, by = 0.2)) +
+  scale_size_continuous(name = "Number of participants") + 
+  scale_color_viridis_d(name = "Participant IDs",option="D") +
+  guides(color = "none")
+  
+word_prefs
+```
+
+
+#### Baseline image-pair preferences
+```{r}
+saliency_effects <- looking_data_summarized |>
+  # Calculating the proportion of time looking at the target word even if it isn't the target word in that particular study
+ mutate(original_target_looking_baseline_window = ifelse(grepl("distractor", Trials.trialType), 1 - mean_target_looking_baseline_window,   mean_target_looking_baseline_window),
+        original_target_looking_critical_window = ifelse(grepl("distractor", Trials.trialType), 1 - mean_target_looking_critical_window, mean_target_looking_critical_window)) |>
+  add_age_split() |>
+ summarize(mean_baseline_looking = mean(original_target_looking_baseline_window),
+           mean_critical_looking = mean(original_target_looking_critical_window),
+           .by = c(Trials.imagePair, age_half))
+```
+
+## CLIP similarity plots
+Comparing proportion of target looking time to CLIP and other model cosine similarities
+```{r}
+# CLIP
+clip_data_summarized <- summarize_similarity_data(looking_data_summarized)
+clip_data_summarized_low_aoa <- summarize_similarity_data(looking_data_summarized |> filter(AoA_Est_target < 4.78))
+# |>filter(SubjectInfo.subjID %in% high_accuracy_subjects$SubjectInfo.subjID)))
+clip_age_half_summarized <- looking_data_summarized |>
+  add_age_split() |>
+  summarize_similarity_data(extra_fields = c("age_half", "AoA_Est_target"))
+
+clip_plots <- generate_multimodal_plots(clip_data_summarized, "CLIP")
+clip_plots_low_aoa <- generate_multimodal_plots(clip_data_summarized_low_aoa, "CLIP AoA < 4.78")
+
+input_median_age = median_age
+clip_age_plots <- generate_multimodal_age_effect_plots(clip_age_half_summarized, model_type="CLIP", median_age=input_median_age)
+clip_plots
+clip_age_plots
+
+# CVCL
+create_model_plots(cvcl_similarities, name="CVCL", median_age=input_median_age)
+create_model_plots(imagenetvit_similarities, name="ImageNetVIT", median_age=input_median_age)
+create_model_plots(saycamvit_similarities, name="SayCamVIT",median_age=input_median_age)
+```
+Create CLIP model plot with all three similarities
+```{r}
+clip_data_long <- clip_data_summarized |>
+  pivot_longer(cols = c("text_similarity", "image_similarity"), names_to = "sim_type", values_to = "similarity")
+all_clip_plot <- multiple_similarity_effects_plot(clip_data_long, "similarity", group_var="sim_type", input_title="Looking time and CLIP embedding correlations")
+all_clip_plot
+ggsave(here("figures",PROJECT_VERSION,"clip_plot.svg"),all_clip_plot,width=10, height=10.5,bg = "white",device="pdf")
+ggsave(here("figures",PROJECT_VERSION,"clip_plot.png"),all_clip_plot,width=20, height=10.5,bg = "white")
+```
+
+### Some exploratory age effects with three age bins
+```{r}
+clip_age_bins_summarized <- looking_data_summarized |>
+  mutate(age_bin = case_when(
+    SubjectInfo.testAge < 19*30 ~ "14-18",
+    SubjectInfo.testAge < 22*30 ~ "18-21",
+    TRUE ~ "21-24")) |>
+  summarize_similarity_data(extra_fields = c("age_bin", "AoA_Est_target"))
+
+similarity_age_plot(clip_age_bins_summarized, "image_similarity", age_grouping="age_bin", model_type="CLIP", median_age=median_age)
+```
+
+### AoA effects
+```{r}
+input_median_age = median_age
+facet_plot <- generate_aoa_facet_plots(
+  data = clip_age_half_summarized, 
+  model_type = "CLIP",
+  median_age = input_median_age,  
+  age_grouping = "age_half",
+  include_multimodal = FALSE
+)
+
+# For separate plots by AoA group:
+#low_aoa_plots <- generate_multimodal_age_effect_plots(
+#  data = clip_age_half_summarized %>% filter(AoA_Est_target <= 4.44),
+#  model_type = "CLIP",
+#  median_age = input_median_age,  
+#  age_grouping = "age_half",
+#  include_multimodal = FALSE
+#)
+facet_plot
+```
+
+
+### OpenCLIP training  
+
+```{r}
+openclip_similarities_combined <- openclip_similarities |>
+  rename(word_a = word1, word_b = word2) |>
+  bind_rows(
+    openclip_similarities |>
+      rename(word_a = word2, word_b = word1)
+  )
+looking_data_w_openclip <- looking_data_summarized |>
+  select(-text_similarity, -multimodal_similarity, -image_similarity) |>
+  left_join(openclip_similarities_combined, by = c("Trials.distractorImage"="word_a", "Trials.targetImage"="word_b"))
+
+openclip_data_summarized <- summarize_similarity_data(looking_data_w_openclip, extra_fields=c("epoch"))
+openclip_age_half_summarized <- looking_data_w_openclip |>
+  add_age_split() |>
+  summarize_similarity_data(extra_fields = c("age_half", "epoch"))
+
+# Function to calculate Pearson's correlation per epoch
+calculate_correlations <- function(data, x_var, y_var, group_var = c("epoch"), conf_level = 0.95) {
+  data |>
+    group_by(across(all_of(group_var))) |>
+    summarize(
+      {
+        cor_test <- cor.test(.data[[x_var]], .data[[y_var]], method = "pearson", conf.level = conf_level)
+        tibble(
+          pearson_cor = cor_test$estimate,
+          p_value = cor_test$p.value,
+          ci_lower = cor_test$conf.int[1],
+          ci_upper = cor_test$conf.int[2]
+        )
+      },
+      .groups = "drop"
+    )
+}
+
+image_correlation_results_age_split <- calculate_correlations(openclip_age_half_summarized, "image_similarity", "mean_value", group_var=c("epoch", "age_half"))
+
+text_correlation_results <- calculate_correlations(openclip_data_summarized, "text_similarity", "mean_value")
+image_correlation_results <- calculate_correlations(openclip_data_summarized, "image_similarity", "mean_value")
+
+ggplot(image_correlation_results, aes(x = epoch, y = pearson_cor)) +
+  geom_point(aes(color = p_value < 0.05), size = 3) + 
+  geom_smooth(span = 2) +
+  labs(title = "Image similarity correlation across Open-CLIP training",
+       x = "Epoch",
+       y = "Pearson Correlation") +
+  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +  # Set color for significance
+  theme_minimal() +
+  theme(legend.position = "none")
+
+ggplot(text_correlation_results, aes(x = epoch, y = pearson_cor)) +
+  geom_point(aes(color = p_value < 0.05), size = 3) + 
+  geom_smooth(span = 2) +
+  labs(title = "Word similarity correlation across Open-CLIP training",
+       x = "Epoch",
+       y = "Pearson Correlation") +
+  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +  # Set color for significance
+  theme_minimal() +
+  theme(legend.position = "none")
+
+
+image_openclip_age <- epoch_age_half_plot(calculate_correlations(openclip_age_half_summarized, "image_similarity", "mean_value", group_var=c("epoch", "age_half")), "image_similarity")
+text_openclip_age <- epoch_age_half_plot(calculate_correlations(openclip_age_half_summarized, "text_similarity", "mean_value", group_var=c("epoch", "age_half")), "text_similarity")
+image_openclip_age
+text_openclip_age
+ggsave(here("figures",PROJECT_VERSION,"openclip_image_embeddings_age.png"),image_openclip_age,width=9,height=6,bg = "white")
+
+``` 
+
+#### Examining linear correlation between similarity types
+```{r}
+cor(data.frame(trial_metadata$multimodal_similarity, trial_metadata$image_similarity, trial_metadata$text_similarity, trial_metadata$cor))
+cor.test(trial_metadata$image_similarity, trial_metadata$text_similarity)
+cor.test((imagenetvit_similarities |> arrange(word1, word2))$image_similarity, (trial_metadata |> distinct(Trials.imagePair, .keep_all=TRUE) |> arrange(Trials.imagePair))$image_similarity, method="spearman")
+# TODO: add direct similarity matrix 
+```
+# AoA plots
+```{r}
+aoa_jittered <- target_looking_item_level %>%
+  rowwise() %>%
+  mutate(aoa_x_jittered = AoA_Est_target + runif(n(), -0.01, 0.01))
+
+aoa_across_time <- ggplot(aoa_jittered, aes(x=aoa_x_jittered, y=mean_value))+
+  geom_hline(yintercept=0,linetype="dashed")+
+  geom_point(size=8, alpha=0.5, color="#CF784B")+
+  #geom_linerange(aes(ymin = mean_value - ci, ymax = mean_value + ci), alpha = 0.1) + 
+  geom_smooth(method="lm", color="#CF784B", alpha=0.5)+
+  geom_label_repel(size=7,aes(label=Trials.targetImage),force_pull=10,nudge_y=-0.03) +
+  xlab("Estimated target word age-of-acquisition (AoA)")+
+  ylab("Baseline-corrected\nprop. target looking")+
+  #ggtitle("Prop. of target looking by estimated AoA of target words")+
+  theme_classic()+
+ theme(
+    text = element_text(size=10,face = "bold"),              # All text bold
+    # Increase space between x-axis and its title
+    axis.title.x = element_text(
+      face = "bold", 
+      size = 18,
+      margin = margin(t = 10, r = 0, b = 0, l = 0)
+    ),
+    
+    # Increase space between y-axis and its title
+    axis.title.y = element_text(
+      face = "bold", 
+      size= 18,
+      margin = margin(t = 10, r = 5, b = 0, l = 0)
+    ),      
+    axis.text = element_text(size=16,face = "bold"),         # Axis text bold
+    legend.title = element_text(size = 12, face = "bold"),  # Small bold legend title
+    legend.text = element_text(size = 12, face = "bold")    # Small bold legend text
+  )+
+ scale_x_continuous(breaks = seq(3, 6, by = 0.5)) +
+   coord_cartesian(xlim = c(3.2,6.5), ylim = c(-0.12, 0.18))
+aoa_across_time
+ggsave(here("figures",PROJECT_VERSION,"aoa_plot_new.svg"),aoa_across_time,width=7,height=7,bg = "white", device="pdf")
+
+  #ggpubr::stat_cor(method = "spearman", label.y = max(target_looking_item_level$mean_value) + 0.05)
+
+
+age_half_plot(target_looking_item_age_level, "AoA_Est_target", x_label="AoA of target word", title="Target looking by estimated AoA of target word across age half")
+
+
+ggplot(target_looking_trial_level, aes(x=AoA_Est_distractor, y=mean_value)) +
+  geom_point()+
+  geom_label_repel(aes(label=Trials.imagePair)) +
+  geom_smooth(method="gam")+
+  geom_hline(yintercept=0,linetype="dashed")+
+  xlab("Estimated AoA of distractor words")+
+  ylab("Baseline-corrected prop. of target looking")+
+  ggtitle("Prop. of target looking by estimated AoA of distractor words")+
+  theme_minimal()+
+  theme(axis.title.x = element_text(face="bold", size=15, vjust=-1),
+        axis.text.x  = element_text(size=10,angle=0,vjust=0.5),
+        axis.title.y = element_text(face="bold", size=15),
+        axis.text.y  = element_text(size=10),
+        strip.text.x = element_text(size = 10,face="bold"),
+        
+        ) +
+  ggpubr::stat_cor(method = "spearman")
+hist(target_looking_item_level$AoA_Est_target)
+
+
+```
+
+```{r}
+aoa_data <- looking_data_summarized |> add_aoa_split() 
+aoa_data$aoa_half <- factor(aoa_data$aoa_half, levels = c("lower", "higher"))
+
+aoa_plot <- half_violins_plot(aoa_data, "aoa_half", "corrected_target_looking", "SubjectInfo.subjID", c("lower", "higher"), input_xlab = "Age-of-acquisition of target word", input_caption=paste0("AoA split at median=", median_aoa))
+aoa_plot
+```
+
+```{r}
+summarize_trial <- looking_time_resampled_clean %>%
+  filter(trial_exclusion == 0 & exclude_participant ==0 & exclude_participant_insufficient_data == 0) %>%
+  filter(!is.na(accuracy_transformed)) %>%
+  group_by(SubjectInfo.subjID, time_normalized_corrected, SubjectInfo.testAge) %>%
+  summarized_data(., "Trials.trialID", "accuracy_transformed", c("time_normalized_corrected")) %>%
+  rename(mean_accuracy = mean_value)
+
+ summarize_across_aoa <- summarize_trial |> left_join(trial_metadata) |> add_aoa_split() |>
+  group_by(time_normalized_corrected, aoa_half) |>
+  dplyr::summarize(n=n(),
+            non_na_n = sum(!is.na(mean_accuracy)),
+            mean_value=mean(mean_accuracy,na.rm=TRUE),
+            sd_accuracy=sd(mean_accuracy,na.rm=TRUE),
+            se_accuracy=sd_accuracy/sqrt(n),
+            ci = ifelse(n > 1, qt(0.975, n - 1) * sd_accuracy / sqrt(n), NA)) 
+
+looking_times_aoa <- ggplot(summarize_across_aoa,aes(time_normalized_corrected,mean_value,color=aoa_half))+
+  xlim(-2000,4000)+
+  geom_errorbar(aes(ymin=mean_value-ci,ymax=mean_value+ci),width=0, alpha=0.2)+
+  #geom_point(alpha=0.2)+
+    geom_smooth(method="gam")+
+  geom_vline(xintercept=0,size=1.5)+
+  geom_hline(yintercept=0.5,size=1.2,linetype="dashed")+
+  geom_vline(xintercept=300,linetype="dotted")+
+  ylim(0,1)+
+  xlab("Time (normalized to target word onset) in ms")+
+  ylab("Proportion Target Looking") +
+ # labs(title="Proportion of looking time across time, split at mean age-of-acquisition") +
+  scale_color_manual(values=c("#6BAED6", "#4292C6"), name="Target word \nage-of-acquisition (AoA)", labels=c( "AoA >= 4.78", "AoA < 4.78"))+
+   guides(color = guide_legend(reverse = TRUE))
+
+looking_times_aoa
+```
+
+AoA correlations
+```{r}
+aoa_wb_trials <- trial_metadata |> filter(!is.na(AoA_target_WB))
+cor.test(aoa_wb_trials$AoA_target_WB, aoa_wb_trials$AoA_Est_target, method="spearman")
+cor.test(trial_metadata$AoA_Est_target, trial_metadata$image_similarity, method="pearson")
+```
+
+```{r}
+subjects_data <- read.csv(here("data/main/processed_data/level-participant_added-trials_data.csv")) |> filter(exclude_participant_insufficient_data == 0)
+trial_data <- looking_data_summarized |> distinct(SubjectInfo.subjID, SubjectInfo.testAge)
+subjects_data <- subjects_data |> 
+  left_join(trial_data)
+hist(subjects_data$SubjectInfo.testAge/30, breaks=10)
+```
+
+
+# Saliency correlations
+```{r}
+target_looking_trial_age_level <- summarized_data(target_looking_trial_subject_level |> rename(mean_target_looking = mean_value) |> add_age_split(), "Trials.trialID", "mean_target_looking", c("AoA_Est_target", "age_half"))
+trialid_age_level_summary <- target_looking_trial_age_level |> left_join(trial_metadata)
+trialid_level_summary <- target_looking_trial_level |> left_join(trial_metadata)
+
+age_half_plot(trialid_age_level_summary, "MeanTargetSaliency", x_label="Mean target saliency")
+age_half_plot(trialid_age_level_summary, "MeanSaliencyDiff", x_label="Mean saliency difference", title="Target looking by mean saliency difference across age and trial types")
+
+target_looking_image_pair <- summarized_data(looking_data_summarized, "Trials.imagePair", "corrected_target_looking", c("SubjectInfo.subjID", "SubjectInfo.testAge"))
+target_looking_imagepair_level <- summarized_data(target_looking_image_pair |> rename("mean_looking"="mean_value") |> add_age_split(), "Trials.imagePair", "mean_looking", c("age_half")) |> left_join(trial_metadata |> distinct(Trials.imagePair, .keep_all=TRUE)) |> mutate(MeanSaliencyDiff = abs(MeanSaliencyDiff))
+age_half_plot(target_looking_imagepair_level, "MeanSaliencyDiff", x_label="Mean saliency difference", title="Target looking by mean saliency difference across age half and image pairs")
+```
+
+
+## Saliency vs baseline
+```{r}
+baseline_looking_trial_age_level <- summarized_data(looking_data_summarized |> add_age_split(), "Trials.trialID", "mean_target_looking_baseline_window", c("age_half")) |> left_join(trial_metadata)
+
+baseline_looking_trial_level <- summarized_data(looking_data_summarized |> rename("mean_looking"="mean_target_looking_critical_window"), "Trials.trialID", "mean_looking", c("Trials.trialID")) |> left_join(trial_metadata)
+
+age_half_plot(baseline_looking_trial_age_level, "MeanSaliencyDiff", x_label="Mean saliency difference", y_label = "Target looking in baseline window")
+
+ggplot(baseline_looking_trial_level, aes(x=MeanSaliencyDiff, y=mean_value)) +
+  geom_smooth(method="lm") +
+  geom_point() +
+  ylab("Baseline looking") +
+  xlab("Mean target-distractor saliency difference") +
+  ggpubr::stat_cor()
+```
+
+# Embedding type comparisons
+
+```{r}
+cor.test(trial_metadata$text_similarity, trial_metadata$image_similarity)
+cor.test(trial_metadata$multimodal_similarity, trial_metadata$image_similarity)
+cor.test(trial_metadata$AoA_Est_target, trial_metadata$text_similarity)
+cor.test(trial_metadata$AoA_Est_target, trial_metadata$image_similarity)
+cor.test(trial_metadata$MeanSaliencyDiff, trial_metadata$AoA_Est_target)
+```
+
+

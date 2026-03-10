@@ -1,0 +1,533 @@
+
+Importing packages 
+
+```{r}
+library(tidyverse)
+library(here)
+library(dotenv)
+library(readr)
+library(rlang)
+source("helpers.R")
+env_file = here(".env")
+default_project = "sample1"
+if (file.exists(env_file)) {
+  load_dot_env(file = env_file)
+  PROJECT_VERSION <- Sys.getenv("PROJECT_VERSION")
+  if (PROJECT_VERSION == "") {
+    PROJECT_VERSION <- default_project
+  }
+} else {
+  PROJECT_VERSION <- default_project
+}
+```
+
+```{r constants}
+METADATA_PATH = here("data", "metadata")
+
+DATA_TO_ANALYZE_PATH = here("data", PROJECT_VERSION, "data_to_analyze")
+
+# Importing trial and participant information from Lookit
+trial_timing_info = read.csv(file.path(DATA_TO_ANALYZE_PATH, "level-trials_source-lookit_data.csv"))
+stimuli_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_data.csv"))
+saliency_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_added-saliency_data.csv"))
+similarities <- read.csv(here("data", "embeddings", "similarities-clip_data.csv"))
+```
+
+Importing looking time data after initial preprocessing of iCatcher data in Python
+```{r}
+# Importing looking time data from iCatcher+
+timestamp_data <- read_csv(
+  file.path(DATA_TO_ANALYZE_PATH, "level-looks_source-icatcher_data.csv"),
+  show_col_types = FALSE
+)
+
+# Combine and process data
+all_looking_times <- trial_timing_info |>
+  # Join the timestamp data with trial timing info
+  left_join(timestamp_data, by = c("Trials.trialID", "SubjectInfo.subjID")) |>
+  # Filter out rows with missing IDs
+  filter(!is.na(Trials.trialID) & !is.na(SubjectInfo.subjID)) |>
+  # scam participants
+  filter(SubjectInfo.subjID != "PH2RNZ") |>
+  rowwise() |>
+  mutate(
+    Trials.imagePair = gsub("(easy-|hard-|-distractor)", "", Trials.trialID),
+    Trials.distractorImage = setdiff(strsplit(Trials.trialID, "-")[[1]], c("easy", "hard", "distractor", Trials.targetImage))[1],
+    # Normalizing all times to be 0ms when the target word starts. Target words start at the same time across carrier phrase lengths and conditions - subtracting '225ms' to account for use of article 'the'
+    time_normalized_corrected = time_ms - Trials.audio_lag_vs_video_lag - Trials.target_onset * 1000,
+    accuracy = ifelse((lookType == "left" & Trials.targetImage == Trials.leftImage) | (lookType == "right" & Trials.targetImage == Trials.rightImage), 1, 0),
+    confident_frame = confidence > 0.6,
+    not_looking_away = lookType == "left" | lookType == "right",
+    accuracy = ifelse(not_looking_away, accuracy, NA)
+  )
+```
+
+Only keeping trials from the first session trials for participants who participated twice - an exception is made for NP4PXK who only completed 2 trials in their first session. Make a note in the subject spreadsheet to only pay these participants once.
+```{r}
+multiple_sessions <- all_looking_times |>
+  distinct(SubjectInfo.subjID, Session.date, Session.response_id) |>
+  group_by(SubjectInfo.subjID) |>
+   mutate(
+    session_count = n_distinct(Session.date),
+    min_session_date = min(Session.date),
+    second_session_date = nth(sort(unique(Session.date)), 2, default = NA) # Get 2nd session date if available
+  ) |>  
+  filter(session_count > 1 & Session.date != min(Session.date) & SubjectInfo.subjID != "NP4PXK" |
+           SubjectInfo.subjID == "NP4PXK" & Session.date != second_session_date)
+
+all_looking_times <- anti_join(all_looking_times, multiple_sessions, by = c("SubjectInfo.subjID", "Session.date"))
+```
+
+Qualitatively looking at the range of lag across participants
+```{r message=FALSE}
+lag_analysis <- all_looking_times |>
+  group_by(SubjectInfo.subjID, Trials.audio_lag_vs_video_lag, Trials.trialID) |>
+  summarize(min_audio_timestamp = min(time_normalized_corrected),
+            max_audio_timestamp = max(time_normalized_corrected)) |>
+  ungroup() |>
+  summarize(mean_lag = mean(Trials.audio_lag_vs_video_lag),
+            sd_lag = sd(Trials.audio_lag_vs_video_lag),
+            mean_min_audio_timestamp = mean(min_audio_timestamp),
+            mean_max_audio_timestamp = max(max_audio_timestamp), .by = c(SubjectInfo.subjID))
+```
+
+
+### Summarizing trial-level information
+
+In order for a trial to be included, participants must contribute at least 50% looking during the windows of interest when computing baseline-corrected proportion target looking: the critical window (300 ms - 3500 ms relative to target word onset) and the baseline window (-2000 ms - 0 ms relative to target word onset). We also create columns to track exclusions for an alternate critical window (300 ms - 1800 ms).
+
+We also compute relevant side-bias information.
+
+```{r message=FALSE}
+critical_window <- c(300,3500)
+critical_window_short <- c(300,2500)
+baseline_window <- c(-2000,0)
+
+# summarize critical window
+summarize_subj_usable_trials_critical_window <- summarize_subj_usable_trials(
+  data = all_looking_times,
+  critical_window = critical_window,
+  suffix = "critical_window"
+)
+# summarize short critical window
+summarize_subj_usable_trials_critical_window_short <- summarize_subj_usable_trials(
+  data = all_looking_times,
+  critical_window = critical_window_short,
+  suffix = "critical_window_short"
+)
+
+# combine into one dataset
+summarize_subj_usable_trials_critical_window <- summarize_subj_usable_trials_critical_window %>%
+  left_join(summarize_subj_usable_trials_critical_window_short)
+
+# summarize baseline window information
+summarize_subj_usable_trials_baseline_window <- summarize_subj_usable_trials(
+  data = all_looking_times,
+  critical_window = baseline_window,
+  suffix = "baseline_window",
+  additional_fields = list(
+    percent_right_looking = expr(mean(lookType == "right", na.rm = TRUE)),
+    percent_left_looking = expr(mean(lookType == "left", na.rm = TRUE))
+  )) |>
+  mutate(
+    side_bias_right = ifelse(percent_right_looking_baseline_window>0.8,1,0),
+    side_bias_left= ifelse(percent_left_looking_baseline_window>0.8,1,0)
+  ) 
+
+#overall usable trials
+summarize_subj_trials <- all_looking_times %>%
+  distinct(SubjectInfo.subjID, SubjectInfo.testAge,Trials.trialID, Trials.ordinal, Trials.trialType, Trials.targetImage, Trials.distractorImage, Trials.imagePair, Trials.targetAudio) %>%
+  left_join(summarize_subj_usable_trials_critical_window) %>%
+  left_join(summarize_subj_usable_trials_baseline_window) %>%
+  mutate(
+    usable_window = compute_usable_trial(usable_baseline_window, usable_critical_window),
+    usable_window_short = compute_usable_trial(usable_baseline_window, usable_critical_window_short),
+    corrected_target_looking = mean_target_looking_critical_window - mean_target_looking_baseline_window,
+    corrected_target_looking_short = mean_target_looking_critical_window_short - mean_target_looking_baseline_window
+  )
+```
+
+### Creating trial metadata set with similarity and stimuli metadata 
+```{r}
+trial_metadata <- summarize_subj_trials |>
+  distinct(Trials.trialID, Trials.targetImage, Trials.distractorImage, Trials.imagePair) 
+
+
+trial_metadata <- trial_metadata |>
+  left_join(similarities, by = c("Trials.distractorImage"="distractor", "Trials.targetImage"="target")) |>
+  distinct(Trials.trialID, .keep_all=TRUE) |>
+  left_join(saliency_metadata |> select(matches("Mean"), "ImagePair"), by = c("Trials.imagePair"="ImagePair")) |>
+  mutate(
+    MeanSaliencyDiff = if_else(grepl("distractor", Trials.trialID), -MeanSaliencyDiff, MeanSaliencyDiff),
+    tmp = MeanTargetSaliency,
+    MeanTargetSaliency = if_else(grepl("distractor", Trials.trialID), MeanDistractorSaliency, MeanTargetSaliency),
+    MeanDistractorSaliency = if_else(grepl("distractor", Trials.trialID), tmp, MeanDistractorSaliency)
+  ) |> select(-tmp)
+
+
+# Pulling in specific data about individual words that are currently being labeled as being data about word1 and word2 in respective trials, for example the age-of-acquisition of the words
+stimuli_metadata_by_word <- stimuli_metadata |>
+  rename_with(~ gsub("Word1|word1|text1", "target", .)) |>
+  rename_with(~ gsub("Word2|word2|text2", "distractor", .)) |>
+  bind_rows(
+    stimuli_metadata |>
+      rename_with(~ gsub("Word1|word1|text1", "distractor", .)) |>
+      rename_with(~ gsub("Word2|word2|text2", "target", .))
+  ) |>
+  distinct(target, distractor, .keep_all=TRUE) |>
+  select(-X)
+
+trial_metadata <- trial_metadata |>
+  left_join(stimuli_metadata_by_word, by = c("Trials.targetImage"="target", "Trials.distractorImage"="distractor"))
+```
+
+# Exclusions
+#### Subject-level exclusions
+
+```{r}
+# create a list to track any overall subject-level exclusions (prior to excluding trials)
+subject_exclusions <- c()
+```
+
+#### Age-based exclusions
+
+```{r message=FALSE}
+age_excluded_infant_sessions_all <- all_looking_times %>%
+  distinct(SubjectInfo.subjID,SubjectInfo.testAge) %>%
+  #filter out children outside of the age bounds (older than 14 months and younger than 24 months)
+  filter(!(424<=SubjectInfo.testAge & SubjectInfo.testAge<=761)) %>%
+  mutate(
+    age_exclusion = 1
+  )
+
+age_excluded_infant_sessions <- age_excluded_infant_sessions_all |>
+  filter(!(420<=SubjectInfo.testAge & SubjectInfo.testAge<=760))
+
+#reintegrate with data because this exclusion decision has implications for data-contribution-based exclusions
+all_looking_times <- all_looking_times %>%
+  left_join(age_excluded_infant_sessions) %>%
+  mutate(
+    age_exclusion = case_when(
+      is.na(age_exclusion) ~ 0,
+      TRUE ~ age_exclusion)
+  )
+
+summarize_subj_trials <- summarize_subj_trials %>%
+  left_join(age_excluded_infant_sessions) %>%
+  mutate(
+    age_exclusion = case_when(
+      is.na(age_exclusion) ~ 0,
+      TRUE ~ age_exclusion)
+    )
+```
+
+### English Language Exposure
+
+Infants who had no exposure to English were excluded.
+
+```{r}
+non_english_exposure <- all_looking_times %>%
+  distinct(SubjectInfo.subjID,SubjectInfo.language_list) %>%
+  mutate(
+    english_in_language_list = ifelse(str_detect(SubjectInfo.language_list,"en"),1,0)
+  ) %>%
+  filter(english_in_language_list==0) %>%
+  pull(SubjectInfo.subjID)
+subject_exclusions <- c(subject_exclusions,non_english_exposure)
+```
+
+#### Preterm
+
+Infants born at a 35-week gestational age or less (born 28 days or more before their due date) were excluded from the final sample.
+
+```{r}
+# infants 36 weeks or older are not considered preterm
+# (equivalent to less than 28 days pre due date)
+not_pre_term <- c("36 weeks","37 weeks","38 weeks","39 weeks","40 or more weeks")
+preterm_infants <- all_looking_times %>%
+  distinct(SubjectInfo.subjID, SubjectInfo.age_at_birth) %>%
+  #also ignore infants where we do not have this information
+  filter(!(SubjectInfo.age_at_birth %in% c(not_pre_term,"Not sure or prefer not to answer"))) %>%
+  pull(SubjectInfo.subjID)
+subject_exclusions <- c(subject_exclusions,preterm_infants)
+```
+
+#### Developmental Concerns
+
+Any infants noted as having a developmental concern were excluded.
+
+```{r}
+dev_concern_infants <- all_looking_times %>%
+  distinct(SubjectInfo.subjID,SubjectInfo.condition_list) %>%
+  filter(!is.na(SubjectInfo.condition_list) & SubjectInfo.condition_list != "") %>%
+  pull(SubjectInfo.subjID)
+subject_exclusions <- c(subject_exclusions,dev_concern_infants)
+```
+
+#### Side bias
+
+We analyzed whether infants preferentially fixated a single side of the screen prior to the onset of the target word (baseline window: -2000 ms - 0 ms prior to target word onset). Infants who fixated one side of the screen for more than 80% of the baseline window on 80% or more trials in a given testing session were excluded from further analyses (including data from their other test session).
+
+```{r}
+side_bias_evaluation <- summarize_subj_usable_trials_baseline_window %>%
+  group_by(SubjectInfo.subjID) %>%
+  summarize(
+    total_trials=n(),
+    side_bias_right = sum(side_bias_right),
+    side_bias_left = sum(side_bias_left),
+    percent_side_bias_right = side_bias_right/total_trials,
+    percent_side_bias_left = side_bias_left/total_trials
+  )
+
+# Any infants with a persistent side bias to the left or right?
+side_bias_infants <- side_bias_evaluation %>%
+  filter(percent_side_bias_right>=0.8 | percent_side_bias_left>=0.8) %>%
+  pull(SubjectInfo.subjID)
+subject_exclusions <- c(subject_exclusions,side_bias_infants)
+```
+
+No side bias infants were identified.
+
+#### Data contribution
+
+Subject-level data exclusions are handled below, after handling all trial-level exclusions.
+
+#### Technical issues
+
+We assessed technical concerns on the level of the trial and then subsequently excluded participants with insufficient usable trials, no overarching technical-level exclusions were made.
+
+#### Trial-level exclusions
+
+#### Technical error
+
+
+We excluded trials for which experiment logs indicated some form of technical issue (unusual recording or audio times), that the parents paused the trial during, or had a frame rate below 15 Hz on average (rounded up).
+
+```{r}
+#trial exclusions for unusual timing issues and/or pauses
+technical_trial_issues <- all_looking_times |>
+  group_by(SubjectInfo.subjID,Trials.trialID) |>
+  mutate(video_capture_time = (max(time_ms) - min(time_ms))/1000,
+         framerate = mean(1000/abs(diff(time_ms))),
+         # Trials excluded because if average framerate was below 15Hz (rounded up) on average
+         framerate_issue = framerate < 14.5,
+  #mirror exclusion assignment
+  technical_issue_exclusion_reason = case_when(
+    #!is.na(pauseStudy) ~ "study paused",
+    video_capture_time>10 ~ "unusually long trial",
+    video_capture_time<6 ~ "unusually short trial",
+    framerate_issue ~ "framerate issue",
+    #audio_time_s>10 ~ "unusual audio time"
+  ),
+    exclude_technical_issue = !is.na(technical_issue_exclusion_reason)) |>
+  distinct(SubjectInfo.subjID, Trials.trialID, .keep_all = TRUE) |>
+  select(SubjectInfo.subjID, Trials.trialID,technical_issue_exclusion_reason,exclude_technical_issue, video_capture_time, framerate)
+```
+
+Frame rate distribution
+```{r}
+fps_distribution <- technical_trial_issues |>
+  mutate(rounded_framerate = round(framerate)) 
+
+hist(fps_distribution$rounded_framerate, breaks = 10, main = "Frame rate distribution", xlab = "Frame rate (Hz)", ylab = "Number of trials")
+```
+
+
+```{r message=FALSE}
+#integrate with central tracking file
+summarize_subj_trials <- summarize_subj_trials %>%
+  left_join(technical_trial_issues)
+```
+
+
+#### Auditory interference/ parent interference
+
+This is handled during prescreening/ coding.
+
+#### Codability of the video
+
+This is handled during prescreening/ coding.
+
+#### insufficient looking data
+
+Trials are excluded if the child was not fixating either object for more than 50% of the critical window (300ms-3500ms) or the baseline window (-2000ms - 0ms).
+
+This is handled in the section aggregating and summarizing trial-level information above.
+
+#### Summarize all trial-level exclusions
+
+```{r}
+summarize_subj_trials <- summarize_subj_trials %>%
+  mutate(
+    trial_exclusion = case_when(
+      usable_window==0 ~ 1,
+      exclude_technical_issue==1 ~ 1,
+      TRUE ~ 0
+    ), 
+    trial_exclusion_reason = case_when(
+      usable_window == 0 & exclude_technical_issue==1 ~ paste("insufficient looking", technical_issue_exclusion_reason, sep = " - "),
+      usable_window == 0 & exclude_technical_issue == 0 ~ paste("insufficient looking"),
+      usable_window == 1 ~ technical_issue_exclusion_reason
+  )
+  )
+```
+
+#### Summarize trial-level data contribution exclusions
+
+```{r message=FALSE}
+## summarize the total number of usable trials - does not include infants who do not have any sessions with age exclusions
+summarize_usable_trials <- summarize_subj_trials %>%
+  group_by(SubjectInfo.subjID) %>%
+  #filter age exclusions
+  filter(age_exclusion==0 & trial_exclusion==0) %>%
+  summarize(
+    num_usable_trials=sum(usable_window, na.rm=TRUE),
+    num_usable_trials_critical_window = sum(usable_critical_window, na.rm=TRUE),
+    num_usable_trials_short=sum(usable_window_short, na.rm=TRUE)
+  )
+
+# participants who do not have any sessions included because of their age during participation
+age_excluded_infants <- summarize_subj_trials |>
+  filter(age_exclusion == 1 & !(SubjectInfo.subjID %in% summarize_usable_trials$SubjectInfo.subjID)) |>
+  distinct(SubjectInfo.subjID, SubjectInfo.testAge)
+num_age_excluded <- nrow(age_excluded_infants |> distinct(SubjectInfo.subjID))
+
+# participants who did not have any trials that were included, usually because of frame rate issues
+zero_trials_included <- summarize_subj_trials |>
+  filter(age_exclusion != 1 & trial_exclusion == 1 & !(SubjectInfo.subjID %in% summarize_usable_trials$SubjectInfo.subjID)) |>
+  distinct(SubjectInfo.subjID, SubjectInfo.testAge)
+num_zero_trials <- nrow(zero_trials_included |> distinct(SubjectInfo.subjID))
+
+#total trials
+participant_total_usable_trials <- summarize_usable_trials %>%
+  ungroup() %>%
+  group_by(SubjectInfo.subjID) %>%
+  summarize(
+    number_distinct_sessions = n(),
+    total_trials = sum(num_usable_trials),
+    total_trials_critical_window = sum(num_usable_trials_critical_window),
+    total_trials_short = sum(num_usable_trials_short)
+   ) |>
+  mutate(
+    total_trials = ifelse(is.na(total_trials),0,total_trials),
+    total_trials_critical_window = ifelse(is.na(total_trials_critical_window),0,total_trials_critical_window),
+    total_trials_short = ifelse(is.na(total_trials_short),0,total_trials_short),
+    exclude_participant_insufficient_data = ifelse(total_trials<16,1,0),
+    exclude_participant_insufficient_data_critical = ifelse(total_trials_critical_window<16,1,0),
+    exclude_participant_insufficient_data_short = ifelse(total_trials_short<16,1,0),
+  ) 
+
+#participants to exclude based on data contribution
+print(paste("Excluded participants:", sum(participant_total_usable_trials$exclude_participant_insufficient_data,na.rm=T) + num_age_excluded + num_zero_trials))
+#participants to keep
+print(paste("Included participants:", sum(participant_total_usable_trials$exclude_participant_insufficient_data==0,na.rm=T)))
+
+#join with main data frame
+all_looking_times <- all_looking_times %>%
+  left_join(participant_total_usable_trials)
+all_looking_times <- all_looking_times %>%
+  left_join(summarize_usable_trials)
+all_looking_times <- all_looking_times %>%
+  left_join(summarize_subj_trials)
+```
+
+#### Summarize all subject-level exclusions
+
+```{r}
+all_looking_times <- all_looking_times %>%
+  mutate(
+    preterm_infant_exclusion = ifelse(SubjectInfo.subjID %in% preterm_infants,1,0),
+    non_english_exposure_exclusion = ifelse(SubjectInfo.subjID %in% non_english_exposure,1,0),
+    dev_concern_exclusion = ifelse(SubjectInfo.subjID %in% dev_concern_infants,1,0),
+    side_bias_exclusion = ifelse(SubjectInfo.subjID %in% side_bias_infants,1,0),
+    exclude_participant = ifelse(SubjectInfo.subjID %in% subject_exclusions,1,0),
+    # Making sure infants excluded because they completed all of their trials out of the required age range are marked as excluded
+    exclude_participant_insufficient_data = ifelse(is.na(exclude_participant_insufficient_data),1,exclude_participant_insufficient_data)
+  )
+
+overview_exclusions <- distinct(all_looking_times,
+                                SubjectInfo.subjID,
+                                exclude_participant,
+                                preterm_infant_exclusion,
+                                non_english_exposure_exclusion,
+                                dev_concern_exclusion,
+                                side_bias_exclusion,
+                                exclude_participant_insufficient_data)
+
+participant_total_usable_trials <- participant_total_usable_trials %>%
+  left_join(overview_exclusions) %>%
+  mutate(exclude_participant = ifelse(is.na(exclude_participant),1,exclude_participant))
+
+summarize_subj_trials <- summarize_subj_trials %>%
+  left_join(overview_exclusions) %>%
+  mutate(exclude_participant = ifelse(is.na(exclude_participant),1,exclude_participant))
+```
+### Resampling
+
+In order to plot participants' average proportion looking to the target across the trial, we smooth/ resample time. This is necessary when plotting the timecourses given the variable sampling rate in the data (otherwise the mean observations "jump around" due to varying contributing data composition at different time points).
+
+```{r results='hide'}
+target_ms_per_frame <- 1000/30
+#resample times
+looking_times_resampled <- all_looking_times %>%
+  filter(usable_window==1) %>%
+  #rename and transform variables for resampling function
+  mutate(
+    aoi = case_when(
+      accuracy == 1 ~ "target",
+      accuracy == 0 ~ "distractor",
+      is.na(accuracy) ~ "other"
+    ),
+    trial_id = Trials.trialID,
+    sub_num = SubjectInfo.subjID
+  ) %>%
+  mutate(t_norm=time_normalized_corrected,
+         administration_id = paste(SubjectInfo.subjID,Trials.trialID,Trials.order,sep="_")) %>%
+  resample_times(sample_duration=target_ms_per_frame) #time resampling is set to 30 Hz
+```
+
+
+```{r}
+#clean up resampled data
+looking_time_resampled_clean <- looking_times_resampled %>%
+  mutate(
+    accuracy_transformed = case_when(
+      aoi == "target" ~ 1,
+      aoi == "distractor" ~ 0,
+      aoi == "other" ~ NA
+    )
+  ) %>%
+  separate(administration_id,into=c("SubjectInfo.subjID","Trials.trialID", "Trials.ordinal"),sep="_",remove=F) %>%
+  rename(time_normalized_corrected=t_norm) %>%
+  mutate(time_normalized_corrected =round(time_normalized_corrected,0)) %>%
+  select(-administration_id,-aoi) %>%
+  select(SubjectInfo.subjID,Trials.trialID,time_normalized_corrected,accuracy_transformed)
+  
+#check number of rows to make sure resampling rate is correct
+print(paste("Number of rows after resampling:", nrow(looking_time_resampled_clean)))
+
+#extract key information from full dataset
+looking_times_info <- all_looking_times %>%
+ distinct(SubjectInfo.subjID, Trials.trialID, exclude_participant, exclude_participant_insufficient_data, SubjectInfo.testAge, trial_exclusion,trial_exclusion_reason, usable_window,Trials.targetImage, Trials.distractorImage, Trials.trialType, Trials.imagePair)
+
+#join with resampled data
+looking_time_resampled_clean <- looking_time_resampled_clean %>%
+  left_join(looking_times_info)
+```
+
+## Write data
+```{r}
+PROCESSED_DATA_PATH = here("data",PROJECT_VERSION,"processed_data")
+if (!dir.exists(PROCESSED_DATA_PATH)) {
+  dir.create(PROCESSED_DATA_PATH, recursive = TRUE)  # 'recursive = TRUE' ensures all parent directories are created
+}
+
+#write a dataset with exclusions processed
+write_csv(all_looking_times, file.path(PROCESSED_DATA_PATH,"level-looks_added-metadata_data.csv"))
+write_csv(looking_time_resampled_clean, file.path(PROCESSED_DATA_PATH, "level-looks_data.csv"))
+#saveRDS(all_looking_times, file.path(PROCESSED_DATA_PATH, "looking_times_with_exclusion_info.rds"))
+#write out usable trial summary
+write_csv(participant_total_usable_trials,file.path(PROCESSED_DATA_PATH, "level-participant_added-trials_data.csv"))
+write_csv(summarize_subj_trials,file.path(PROCESSED_DATA_PATH, "level-trials_data.csv"))
+write_csv(trial_metadata, here("data", "metadata", PROJECT_VERSION, "level-trialtype_data.csv"))
+```

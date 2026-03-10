@@ -24,8 +24,15 @@ SAMPLE2_STUDY_NAME <- "Can you find the rose?"
 
 gift_cards <- read.csv(file.path(RAW_DATA_PATH, "gift_cards.csv"), stringsAsFactors = FALSE)
 
-# Read the subjects data CSV
-subjects_data <- read.csv(file.path(RAW_DATA_PATH, PROJECT_VERSION, "subject_data.csv"), stringsAsFactors = FALSE)
+# Read the combined subjects data CSV (has a 'section' column for sample1/sample2)
+subjects_data_all <- read.csv(file.path(RAW_DATA_PATH, "subject_data.csv"), stringsAsFactors = FALSE)
+# Filter to the relevant section if PROJECT_VERSION specifies one
+VALID_SECTIONS <- c("sample1", "sample2")
+subjects_data <- if (PROJECT_VERSION %in% VALID_SECTIONS) {
+  subjects_data_all |> dplyr::filter(section == PROJECT_VERSION)
+} else {
+  subjects_data_all
+}
 cdi_level1data <- read.csv(file.path(RAW_DATA_PATH, "cdi", "cdi_level1.csv"))
 cdi_level2adata <- read.csv(file.path(RAW_DATA_PATH, "cdi", "cdi_level2a.csv"))
 existing_cdi_child_ids <- unique(c(as.character(cdi_level1data$ChildID),
@@ -66,9 +73,9 @@ survey_template =
 ```
 
 ```{r}
-survey_text <- function(project_version, child_id, child_age) {
+survey_text <- function(section, child_id, child_age) {
   child_age_in_months = child_age / 30;
-  if (project_version != "sample2" || child_id %in% existing_cdi_child_ids) {
+  if (section != "sample2" || child_id %in% existing_cdi_child_ids) {
     return("")
   } else {
     if (child_age_in_months <= 18) {
@@ -82,10 +89,10 @@ survey_text <- function(project_version, child_id, child_age) {
 ```
 
 ```{r}
-fill_email <- function(parent_name, child_name, global_id, age, gift_card) {
+fill_email <- function(parent_name, child_name, global_id, age, gift_card, section) {
   gift_card_text <- ifelse(grepl(".com", gift_card), url_gift_card_text, hashed_gift_card_text)
-  study_name <- ifelse(PROJECT_VERSION == "sample2", SAMPLE2_STUDY_NAME, SAMPLE1_STUDY_NAME)
-  survey_text <- survey_text(PROJECT_VERSION, global_id, age)
+  study_name <- ifelse(section == "sample2", SAMPLE2_STUDY_NAME, SAMPLE1_STUDY_NAME)
+  survey_text <- survey_text(section, global_id, age)
   full_email_template <- email_template |>
    str_replace_all("\\[gift_card_text\\]", gift_card_text)
   email_filled <- full_email_template |>
@@ -114,7 +121,7 @@ matched_data <- unpaid_parents %>%
   filter(!is.na(claim_code))
 
 # Apply the function to each row and store the output
-output_emails <- mapply(fill_email, matched_data$parent_nickname, matched_data$name, matched_data$global_id, matched_data$age_rounded, matched_data$claim_code)
+output_emails <- mapply(fill_email, matched_data$parent_nickname, matched_data$name, matched_data$global_id, matched_data$age_rounded, matched_data$claim_code, matched_data$section)
 
 # Write to a text file with each output on a new line
 writeLines(output_emails, file.path(RAW_DATA_PATH, "matched_gift_cards.txt"), sep = "\n\n")

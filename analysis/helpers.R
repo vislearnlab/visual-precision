@@ -35,19 +35,20 @@ compute_usable_trial <- function(baseline_col, critical_col) {
 }
 
 # Calculate mean, standard deviation, standard error and confidence intervals for data grouped across two variables
-summarized_data <- function(data, x_var, y_var, group_var) {
+summarized_data <- function(data, x_var, y_var, group_var = NULL) {
+  group_cols <- unique(c(x_var, group_var))  # dedup if same
   return(data |>
-           group_by(across(all_of(c(x_var, group_var)))) |>
+           group_by(across(all_of(group_cols))) |>
            summarize(
-             #across(everything(), ~ if (n_distinct(.) == 1) first(.) else NA),
              mean_value = mean(.data[[y_var]], na.rm = TRUE),
              sd_value = sd(.data[[y_var]], na.rm = TRUE),
              N = n(),
-             se = sd_value / sqrt(n()),
-             ci=qt(0.975, N-1)*sd_value/sqrt(N),
-             lower_ci=mean_value-ci,
-             upper_ci=mean_value+ci,
-             .groups = 'drop') |>
+             se = sd_value / sqrt(N),
+             ci = qt(0.975, N - 1) * sd_value / sqrt(N),
+             lower_ci = mean_value - ci,
+             upper_ci = mean_value + ci,
+             .groups = 'drop'
+           ) |>
            select(where(~ !all(is.na(.))))
   )
 }
@@ -165,10 +166,13 @@ add_aoa_split <- function(data) {
 half_violins_plot <- function(data, x_var, y_var, group_var, violin_conditions, input_xlab="Distractor Difficulty Condition",
                               input_ylab="Baseline-Corrected\nProportion Target Looking",input_caption="") {
   jitterer <- position_jitter(width = .05,seed=1)
-  avg_corrected_target_looking <- summarized_data(data, x_var, y_var, group_var) |> filter(N > 5)
+  avg_corrected_target_looking <- summarized_data(data, x_var, y_var, group_var) |> filter(N > 2)
   
-  overall_corrected_target_looking <- summarized_data(avg_corrected_target_looking |>
-                                        rename(avg_corrected_target_looking = mean_value), x_var, "avg_corrected_target_looking", x_var)
+  overall_corrected_target_looking <- summarized_data(
+    avg_corrected_target_looking |> rename(avg_corrected_target_looking = mean_value),
+    x_var, "avg_corrected_target_looking"  
+  )
+  print(overall_corrected_target_looking)
   
   overall_corrected_target_looking %>%
     knitr::kable()
@@ -299,6 +303,83 @@ multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", gr
     )
 }
 
+image_similarity_effects_plot <- function(
+    data,
+    x_var = "image_similarity",
+    y_var = "mean_value",
+    input_title = NULL
+) {
+  
+  label_data <- data %>% 
+    filter(
+      Trials.targetImage == "acorn" |
+        Trials.distractorImage == "acorn"
+    ) %>%
+    mutate(
+      label = paste(
+        "Target:", Trials.targetImage,
+        "\nDistractor:", Trials.distractorImage
+      )
+    )
+  
+  ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]])) +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    geom_point(size = 8, alpha = 0.5, color = "#215D89") +
+    geom_smooth(
+      alpha = 0.3, size = 0,
+      method = "lm", show.legend = FALSE,
+      color = "#215D89"
+    ) +
+    stat_smooth(
+      geom = "line", alpha = 0.9,
+      size = 1.5, method = "lm",
+      show.legend = FALSE,
+      color = "#215D89"
+    ) +
+    coord_cartesian(ylim = c(-0.12, 0.22)) +
+    geom_label_repel(
+      data = label_data,
+      aes(label = label),
+      segment.alpha = 0.7,
+      nudge_y = ifelse(
+        label_data$Trials.targetImage == "acorn",
+        -0.02, 0.02
+      ),
+      force = 10,
+      force_pull = 0.1,
+      size = 5,
+      segment.size = 1,
+      point.padding = unit(1, "lines"),
+      min.segment.length = 0,
+      box.padding = unit(0.5, "lines"),
+      max.overlaps = Inf,
+      label.padding = unit(0.25, "lines"),
+      label.r = unit(0.5, "lines"),
+      show.legend = FALSE
+    ) +
+    ylab("Baseline-corrected\nproportion target looking") +
+    xlab("Target-distractor high-level visual similarity") +
+    scale_y_continuous(breaks = seq(-0.1, 0.2, by = 0.1)) +
+    scale_x_continuous(
+      breaks = seq(0.5, 0.9, by = 0.1),
+      limits = c(0.43, 0.85)
+    ) +
+    theme_minimal() +
+    theme(
+      text = element_text(size = 16, face = "bold"),
+      axis.title.x = element_text(
+        size = 18, face = "bold",
+        margin = margin(t = 15)
+      ),
+      axis.title.y = element_text(
+        size = 18, face = "bold",
+        margin = margin(r = 10)
+      ),
+      axis.text = element_text(size = 18, face = "bold")
+    )
+}
+
+
 age_half_plot <- function(data, x_var, y_var="mean_value", group_var="age_half", x_label, y_label="Baseline-corrected proportion target looking", labels=c(), title="") {
   readable_gv <- str_replace_all(group_var, "_", " ")
   readable_gv <- str_to_sentence(readable_gv)
@@ -336,9 +417,9 @@ epoch_age_half_plot <- function(data, x_var) {
 
 
 summarize_similarity_data <- function(data, extra_fields=NULL) {
-  group_vars = c("Trials.trialID", "Trials.targetImage", "Trials.distractorImage", "image_similarity", "image_sim", "cor")
+  group_vars = c("Trials.trialID", "Trials.targetImage", "Trials.distractorImage", "image_similarity", "cor")
   if ("text_similarity" %in% colnames(data)) {
-    group_vars = c(group_vars, "text_similarity", "multimodal_similarity", "text_sim")
+    group_vars = c(group_vars, "text_similarity", "multimodal_similarity")
   }
   if (!is.null(extra_fields)) {
     group_vars = c(group_vars, extra_fields)

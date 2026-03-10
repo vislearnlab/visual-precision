@@ -1,5 +1,5 @@
 
-Importing packages 
+Importing packages
 
 ```{r}
 library(tidyverse)
@@ -9,25 +9,44 @@ library(readr)
 library(rlang)
 source("helpers.R")
 env_file = here(".env")
-default_project = "sample1"
 if (file.exists(env_file)) {
   load_dot_env(file = env_file)
   PROJECT_VERSION <- Sys.getenv("PROJECT_VERSION")
-  if (PROJECT_VERSION == "") {
-    PROJECT_VERSION <- default_project
-  }
+  if (PROJECT_VERSION == "") PROJECT_VERSION <- "main"
 } else {
-  PROJECT_VERSION <- default_project
+  PROJECT_VERSION <- "main"
 }
+
+# sample1/sample2 both live in data/main/ with a 'section' column.
+# Pilot data lives in data/pilot/ separately.
+VALID_SECTIONS <- c("sample1", "sample2")
+DATA_FOLDER   <- if (PROJECT_VERSION %in% c(VALID_SECTIONS, "main")) "main" else PROJECT_VERSION
+CURRENT_SECTION <- if (PROJECT_VERSION %in% VALID_SECTIONS) PROJECT_VERSION else NULL
 ```
 
 ```{r constants}
 METADATA_PATH = here("data", "metadata")
+DATA_TO_ANALYZE_PATH = here("data", DATA_FOLDER, "data_to_analyze")
+PROCESSED_DATA_PATH  = here("data", DATA_FOLDER, "processed_data")
 
-DATA_TO_ANALYZE_PATH = here("data", PROJECT_VERSION, "data_to_analyze")
+# Helper: upsert trial_metadata rows for CURRENT_SECTION (keyed by section, not participant).
+write_section_csv <- function(df, path) {
+  if (!is.null(CURRENT_SECTION) && file.exists(path)) {
+    existing <- read_csv(path, show_col_types = FALSE)
+    existing <- existing |> filter(section != CURRENT_SECTION)
+    df <- bind_rows(existing, df)
+  }
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  write_csv(df, path)
+}
 
 # Importing trial and participant information from Lookit
-trial_timing_info = read.csv(file.path(DATA_TO_ANALYZE_PATH, "level-trials_source-lookit_data.csv"))
+trial_timing_info_all = read.csv(file.path(DATA_TO_ANALYZE_PATH, "level-trials_source-lookit_data.csv"))
+trial_timing_info = if (!is.null(CURRENT_SECTION)) {
+  trial_timing_info_all |> filter(section == CURRENT_SECTION)
+} else {
+  trial_timing_info_all
+}
 stimuli_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_data.csv"))
 saliency_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_added-saliency_data.csv"))
 similarities <- read.csv(here("data", "embeddings", "similarities-clip_data.csv"))
@@ -36,15 +55,20 @@ similarities <- read.csv(here("data", "embeddings", "similarities-clip_data.csv"
 Importing looking time data after initial preprocessing of iCatcher data in Python
 ```{r}
 # Importing looking time data from iCatcher+
-timestamp_data <- read_csv(
+timestamp_data_all <- read_csv(
   file.path(DATA_TO_ANALYZE_PATH, "level-looks_source-icatcher_data.csv"),
   show_col_types = FALSE
 )
+timestamp_data <- if (!is.null(CURRENT_SECTION)) {
+  timestamp_data_all |> filter(section == CURRENT_SECTION)
+} else {
+  timestamp_data_all
+}
 
-# Combine and process data
+# Combine and process data (drop section from timestamp_data to avoid column conflict;
+# section is already carried via trial_timing_info)
 all_looking_times <- trial_timing_info |>
-  # Join the timestamp data with trial timing info
-  left_join(timestamp_data, by = c("Trials.trialID", "SubjectInfo.subjID")) |>
+  left_join(timestamp_data |> select(-any_of("section")), by = c("Trials.trialID", "SubjectInfo.subjID")) |>
   # Filter out rows with missing IDs
   filter(!is.na(Trials.trialID) & !is.na(SubjectInfo.subjID)) |>
   # scam participants
@@ -517,17 +541,52 @@ looking_time_resampled_clean <- looking_time_resampled_clean %>%
 
 ## Write data
 ```{r}
-PROCESSED_DATA_PATH = here("data",PROJECT_VERSION,"processed_data")
-if (!dir.exists(PROCESSED_DATA_PATH)) {
-  dir.create(PROCESSED_DATA_PATH, recursive = TRUE)  # 'recursive = TRUE' ensures all parent directories are created
+# trial_metadata is the only output that carries a section column (since it is
+# keyed by trial type, not participant).  Processed participant-level files are
+# written without a section column; they are combined simply by appending rows
+# for participants that don't already exist in the output file.
+
+# Helper: upsert processed data by participant ID (handles re-runs cleanly)
+write_participants_csv <- function(df, path, id_col = "SubjectInfo.subjID") {
+  if (file.exists(path)) {
+    existing <- read_csv(path, show_col_types = FALSE)
+    existing <- existing |> filter(!(!!sym(id_col) %in% df[[id_col]]))
+    
+    # Coerce df columns to match existing column types
+    for (col in intersect(names(existing), names(df))) {
+      existing_class <- class(existing[[col]])[1]
+      df_class <- class(df[[col]])[1]
+      
+      if (existing_class != df_class) {
+        if (existing_class == "POSIXct") {
+          df[[col]] <- as.POSIXct(df[[col]], tz = "UTC")
+        } else if (existing_class == "Date") {
+          df[[col]] <- as.Date(df[[col]])
+        } else if (existing_class == "numeric") {
+          df[[col]] <- as.numeric(df[[col]])
+        } else if (existing_class == "integer") {
+          df[[col]] <- as.integer(df[[col]])
+        } else if (existing_class == "logical") {
+          df[[col]] <- as.logical(df[[col]])
+        }
+      }
+    }
+    
+    df <- bind_rows(existing, df)
+  }
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  write_csv(df, path)
 }
 
-#write a dataset with exclusions processed
-write_csv(all_looking_times, file.path(PROCESSED_DATA_PATH,"level-looks_added-metadata_data.csv"))
-write_csv(looking_time_resampled_clean, file.path(PROCESSED_DATA_PATH, "level-looks_data.csv"))
-#saveRDS(all_looking_times, file.path(PROCESSED_DATA_PATH, "looking_times_with_exclusion_info.rds"))
-#write out usable trial summary
-write_csv(participant_total_usable_trials,file.path(PROCESSED_DATA_PATH, "level-participant_added-trials_data.csv"))
-write_csv(summarize_subj_trials,file.path(PROCESSED_DATA_PATH, "level-trials_data.csv"))
-write_csv(trial_metadata, here("data", "metadata", "level-trialtype_data.csv"))
+write_participants_csv(all_looking_times, file.path(PROCESSED_DATA_PATH, "level-looks_added-metadata_data.csv"))
+write_participants_csv(looking_time_resampled_clean,  file.path(PROCESSED_DATA_PATH, "level-looks_data.csv"))
+write_participants_csv(participant_total_usable_trials, file.path(PROCESSED_DATA_PATH, "level-participant_added-trials_data.csv"))
+write_participants_csv(summarize_subj_trials, file.path(PROCESSED_DATA_PATH, "level-trials_data.csv"))
+
+# trial_metadata: upsert by section (overwrite rows for the current section)
+trial_metadata <- trial_metadata |>
+  mutate(section = if (!is.null(CURRENT_SECTION)) CURRENT_SECTION else
+           if ("section" %in% names(trial_metadata)) section else NA_character_)
+trialtype_path <- here("data", "metadata", "level-trialtype_data.csv")
+write_section_csv(trial_metadata, trialtype_path)
 ```
