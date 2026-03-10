@@ -38,7 +38,7 @@ Grabbing all THINGSplus data
 things_stimuli_metadata <- read_tsv(file.path(SOURCE_CODE_PATH, "preprocessing", "older_stimuli", "_concepts-metadata_things.tsv")) |> mutate(is_animate = grepl("animal", `Top-down Category (WordNet)`), food_item = grepl("food|fruit|vegetable", `Top-down Category (WordNet)`))
 things_images_metadata <- read_tsv(file.path(SOURCE_CODE_PATH, "preprocessing", "older_stimuli", "_images-metadata_things.tsv")) |> filter(grepl("1b", image))
 exp1_metadata <- read_csv(here("data", "metadata", "level-trialtype_data.csv")) |> filter(!grepl("distractor", Trials.trialID)) 
-aoa_ratings_kuperman <- read_csv(file.path(SOURCE_CODE_PATH, "preprocessing", "older_stimuli", "aoa_ratings_kuperman.csv"))
+aoa_ratings_kuperman <- read_csv(file.path(here("data", "metadata", "level-aoaratings_type-kuperman_data.csv")))
 aoa_ratings_wordbank <- read_csv(file.path(SOURCE_CODE_PATH,
                                            "preprocessing", "older_stimuli",
                                            "wordbank_aoa_ratings.csv")) 
@@ -568,4 +568,39 @@ ggplot(unique_trials, aes(x = image_similarity, y = image_sim_zscore)) +
   )
 ```
 
+## adding new stim info to metadata file
+```{r}
+imagepair_data <- read.csv(here("stimuli/lookit/preprocessing/data/level-imagepair_raw_data.csv")) |>
+  filter((source == "exp1" | source == "exp2") & tarun.cut. == "") |>
+  select(text1, text2, text_similarity, image_similarity, aoa_word1, aoa_word2, aoa_source, source, animacy, wordPairing) |>
+  mutate(
+    aoa_source = ifelse(is.na(aoa_source) | aoa_source == "", "Kuperman", aoa_source),
+    section = case_when(
+      source == "exp1" ~ "sample1",
+      source == "exp2" ~ "sample2",
+      TRUE ~ NA_character_
+    )
+  )
+
+existing_imagepair_data <- read.csv(here("data/metadata/level-imagepair_data.csv"))
+
+# Find pairs not already in existing metadata
+imagepair_addendum <- imagepair_data |>
+  anti_join(existing_imagepair_data, by = c("text1", "text2")) |>
+  # Join Kuperman AoA for words without AoA source
+  left_join(aoa_ratings_kuperman |> select(Word, AoA_Kup), by = c("text1" = "Word")) |>
+  rename(AoA_Est_Word1 = AoA_Kup) |>
+  left_join(aoa_ratings_kuperman |> select(Word, AoA_Kup), by = c("text2" = "Word")) |>
+  rename(AoA_Est_Word2 = AoA_Kup) |>
+  # Align to existing metadata column structure
+  select(
+    text1, text2,
+    AoA_Est_Word1, AoA_Est_Word2,
+    animacy, wordPairing, section
+  )
+
+# Append to existing metadata (new rows will have NAs for columns not in addendum)
+existing_imagepair_data_updated <- bind_rows(existing_imagepair_data, imagepair_addendum) |> mutate(section = ifelse(is.na(section), "sample1", section))
+write.csv(existing_imagepair_data_updated, here("data/metadata/level-imagepair_data.csv"))
+```
 
