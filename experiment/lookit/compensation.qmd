@@ -6,18 +6,30 @@ library(here)
 library(dotenv)
 library(readr)
 library(rlang)
+library(glue)
 
 load_dot_env(file=here(".env"))
 SERVER_PATH = Sys.getenv("SERVER_PATH")
+PROJECT_VERSION = Sys.getenv("PROJECT_VERSION")
 ```
 
 ```{r constants}
 RAW_DATA_PATH = file.path(SERVER_PATH, "data", "raw", "lookit")
 
+CDI2A_TEMPLATE <- "https://qualtricsxmhcv2m8q6d.qualtrics.com/jfe/form/SV_7NAZ6riQu1aBIZU?ChildID="
+CDI1_TEMPLATE  <- "https://ucsd.co1.qualtrics.com/jfe/form/SV_3UTxIUSEYbe3QdE?ChildID="
+
+SAMPLE1_STUDY_NAME <- "How do children think about categories?"
+SAMPLE2_STUDY_NAME <- "Can you find the rose?"
+
 gift_cards <- read.csv(file.path(RAW_DATA_PATH, "gift_cards.csv"), stringsAsFactors = FALSE)
 
 # Read the subjects data CSV
-subjects_data <- read.csv(file.path(RAW_DATA_PATH, "subject_data.csv"), stringsAsFactors = FALSE)
+subjects_data <- read.csv(file.path(RAW_DATA_PATH, PROJECT_VERSION, "subject_data.csv"), stringsAsFactors = FALSE)
+cdi_level1data <- read.csv(file.path(RAW_DATA_PATH, "cdi", "cdi_level1.csv"))
+cdi_level2adata <- read.csv(file.path(RAW_DATA_PATH, "cdi", "cdi_level2a.csv"))
+existing_cdi_child_ids <- unique(c(as.character(cdi_level1data$ChildID),
+                                   as.character(cdi_level2adata$ChildID)))
 ```
 
 ```{r}
@@ -34,7 +46,7 @@ url_gift_card_text = "As promised, here [gift_card] is the link to the Amazon.co
 email_template = 
   "Dear [parent_name],
 
-Thank you to [child_name] for participating in 'How do children think about categories?' on Children Helping Science, run by Bria Long in the Visual Learning Lab at the University of California, San Diego!
+Thank you to [child_name] for participating in '[study_name]' on Children Helping Science, run by Bria Long in the Visual Learning Lab at the University of California, San Diego! [survey_text]
 
 [gift_card_text]
 
@@ -47,18 +59,41 @@ Visual Learning Lab, University of California, San Diego
 https://childrenhelpingscience.com/exp/labs/331/
 
 Please do not reply to this message. If you have questions, please email us at vislearnlab@ucsd.edu" 
+
+
+survey_template = 
+  "As a part of this study, we also ask that parents fill out a vocabulary survey. We are curious how the words that your child knows and does not know affects how they think about categories. Here is a link to the survey: [survey_link]"
 ```
 
 ```{r}
-fill_email <- function(parent_name, child_name, gift_card) {
+survey_text <- function(project_version, child_id, child_age) {
+  child_age_in_months = child_age / 30;
+  if (project_version != "sample2" || child_id %in% existing_cdi_child_ids) {
+    return("")
+  } else {
+    if (child_age_in_months <= 18) {
+      survey_link <- (paste0(CDI1_TEMPLATE, child_id))
+    } else {
+      survey_link <- (paste0(CDI2A_TEMPLATE, child_id))
+    }
+    return(survey_template |> str_replace_all("\\[survey_link\\]", survey_link))
+  }
+}
+```
+
+```{r}
+fill_email <- function(parent_name, child_name, global_id, age, gift_card) {
   gift_card_text <- ifelse(grepl(".com", gift_card), url_gift_card_text, hashed_gift_card_text)
+  study_name <- ifelse(PROJECT_VERSION == "sample2", SAMPLE2_STUDY_NAME, SAMPLE1_STUDY_NAME)
+  survey_text <- survey_text(PROJECT_VERSION, global_id, age)
   full_email_template <- email_template |>
    str_replace_all("\\[gift_card_text\\]", gift_card_text)
-  email_filled <- full_email_template %>%
-    str_replace_all("\\[parent_name\\]", parent_name) %>%
-    str_replace_all("\\[child_name\\]", child_name) %>%
-    str_replace_all("\\[gift_card\\]", gift_card)
-  
+  email_filled <- full_email_template |>
+    str_replace_all("\\[parent_name\\]", parent_name) |>
+    str_replace_all("\\[child_name\\]", child_name) |>
+    str_replace_all("\\[gift_card\\]", gift_card) |>
+    str_replace_all("\\[survey_text\\]", survey_text) |>
+    str_replace_all("\\[study_name\\]", study_name)
   return(email_filled)
 }
 ```
@@ -70,7 +105,7 @@ unused_gift_cards <- gift_cards %>%
 
 # Filter for parents who haven't been paid
 unpaid_parents <- subjects_data %>%
-  filter(Paid == "")
+  filter(Paid == "" | is.na(Paid))
 
 # Match unused gift cards to unpaid parents
 matched_data <- unpaid_parents %>%
@@ -79,7 +114,7 @@ matched_data <- unpaid_parents %>%
   filter(!is.na(claim_code))
 
 # Apply the function to each row and store the output
-output_emails <- mapply(fill_email, matched_data$parent_nickname, matched_data$name, matched_data$claim_code)
+output_emails <- mapply(fill_email, matched_data$parent_nickname, matched_data$name, matched_data$global_id, matched_data$age_rounded, matched_data$claim_code)
 
 # Write to a text file with each output on a new line
 writeLines(output_emails, file.path(RAW_DATA_PATH, "matched_gift_cards.txt"), sep = "\n\n")
