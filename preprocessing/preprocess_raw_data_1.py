@@ -5,17 +5,19 @@ import json
 import csv
 from datetime import datetime
 import pandas as pd
-from config import PROJECT_PATH, SERVER_PATH, CONSENT_PATH, PROJECT_VERSION, VALID_SECTIONS
-hashed_ids = {}
+from config import PROJECT_PATH, SERVER_PATH, CONSENT_PATH, PROJECT_VERSION
+ids = {}
 
-# Making a map of the response UUIDs to the child hashed IDs for easier storage
-def hashed_id_map(responses_path):
+# Making a map of the response UUIDs to the child hashed and local IDs for easier storage
+def id_map(responses_path, subject_data_path):
     with open(responses_path, 'r') as file:
         response_data = json.load(file)
+    subject_data = pd.read_csv(subject_data_path)
     for response in response_data:
-        hashed_ids[response["response"]["uuid"]] = {
+        ids[response["response"]["uuid"]] = {
             "hashed_id": response["child"]["hashed_id"],
-            "response_date": datetime.strptime(response['response']['date_created'].split(" ")[0], "%Y-%m-%d").strftime("%Y%m%d")
+            "response_date": datetime.strptime(response['response']['date_created'].split(" ")[0], "%Y-%m-%d").strftime("%Y%m%d"),
+            "local_id": subject_data.loc[subject_data['hashed_id'] == response["child"]["hashed_id"], 'local_id'].values[0] if response["child"]["hashed_id"] in subject_data['hashed_id'].values else None
         }
 
 # Ensure that clean Lookit JSON file does not include any identifiable subject data
@@ -34,7 +36,6 @@ def clean_lookit_json(input_lookit_json, cleaned_path, subject_data_path, local_
             existing_response_ids = {row['response_id'] for row in csv.DictReader(csvfile)}
 
     for session in lookit_json:
-        local_id_count += 1
         # Skipping if the hashed_id already exists in subject_data.csv or if the hashed_id is not in the session data
         if 'response' in session and 'uuid' in session['response']:
             response_id = session['response']['uuid']
@@ -42,6 +43,7 @@ def clean_lookit_json(input_lookit_json, cleaned_path, subject_data_path, local_
                 continue
             hashed_id = session['child']['hashed_id']
             # Build row data: adding a local_id which is a unique identifier for each row in the CSV file in the format VVIXX where XX is the subject number
+            local_id_count += 1  
             row_data = {
                 'local_id': f"VVI{local_id_count:03d}",
                 'hashed_id': hashed_id
@@ -117,20 +119,21 @@ def convert_webm_to_mp4(input_path, output_path, consent_path):
         if matches:
             input_file = os.path.join(input_path, file)
             # Group 3 is the response UUID which is linked to a child's hashed id in hashed_ids
-            if matches.group(3) in hashed_ids:
-                hashed_child_id = hashed_ids[matches.group(3)]["hashed_id"]
-                response_date = hashed_ids[matches.group(3)]["response_date"]
+            if matches.group(3) in ids:
+                hashed_child_id = ids[matches.group(3)]["hashed_id"]
+                local_child_id = ids[matches.group(3)]["local_id"]
+                response_date = ids[matches.group(3)]["response_date"]
             else:
                 print(f"Skipping response {matches.group(3)}")
                 continue
             # Placing consent video files in a separate directory
             if "consent" in file:
                 output_dir = os.path.join(consent_path)
-                output_file_name = f"visvocab_{response_date}_{hashed_child_id}.mp4"
+                output_file_name = f"visvocab_{response_date}_{local_child_id}.mp4"
             else:
-                os.makedirs(os.path.join(output_path, hashed_child_id), exist_ok=True)
-                output_dir = os.path.join(output_path, hashed_child_id)
-                output_file_name = f"{matches.group(2).split("-",1)[1]}_{hashed_child_id}.mp4"
+                os.makedirs(os.path.join(output_path, local_child_id), exist_ok=True)
+                output_dir = os.path.join(output_path, local_child_id)
+                output_file_name = f"{matches.group(2).split("-",1)[1]}_{local_child_id}.mp4"
             # Not including trial ordering number in file names since it is not a primary key
             output_file = os.path.join(output_dir, output_file_name)
             # Do not convert files that have already been converted
@@ -179,9 +182,6 @@ def preprocess_raw_data():
 
         clean_lookit_json(input_lookit_responses_path, lookit_responses_path, identifiable_data_path, current_id, section=section)
 
-        # Build hashed_ids map from this section's cleaned JSON (accumulates across sections)
-        hashed_id_map(lookit_responses_path)
-
         # Update current_id so the next section continues numbering from where this one left off
         if os.path.exists(identifiable_data_path):
             df = pd.read_csv(identifiable_data_path)
@@ -190,6 +190,9 @@ def preprocess_raw_data():
 
     # Convert all .webm files to .mp4 using the combined hashed_ids map
     videos_path = os.path.join(raw_server_dir, "original_videos")
+    # Make a map of the response UUIDs to the child hashed IDs for easier storage: videos are coming in from Lookit with response UUIDs
+    id_map(lookit_responses_path, identifiable_data_path)
+    # Convert the .webm files to .mp4 files
     convert_webm_to_mp4(os.path.join(videos_path, "webm"), os.path.join(videos_path, "mp4"), CONSENT_PATH)
 
     # Sanity check that each participant directory has at least 34 videos
