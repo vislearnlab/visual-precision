@@ -6,15 +6,15 @@ import numpy as np
 import os
 from config import *
 
-def get_lookit_trial_times(lookit_json):
+def get_lookit_trial_times(lookit_json, proj_version):
     subject_data = pd.read_csv(os.path.join(SERVER_PATH, "data", "raw", "lookit", "subject_data.csv"))
     audio_duration_info = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "level-syllables_added-audio_data.csv"))
     subject_sections = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "level-section_data.csv"))
     word_onset_syllable_info = pd.read_csv(os.path.join(PROJECT_PATH, "data", "metadata", "level-wordtype_added-audio_data.csv"))
     # The article and word were spliced together in the first sample. In the second sample, the article was correctly not included with the word during preprocessing
-    article_onset_added = PROJECT_VERSION == "pilot" or PROJECT_VERSION == "sample1"
+    article_onset_added = proj_version == "pilot" or proj_version == "sample1"
     # Get section info for this project
-    section_row = subject_sections[subject_sections['section_name'] == PROJECT_VERSION].iloc[0]
+    section_row = subject_sections[subject_sections['section_name'] == proj_version].iloc[0]
     start_date = datetime.strptime(section_row['start_date'], '%Y-%m-%d')
     end_date = section_row['end_date']
     if end_date and not pd.isna(end_date):
@@ -95,7 +95,7 @@ def get_lookit_trial_times(lookit_json):
                 current_onset_syllable_info = matches.iloc[0]
                 num_syllables = current_onset_syllable_info['syllable_count']
                 current_audio_duration_info = audio_duration_info.loc[
-                    (audio_duration_info['syllables'] == num_syllables) & (audio_duration_info['version'] == PROJECT_VERSION)
+                    (audio_duration_info['syllables'] == num_syllables) & (audio_duration_info['version'] == proj_version)
                 ].iloc[0]                
                 carrier_onset = current_audio_duration_info['silence_before']
                 target_onset = carrier_onset + current_audio_duration_info['carrier']

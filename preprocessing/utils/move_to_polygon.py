@@ -11,7 +11,9 @@ DEST_DIR = Path(os.environ["SERVER_PATH"]) / "data" / "raw"/ "original_videos" /
 WORKERS = 64  # high for network I/O — tune down if server struggles
 
 
-def move_file(src: Path, dest_dir: Path) -> str:
+def move_file(src: Path, dest_dir: Path, existing: set) -> str:
+    if src.name in existing:
+        return f"{src.name} (skipped)"
     dest = dest_dir / src.name
     # copy2 + unlink is faster than shutil.move across filesystems:
     # shutil.move always tries os.rename first (fails cross-device), then falls back
@@ -28,11 +30,13 @@ def main():
         print(f"No .webm files found in {SOURCE_DIR}")
         return
 
+    existing = {f.name for f in DEST_DIR.glob("*.webm")}
+
     total = len(webm_files)
     print(f"Moving {total} files to {DEST_DIR} using {WORKERS} threads ...")
 
     with ThreadPoolExecutor(max_workers=WORKERS) as executor:
-        futures = {executor.submit(move_file, f, DEST_DIR): f for f in webm_files}
+        futures = {executor.submit(move_file, f, DEST_DIR, existing): f for f in webm_files}
         for i, future in enumerate(as_completed(futures), 1):
             name = future.result()
             print(f"[{i}/{total}] {name}")

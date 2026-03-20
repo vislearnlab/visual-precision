@@ -12,9 +12,11 @@ env_file = here(".env")
 if (file.exists(env_file)) {
   load_dot_env(file = env_file)
   PROJECT_VERSION <- Sys.getenv("PROJECT_VERSION")
+  PROCESS_NEW_ONLY <- as.logical(Sys.getenv("PROCESS_NEW_ONLY"))
   if (PROJECT_VERSION == "") PROJECT_VERSION <- "main"
 } else {
   PROJECT_VERSION <- "main"
+  PROCESS_NEW_ONLY <- FALSE
 }
 
 # sample1/sample2 both live in data/main/ with a 'section' column.
@@ -63,6 +65,17 @@ timestamp_data <- if (!is.null(CURRENT_SECTION)) {
   timestamp_data_all |> filter(section == CURRENT_SECTION)
 } else {
   timestamp_data_all
+}
+
+if (PROCESS_NEW_ONLY) {
+  participant_data_file <- here(PROCESSED_DATA_PATH, "level-participant_added-trials_data.csv")
+  if (file.exists(participant_data_file)) {
+    existing_participants <- read.csv(participant_data_file)$SubjectInfo.subjID
+  }
+  timestamp_data <- timestamp_data |>
+    filter_out(SubjectInfo.subjID %in% existing_participants)
+  trial_timing_info <- trial_timing_info |>
+    filter_out(SubjectInfo.subjID %in% existing_participants)
 }
 
 # Combine and process data (drop section from timestamp_data to avoid column conflict;
@@ -537,6 +550,10 @@ looking_times_info <- all_looking_times %>%
 #join with resampled data
 looking_time_resampled_clean <- looking_time_resampled_clean %>%
   left_join(looking_times_info)
+
+# add section information to trials data
+summarize_subj_trials <- summarize_subj_trials |>
+  left_join(trial_metadata |> select(Trials.trialID, section))
 ```
 
 ## Write data
@@ -581,7 +598,7 @@ write_participants_csv <- function(df, path, id_col = "SubjectInfo.subjID") {
 write_participants_csv(all_looking_times, file.path(PROCESSED_DATA_PATH, "level-looks_added-metadata_data.csv"))
 write_participants_csv(looking_time_resampled_clean,  file.path(PROCESSED_DATA_PATH, "level-looks_data.csv"))
 write_participants_csv(participant_total_usable_trials, file.path(PROCESSED_DATA_PATH, "level-participant_added-trials_data.csv"))
-write_participants_csv(summarize_subj_trials, file.path(PROCESSED_DATA_PATH, "level-trials_data.csv"))
+write_participants_csv(summarize_subj_trials |> left_join(trial_metadata |> select(Trials.trialID, section)), file.path(PROCESSED_DATA_PATH, "level-trials_data.csv"))
 
 # trial_metadata: upsert by section (overwrite rows for the current section)
 trial_metadata <- trial_metadata |>

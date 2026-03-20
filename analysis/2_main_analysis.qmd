@@ -77,6 +77,28 @@ aoa_summary <- trial_metadata |>
 median_aoa <- aoa_summary$median_aoa
 ```
 
+```{r}
+# Total counts per section
+total_counts <- trial_summary_data %>%
+  distinct(SubjectInfo.subjID, section) %>%
+  count(section, name = "total")
+
+# Filtered counts per section
+filtered_counts <- looking_data_summarized %>%
+  distinct(SubjectInfo.subjID, section) %>%
+  count(section, name = "filtered")
+
+# Combine and compute percentage
+summary_table <- total_counts %>%
+  left_join(filtered_counts, by = "section") %>%
+  mutate(
+    filtered = coalesce(filtered, 0),
+    percentage_filtered = round((filtered / total) * 100, 2)
+  )
+
+summary_table
+```
+
 util function to see what the order of trials were for individual participants
 ```{r}
 order_of_trials <- function(data, subjID) {
