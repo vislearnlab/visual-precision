@@ -27,7 +27,7 @@ STIMULI_PATH = "https://ucsdlearninglabs.org/stimuli/"
 PROJECT_VERSION = Sys.getenv("PROJECT_VERSION")
 # The directory the current file is located in
 SOURCE_CODE_PATH = here("stimuli", "lookit")
-DEST_PATH <- file.path(SOURCE_CODE_PATH, "exp2")
+DEST_PATH <- file.path(SOURCE_CODE_PATH, "exp1")
 # Using regular destination path so that our file converter script can convert them and store them in mp3 and ogg folders
 DEST_AUDIO_PATH <- file.path(DEST_PATH)
 ```

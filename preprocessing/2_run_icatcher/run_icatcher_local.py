@@ -3,8 +3,8 @@
 Local runner for processing videos with GPU and a progress bar.
 
 Usage examples:
-  ./run_icatcher_local.py \
-    --gpu_id 0 
+  python run_icatcher_local.py 
+  --gpu_id 0 
 """
 import argparse
 import os
@@ -52,7 +52,7 @@ def run_command(project_path: Path, input_path: Path, gpu_id: int, timeout: Opti
 
 def parse_args():
     p = argparse.ArgumentParser(description="Run icatcher-like processing locally using a GPU and progress bar")
-    p.add_argument('--gpu-id', type=int, default=0, help='Force GPU id')
+    p.add_argument('--gpu_id', type=int, default=0, help='Force GPU id')
     p.add_argument('--input-dir', type=str, default=None, help='Input directory path')
     p.add_argument('--output-dir', type=str, default=None, help='Output directory path')
     p.add_argument('--process-existing', action='store_true', help='Process videos when output already exists')

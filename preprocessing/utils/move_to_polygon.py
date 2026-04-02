@@ -3,10 +3,10 @@ import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from dotenv import load_dotenv
-load_dotenv()
+from config import *
 
-SOURCE_DIR = Path("/Users/vislearnlab/Downloads/original_videos")
-DEST_DIR = Path(os.environ["SERVER_PATH"]) / "data" / "raw"/ "original_videos" / "webm"
+SOURCE_DIR = Path(PROJECT_PATH) / "data" / "raw" / "raw_videos"
+DEST_DIR = Path(SERVER_PATH) / "data" / "raw"/ "original_videos" / "webm"
 
 WORKERS = 64  # high for network I/O — tune down if server struggles
 

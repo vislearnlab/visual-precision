@@ -2,521 +2,521 @@ function generateProtocol(child, pastSessions) {
 
     //var condition_list = ["cond-1A", "cond-1B", "cond-2A", "cond-2B", "cond-1A-locationflip", "cond-1B-locationflip", "cond-2A-locationflip", "cond-2B-locationflip"];
     //select a default condition for the session
-
     const inputPilotJSON = [
   {
-    "audio": "ACORN",
+    "audio": "BATHTUB",
     "images": [
       {
-        "id": "acorn-coconut-left",
-        "src": "coconut.jpg",
+        "id": "bathtub-sock-left",
+        "src": "sock.jpg",
         "position": "left"
       },
       {
-        "id": "acorn-coconut-right",
-        "src": "acorn.jpg",
+        "id": "bathtub-sock-right",
+        "src": "bathtub.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-acorn-coconut"
+    "id": "easy-bathtub-sock"
   },
   {
-    "audio": "ACORN",
+    "audio": "BATHTUB",
     "images": [
       {
-        "id": "acorn-key-left",
-        "src": "key.jpg",
+        "id": "bathtub-shower-left",
+        "src": "bathtub.jpg",
         "position": "left"
       },
       {
-        "id": "acorn-key-right",
-        "src": "acorn.jpg",
+        "id": "bathtub-shower-right",
+        "src": "shower.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-acorn-key"
+    "id": "hard-bathtub-shower"
   },
   {
-    "audio": "BULLDOZER",
+    "audio": "BALLOON",
     "images": [
       {
-        "id": "bulldozer-orange-left",
-        "src": "bulldozer.jpg",
+        "id": "balloon-dresser-left",
+        "src": "dresser.jpg",
         "position": "left"
       },
       {
-        "id": "bulldozer-orange-right",
-        "src": "orange.jpg",
+        "id": "balloon-dresser-right",
+        "src": "balloon.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-bulldozer-orange"
+    "id": "easy-balloon-dresser"
   },
   {
-    "audio": "BULLDOZER",
+    "audio": "BALLOON",
     "images": [
       {
-        "id": "bulldozer-tractor-left",
-        "src": "tractor.jpg",
+        "id": "balloon-kite-left",
+        "src": "balloon.jpg",
         "position": "left"
       },
       {
-        "id": "bulldozer-tractor-right",
-        "src": "bulldozer.jpg",
+        "id": "balloon-kite-right",
+        "src": "kite.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-bulldozer-tractor"
+    "id": "hard-balloon-kite"
   },
   {
-    "audio": "CHEESE",
+    "audio": "CAMEL",
     "images": [
       {
-        "id": "cheese-butter-left",
-        "src": "cheese.jpg",
+        "id": "camel-elephant-left",
+        "src": "elephant.jpg",
         "position": "left"
       },
       {
-        "id": "cheese-butter-right",
-        "src": "butter.jpg",
+        "id": "camel-elephant-right",
+        "src": "camel.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-cheese-butter"
+    "id": "hard-camel-elephant"
   },
   {
-    "audio": "CHEESE",
+    "audio": "CAMEL",
     "images": [
       {
-        "id": "cheese-mud-left",
-        "src": "mud.jpg",
+        "id": "camel-ladybug-left",
+        "src": "camel.jpg",
         "position": "left"
       },
       {
-        "id": "cheese-mud-right",
-        "src": "cheese.jpg",
+        "id": "camel-ladybug-right",
+        "src": "ladybug.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-cheese-mud"
+    "id": "easy-camel-ladybug"
   },
   {
-    "audio": "POTATO",
+    "audio": "CLOUD",
     "images": [
       {
-        "id": "potato-glasses-left",
-        "src": "glasses.jpg",
+        "id": "cloud-tree-left",
+        "src": "tree.jpg",
         "position": "left"
       },
       {
-        "id": "potato-glasses-right",
-        "src": "potato.jpg",
+        "id": "cloud-tree-right",
+        "src": "cloud.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-potato-glasses"
+    "id": "hard-cloud-tree"
   },
   {
-    "audio": "POTATO",
+    "audio": "CLOUD",
     "images": [
       {
-        "id": "potato-pot-left",
-        "src": "pot.jpg",
+        "id": "cloud-zipper-left",
+        "src": "zipper.jpg",
         "position": "left"
       },
       {
-        "id": "potato-pot-right",
-        "src": "potato.jpg",
+        "id": "cloud-zipper-right",
+        "src": "cloud.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-potato-pot"
+    "id": "easy-cloud-zipper"
   },
   {
-    "audio": "SNAIL",
+    "audio": "CROW",
     "images": [
       {
-        "id": "snail-cow-left",
-        "src": "snail.jpg",
+        "id": "crow-penguin-left",
+        "src": "penguin.jpg",
         "position": "left"
       },
       {
-        "id": "snail-cow-right",
-        "src": "cow.jpg",
+        "id": "crow-penguin-right",
+        "src": "crow.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-snail-cow"
+    "id": "hard-crow-penguin"
   },
   {
-    "audio": "SNAIL",
+    "audio": "CROW",
     "images": [
       {
-        "id": "snail-worm-left",
-        "src": "snail.jpg",
+        "id": "crow-seahorse-left",
+        "src": "crow.jpg",
         "position": "left"
       },
       {
-        "id": "snail-worm-right",
-        "src": "worm.jpg",
+        "id": "crow-seahorse-right",
+        "src": "seahorse.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-snail-worm"
+    "id": "easy-crow-seahorse"
   },
   {
-    "audio": "SQUIRREL",
+    "audio": "DUCK",
     "images": [
       {
-        "id": "squirrel-eagle-left",
-        "src": "eagle.jpg",
+        "id": "duck-chicken-left",
+        "src": "chicken.jpg",
         "position": "left"
       },
       {
-        "id": "squirrel-eagle-right",
-        "src": "squirrel.jpg",
+        "id": "duck-chicken-right",
+        "src": "duck.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-squirrel-eagle"
+    "id": "hard-duck-chicken"
   },
   {
-    "audio": "SQUIRREL",
+    "audio": "DUCK",
     "images": [
       {
-        "id": "squirrel-monkey-left",
-        "src": "monkey.jpg",
+        "id": "duck-butterfly-left",
+        "src": "duck.jpg",
         "position": "left"
       },
       {
-        "id": "squirrel-monkey-right",
-        "src": "squirrel.jpg",
+        "id": "duck-butterfly-right",
+        "src": "butterfly.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-squirrel-monkey"
+    "id": "easy-duck-butterfly"
   },
   {
-    "audio": "TURKEY",
+    "audio": "LIZARD",
     "images": [
       {
-        "id": "turkey-goat-left",
-        "src": "goat.jpg",
+        "id": "lizard-walrus-left",
+        "src": "lizard.jpg",
         "position": "left"
       },
       {
-        "id": "turkey-goat-right",
-        "src": "turkey.jpg",
+        "id": "lizard-walrus-right",
+        "src": "walrus.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-turkey-goat"
+    "id": "easy-lizard-walrus"
   },
   {
-    "audio": "TURKEY",
+    "audio": "LIZARD",
     "images": [
       {
-        "id": "turkey-swan-left",
-        "src": "swan.jpg",
+        "id": "lizard-snake-left",
+        "src": "lizard.jpg",
         "position": "left"
       },
       {
-        "id": "turkey-swan-right",
-        "src": "turkey.jpg",
+        "id": "lizard-snake-right",
+        "src": "snake.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-turkey-swan"
+    "id": "hard-lizard-snake"
   },
   {
-    "audio": "TURTLE",
+    "audio": "TRUCK",
     "images": [
       {
-        "id": "turtle-frog-left",
-        "src": "turtle.jpg",
+        "id": "truck-car-left",
+        "src": "car.jpg",
         "position": "left"
       },
       {
-        "id": "turtle-frog-right",
-        "src": "frog.jpg",
+        "id": "truck-car-right",
+        "src": "truck.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-turtle-frog"
+    "id": "hard-truck-car"
   },
   {
-    "audio": "TURTLE",
+    "audio": "TRUCK",
     "images": [
       {
-        "id": "turtle-horse-left",
-        "src": "horse.jpg",
+        "id": "truck-airplane-left",
+        "src": "airplane.jpg",
         "position": "left"
       },
       {
-        "id": "turtle-horse-right",
-        "src": "turtle.jpg",
+        "id": "truck-airplane-right",
+        "src": "truck.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-turtle-horse"
+    "id": "easy-truck-airplane"
   },
   {
-    "audio": "COCONUT",
+    "audio": "SOCK",
     "images": [
       {
-        "id": "acorn-coconut-left",
-        "src": "coconut.jpg",
+        "id": "bathtub-sock-left",
+        "src": "sock.jpg",
         "position": "left"
       },
       {
-        "id": "acorn-coconut-right",
-        "src": "acorn.jpg",
+        "id": "bathtub-sock-right",
+        "src": "bathtub.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-acorn-coconut-distractor"
+    "id": "easy-bathtub-sock-distractor"
   },
   {
-    "audio": "KEY",
+    "audio": "SHOWER",
     "images": [
       {
-        "id": "acorn-key-left",
-        "src": "key.jpg",
+        "id": "bathtub-shower-left",
+        "src": "bathtub.jpg",
         "position": "left"
       },
       {
-        "id": "acorn-key-right",
-        "src": "acorn.jpg",
+        "id": "bathtub-shower-right",
+        "src": "shower.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-acorn-key-distractor"
+    "id": "hard-bathtub-shower-distractor"
   },
   {
-    "audio": "ORANGE",
+    "audio": "DRESSER",
     "images": [
       {
-        "id": "bulldozer-orange-left",
-        "src": "bulldozer.jpg",
+        "id": "balloon-dresser-left",
+        "src": "dresser.jpg",
         "position": "left"
       },
       {
-        "id": "bulldozer-orange-right",
-        "src": "orange.jpg",
+        "id": "balloon-dresser-right",
+        "src": "balloon.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-bulldozer-orange-distractor"
+    "id": "easy-balloon-dresser-distractor"
   },
   {
-    "audio": "TRACTOR",
+    "audio": "KITE",
     "images": [
       {
-        "id": "bulldozer-tractor-left",
-        "src": "tractor.jpg",
+        "id": "balloon-kite-left",
+        "src": "balloon.jpg",
         "position": "left"
       },
       {
-        "id": "bulldozer-tractor-right",
-        "src": "bulldozer.jpg",
+        "id": "balloon-kite-right",
+        "src": "kite.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-bulldozer-tractor-distractor"
+    "id": "hard-balloon-kite-distractor"
   },
   {
-    "audio": "BUTTER",
+    "audio": "ELEPHANT",
     "images": [
       {
-        "id": "cheese-butter-left",
-        "src": "cheese.jpg",
+        "id": "camel-elephant-left",
+        "src": "elephant.jpg",
         "position": "left"
       },
       {
-        "id": "cheese-butter-right",
-        "src": "butter.jpg",
+        "id": "camel-elephant-right",
+        "src": "camel.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-cheese-butter-distractor"
+    "id": "hard-camel-elephant-distractor"
   },
   {
-    "audio": "MUD",
+    "audio": "LADYBUG",
     "images": [
       {
-        "id": "cheese-mud-left",
-        "src": "mud.jpg",
+        "id": "camel-ladybug-left",
+        "src": "camel.jpg",
         "position": "left"
       },
       {
-        "id": "cheese-mud-right",
-        "src": "cheese.jpg",
+        "id": "camel-ladybug-right",
+        "src": "ladybug.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-cheese-mud-distractor"
+    "id": "easy-camel-ladybug-distractor"
   },
   {
-    "audio": "GLASSES",
+    "audio": "TREE",
     "images": [
       {
-        "id": "potato-glasses-left",
-        "src": "glasses.jpg",
+        "id": "cloud-tree-left",
+        "src": "tree.jpg",
         "position": "left"
       },
       {
-        "id": "potato-glasses-right",
-        "src": "potato.jpg",
+        "id": "cloud-tree-right",
+        "src": "cloud.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-potato-glasses-distractor"
+    "id": "hard-cloud-tree-distractor"
   },
   {
-    "audio": "POT",
+    "audio": "ZIPPER",
     "images": [
       {
-        "id": "potato-pot-left",
-        "src": "pot.jpg",
+        "id": "cloud-zipper-left",
+        "src": "zipper.jpg",
         "position": "left"
       },
       {
-        "id": "potato-pot-right",
-        "src": "potato.jpg",
+        "id": "cloud-zipper-right",
+        "src": "cloud.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-potato-pot-distractor"
+    "id": "easy-cloud-zipper-distractor"
   },
   {
-    "audio": "COW",
+    "audio": "PENGUIN",
     "images": [
       {
-        "id": "snail-cow-left",
-        "src": "snail.jpg",
+        "id": "crow-penguin-left",
+        "src": "penguin.jpg",
         "position": "left"
       },
       {
-        "id": "snail-cow-right",
-        "src": "cow.jpg",
+        "id": "crow-penguin-right",
+        "src": "crow.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-snail-cow-distractor"
+    "id": "hard-crow-penguin-distractor"
   },
   {
-    "audio": "WORM",
+    "audio": "SEAHORSE",
     "images": [
       {
-        "id": "snail-worm-left",
-        "src": "snail.jpg",
+        "id": "crow-seahorse-left",
+        "src": "crow.jpg",
         "position": "left"
       },
       {
-        "id": "snail-worm-right",
-        "src": "worm.jpg",
+        "id": "crow-seahorse-right",
+        "src": "seahorse.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-snail-worm-distractor"
+    "id": "easy-crow-seahorse-distractor"
   },
   {
-    "audio": "EAGLE",
+    "audio": "CHICKEN",
     "images": [
       {
-        "id": "squirrel-eagle-left",
-        "src": "eagle.jpg",
+        "id": "duck-chicken-left",
+        "src": "chicken.jpg",
         "position": "left"
       },
       {
-        "id": "squirrel-eagle-right",
-        "src": "squirrel.jpg",
+        "id": "duck-chicken-right",
+        "src": "duck.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-squirrel-eagle-distractor"
+    "id": "hard-duck-chicken-distractor"
   },
   {
-    "audio": "MONKEY",
+    "audio": "BUTTERFLY",
     "images": [
       {
-        "id": "squirrel-monkey-left",
-        "src": "monkey.jpg",
+        "id": "duck-butterfly-left",
+        "src": "duck.jpg",
         "position": "left"
       },
       {
-        "id": "squirrel-monkey-right",
-        "src": "squirrel.jpg",
+        "id": "duck-butterfly-right",
+        "src": "butterfly.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-squirrel-monkey-distractor"
+    "id": "easy-duck-butterfly-distractor"
   },
   {
-    "audio": "GOAT",
+    "audio": "WALRUS",
     "images": [
       {
-        "id": "turkey-goat-left",
-        "src": "goat.jpg",
+        "id": "lizard-walrus-left",
+        "src": "lizard.jpg",
         "position": "left"
       },
       {
-        "id": "turkey-goat-right",
-        "src": "turkey.jpg",
+        "id": "lizard-walrus-right",
+        "src": "walrus.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-turkey-goat-distractor"
+    "id": "easy-lizard-walrus-distractor"
   },
   {
-    "audio": "SWAN",
+    "audio": "SNAKE",
     "images": [
       {
-        "id": "turkey-swan-left",
-        "src": "swan.jpg",
+        "id": "lizard-snake-left",
+        "src": "lizard.jpg",
         "position": "left"
       },
       {
-        "id": "turkey-swan-right",
-        "src": "turkey.jpg",
+        "id": "lizard-snake-right",
+        "src": "snake.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-turkey-swan-distractor"
+    "id": "hard-lizard-snake-distractor"
   },
   {
-    "audio": "FROG",
+    "audio": "CAR",
     "images": [
       {
-        "id": "turtle-frog-left",
-        "src": "turtle.jpg",
+        "id": "truck-car-left",
+        "src": "car.jpg",
         "position": "left"
       },
       {
-        "id": "turtle-frog-right",
-        "src": "frog.jpg",
+        "id": "truck-car-right",
+        "src": "truck.jpg",
         "position": "right"
       }
     ],
-    "id": "hard-turtle-frog-distractor"
+    "id": "hard-truck-car-distractor"
   },
   {
-    "audio": "HORSE",
+    "audio": "AIRPLANE",
     "images": [
       {
-        "id": "turtle-horse-left",
-        "src": "horse.jpg",
+        "id": "truck-airplane-left",
+        "src": "airplane.jpg",
         "position": "left"
       },
       {
-        "id": "turtle-horse-right",
-        "src": "turtle.jpg",
+        "id": "truck-airplane-right",
+        "src": "truck.jpg",
         "position": "right"
       }
     ],
-    "id": "easy-turtle-horse-distractor"
+    "id": "easy-truck-airplane-distractor"
   }
 ]
+
     
     const inputAttentionGetters = [
         {
@@ -528,7 +528,7 @@ function generateProtocol(child, pastSessions) {
                 "loop": false,
                  "width": 50,
                 "source": "Balloons"
-            }
+            },
         },
         {
             "id": "attention-getter-bouncyballs",
@@ -564,69 +564,7 @@ function generateProtocol(child, pastSessions) {
             }
         }
         ]
-        /*,
-        {
-                    "id": "attention-getter-water",
-                    "audio": "acrossTheUniverse000",
-                    "images": [{
-                            "id": "attention-getter-water-left",
-                            "src": "water_left.jpg",
-                            "position": "left"
-                        },
-                        {
-                            "id": "attention-getter-water-right",
-                            "src": "water_right.jpg",
-                            "position": "right"
-                        }
-                    ]
-        },
-        {
-                    "id": "attention-getter-fireworks",
-                    "audio": "acrossTheUniverse016",
-                    "images": [{
-                            "id": "attention-getter-fireworks-left",
-                            "src": "fireworks_left.jpg",
-                            "position": "left"
-                        },
-                        {
-                            "id": "attention-getter-fireworks-right",
-                            "src": "fireworks_right.jpg",
-                            "position": "right"
-                        }
-                    ]
-        },
-        {
-                    "id": "attention-getter-beach",
-                    "audio": "yellow001",
-                    "images": [{c
-                            "id": "attention-getter-beach-left",
-                            "src": "beach_left.jpg",
-                            "position": "left"
-                        },
-                        {
-                            "id": "attention-getter-beach-right",
-                            "src": "beach_right.jpg",
-                            "position": "right"
-                        }
-                    ]
-        },
-        {
-                    "id": "attention-gettter-mountain",
-                    "audio": "yellow001",
-                    "images": [{
-                            "id": "attention-gettter-mountain-left",
-                            "src": "mountain_left.jpg",
-                            "position": "left"
-                        },
-                        {
-                            "id": "attention-gettter-mountain-right",
-                            "src": "mountain_right.jpg",
-                            "position": "right"
-                        }
-                    ]
-    }
-    ]
-    */
+ 
     function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -699,7 +637,7 @@ function generateProtocol(child, pastSessions) {
         let imagePairItems = shuffleGroupedItems(targetImageGroups, extractedBroadTargetId);
         return imagePairItems;
     }
-
+    
     /* Shuffles the positions of the images of an input trial 50% of the time
     * Each input trial is of the form 
     { audio: string, id: string, images: [{id: string, src: string, position: left|right}, {id: string, src: string, position: left|right}] }
@@ -724,8 +662,10 @@ function generateProtocol(child, pastSessions) {
     pilotJSON.forEach(trial => shuffleImages(trial))
     const carrierFrames = ["where", "find", "look_at", "see"]
     insertCarrierFrames(pilotJSON, carrierFrames)
-    console.log(pilotJSON)
-    
+
+    inputAttentionGetters.forEach(attentionGetter => { 
+        attentionGetter["durationSeconds"] = 5.1; 
+        attentionGetter["doRecording"] = false; })
     let currentAttentionGetters = shuffleArray(inputAttentionGetters.concat(inputAttentionGetters))
     function insertAttentionGetters(arr, agArr) {
         for (let index = 0; index < agArr.length; index++) {
@@ -743,6 +683,26 @@ function generateProtocol(child, pastSessions) {
 
     insertAttentionGetters(pilotJSON, currentAttentionGetters)
     
+    const condition = "pilot"
+    const cdi2a_link = `https://qualtricsxmhcv2m8q6d.qualtrics.com/jfe/form/SV_7NAZ6riQu1aBIZU?ChildID=${child.get("id")}`
+    const cdi1_link = `https://ucsd.co1.qualtrics.com/jfe/form/SV_3UTxIUSEYbe3QdE?ChildID=${child.get("id")}`
+    let cdi_to_use = ""
+    let one_month = 1000 * 60 * 60 * 24 * 30.43; // ms in one month
+    let child_age_in_months = -1;
+    try {
+        child_age_in_months = (new Date() - child.get('birthday')) / one_month;
+    } catch (error) {
+        // Display what the error was for debugging, but continue with fake
+        // age in case we can't calculate age for some reason
+        console.error(error);
+    }
+    child_age_in_months = child_age_in_months || 20; // If undefined/null, set to default 20 months i.e. provide older CDI survey to avoid any ceiling issues
+    if (child_age_in_months <= 18) {
+        cdi_to_use = cdi1_link;
+    } else {
+        cdi_to_use = cdi2a_link;
+    }
+    console.log(cdi_to_use)
     pilotJSON = [
         ...pilotJSON,
         {
@@ -756,9 +716,8 @@ function generateProtocol(child, pastSessions) {
                     ]
         }]
     
-    var debrief_text = "You just completed this study! After you exit this experiment, we will check that your consent video meets our eligibility criteria and send you a $5 Amazon gift card (US) within one week of participating. </br></br>In this study, we are interested in how babies learn that words, such as <i>bulldozer</i>, refer to different types of bulldozers, but not to similar looking categories, like types of tractors. Your baby saw some pictures of objects that are labeled (for example, a bulldozer), paired with objects that differ in how similar they are to the labeled object (for example, a tractor and an orange). We wonder if babies will make more mistakes with the more similar objects compared to the objects that are more different. All babies in this study were shown the same pairs of pictures but the order in which they appeared and the ordering of the pictures were both randomized.</br></br>Babies know more about words than they are able to say, so we look at what babies <i>understand</i> about words by seeing what they look at during the study. There are many reasons why your baby might look to one kind of object over another, and your baby likely looked at pictures differently than another child based on their unique experiences with these categories of words. For example, your baby may not know the word <i>squirrel</i> or maybe your baby eats a lot of oranges at home that look like the ones in our study. If we understand how this process changes and is supposed to change across development, we can provide better assessments and interventions for children who struggle with early category learning, including late talkers and children with ASD.<br/><br/>To learn more, <a href='https://pmc.ncbi.nlm.nih.gov/articles/PMC2630708/'>here</a> is a link to a study about how children with ASD process categories differently and <a href='https://www.nature.com/articles/s41467-023-44529-9'>here</a> is a link to a study led by the principal investigator of our lab, Dr. Bria Long, about how the way children think about categories changes as they get older. You can also <a href='https://www.vislearnlab.org/'>visit our website</a> to learn more about our research!"
-
-    const condition = "pilot"
+    var survey_text = `You are almost done with the study! Please additionally complete <a href='${cdi_to_use}'>this survey</a> where we will ask you a few questions about what words your child can understand and can produce.`
+    var debrief_text = `You are done with the study! After you exit this experiment, we will check that your consent video meets our eligibility criteria and send you a $5 Amazon gift card (US) within one week of participating. </br></br>In this study, we are interested in how babies learn that words, such as <i>bulldozer</i>, refer to different types of bulldozers, but not to similar looking categories, like types of tractors. Your baby saw some pictures of objects that are labeled (for example, a bulldozer), paired with objects that differ in how similar they are to the labeled object (for example, a tractor and an orange). The order of these pictures, the prompt that labeled the picture, and the positioning of the pictures on the screen were all randomized, ensuring that your baby did not see the same images close to one another. We wonder if babies will make more mistakes with the more similar objects compared to the objects that are more different. All babies in this study were shown the same pairs of pictures but the order in which they appeared and the ordering of the pictures were both randomized.</br></br>Babies know more about words than they are able to say, so we look at what babies <i>understand</i> about words by seeing what they look at during the study. There are many reasons why your baby might look to one kind of object over another, and your baby likely looked at pictures differently than another child based on their unique experiences with these categories of words. For example, your baby may not know the word <i>squirrel</i> or maybe your baby eats a lot of oranges at home that look like the ones in our study. If we understand how this process changes and is supposed to change across development, we can provide better assessments and interventions for children who struggle with early category learning, including late talkers and children with ASD.<br/><br/>To learn more, <a href='https://pmc.ncbi.nlm.nih.gov/articles/PMC2630708/'>here</a> is a link to a study about how children with ASD process categories differently and <a href='https://www.nature.com/articles/s41467-023-44529-9'>here</a> is a link to a study led by the principal investigator of our lab, Dr. Bria Long, about how the way children think about categories changes as they get older. You can also <a href='https://www.vislearnlab.org/'>visit our website</a> to learn more about our research!`
 
     let frames = {
         "eligibility-survey": {
@@ -936,7 +895,8 @@ function generateProtocol(child, pastSessions) {
             "calibrationPositions": [
                 "center",
                 "left",
-                "right"
+                "right",
+                "center"
             ],
             "calibrationAudio": [{
                 "src": "https://ucsdlearninglabs.org/stimuli/mp3/pinwheel.mp3",
@@ -1128,6 +1088,19 @@ function generateProtocol(child, pastSessions) {
             }],
             "nextButtonText": "Next"
         },
+        "vocab-survey": {
+            "blocks": [
+                {
+                    "emph": true,
+                    "title": "Vocabulary survey"
+                },
+                {
+                    "text": survey_text
+                }
+            ],
+            "showPreviousButton": false,
+            "kind": "exp-lookit-text"
+        },
         "parent-exit-survey": {
             "kind": "exp-lookit-exit-survey",
             "debriefing": {
@@ -1153,10 +1126,9 @@ function generateProtocol(child, pastSessions) {
         "exp-get-ready",
         "exp-calibration",
         condition,
+        "vocab-survey",
         "parent-exit-survey"
     ]
-    console.log(frames)
-    console.log(frame_sequence)
     return {
         frames: frames,
         sequence: frame_sequence

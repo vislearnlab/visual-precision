@@ -133,7 +133,7 @@ def convert_webm_to_mp4(input_path, output_path, consent_path):
             else:
                 os.makedirs(os.path.join(output_path, local_child_id), exist_ok=True)
                 output_dir = os.path.join(output_path, local_child_id)
-                output_file_name = f"{matches.group(2).split("-",1)[1]}_{local_child_id}.mp4"
+                output_file_name = f"{matches.group(2).split('-',1)[1]}_{local_child_id}.mp4"
             # Not including trial ordering number in file names since it is not a primary key
             output_file = os.path.join(output_dir, output_file_name)
             # Do not convert files that have already been converted
