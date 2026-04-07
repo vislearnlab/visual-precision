@@ -27,10 +27,32 @@ The data folder contains all levels of data from raw through processed. The raw 
 More information on the data to be found in the dataset_description.json file that is being worked on. 
 
 ## Running through the pipeline
-Since the videos we collected are inherently identifiable (and large) we cannot share them, so we recommend starting at the analysis section if you do not have a set of videos. In general, please install Python packages using the `requirements.txt` file in the main directory to get started. Then, please copy over the `.env_template` file into a `.env` file, filling out the rows as required. Then, refer to the Markdown files in the `preprocessing` and `analysis` subdirectories.
+Since the videos we collected are inherently identifiable (and large) we cannot share them, so we recommend starting at the analysis section if you do not have a set of videos. In general, please install Python packages using the `requirements.txt` file in the main directory to get started. Then, refer to the Markdown files in the `preprocessing` and `analysis` subdirectories.
 
-1. Downloading the video ZIP and trial JSON files from Children Helping Science. We first unzip the videos and store them in `data/raw/raw_videos` locally and place the trial JSON file as `data/lookit/all_study_data.json` on the server. Running `preprocess.py` (which calls `preprocessing/utils/move_to_polygon.py` and `preprocessing/1_preprocess_raw_data.py`) to move the videos to the server and then format the raw videos and clean the Lookit JSON file. You can also run this first locally to move files to the server and then run it on the server to preprocess raw data faster.
-2. To run iCatcher+ and annotate gaze data across the formatted videos, navigate to `preprocessing/2_run_icatcher` and run `python run_icatcher_local.py` on a server with a GPU like Tversky. You can specify the gpu id as `python run_icatcher_local.py --gpu_id 0` The current pipeline does not support CPU use but in theory this is possible. You can run with CPU/GPU on a server with SBATCH too by running `preprocessing/2_run_icatcher/run_icatcher_job_array.sh`
-3. After iCatcher+ has finished running, run `preprocessing/3_process_icatcher_output/main.ipnyb` to process the iCatcher+ data into a single CSV file. You will probably want to run this locally so that you can run downstream analyses files locally as well.  
-4. Run `models/main.py` to generate our embedding similarities. Run `analysis/saliency/visualize_maps.m` to generate our saliency differences. This step is optional if these values have already been calculated.
+1. Downloading the video ZIP and trial JSON files from Children Helping Science.
+ - unzip the videos and store them in `data/raw/raw_videos` locally 
+ - Place the trial JSON file as `data/lookit/all_study_data.json` on the server. 
+ - Connect to VPN and Polygon
+ - Copy over the `.env_template` file into a `.env` file, filling out the rows as required. 
+ - Run `preprocess.py` (which calls `preprocessing/utils/move_to_polygon.py` and `preprocessing/1_preprocess_raw_data.py`) to move the videos to the server and then format the raw videos and clean the Lookit JSON file. 
+ - (Optional) You can also run this first locally to move files to the server and then run it on the `tversky` server to preprocess raw data faster.
+ - **Note:** in the past this has been run on the `SSRDE server` as well
+
+2. Run iCatcher+ and annotate gaze data across the formatted videos
+- Navigate to `preprocessing/2_run_icatcher`
+- Activate the conda environment `conda activate visualprecision`
+- Install the requirements `pip install -r requirements.txt`
+- Run `python run_icatcher_local.py --gpu_id 0` on a server with a GPU like Tversky. 
+- See `preprocessing/2_run_icatcher/README.md` for a more detailed setup instruction and troubleshooting if needed.
+
+
+3. After iCatcher+ has finished running
+- run `preprocessing/3_process_icatcher_output/main.ipnyb` to process the iCatcher+ data into a single CSV file. 
+- **Note:** You will probably want to run this locally so that you can run downstream analysis files locally as well
+
+
+4. Run the following to generate model inputs *(optional if these values have already been calculated)*:
+- Run `models/main.py` to generate embedding similarities
+- Run `analysis/saliency/visualize_maps.m` to generate saliency differences
+
 5. Run the Quarto files in `analysis` in the order that they are numbered.
