@@ -42,6 +42,7 @@ Since the videos we collected are inherently identifiable (and large) we cannot 
 - Navigate to `preprocessing/2_run_icatcher`
 - Activate the conda environment `conda activate visualprecision`
 - Install the requirements `pip install -r requirements.txt`
+- Install `ffmpeg` to be able to convert webm to mp4
 - Run `python run_icatcher_local.py --gpu_id 0` on a server with a GPU like Tversky. 
 - See `preprocessing/2_run_icatcher/README.md` for a more detailed setup instruction and troubleshooting if needed.
 
