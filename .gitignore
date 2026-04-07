@@ -12,6 +12,8 @@
 analysis/**html**
 **/**_files
 
+#ignore virtual environments
+.venv/
 venv/
 
 misc/
@@ -31,6 +33,11 @@ data/raw/lookit/**/lookit_study.json
 data/raw/lookit/**/subject_data.csv
 data/raw/lookit/matched_gift_cards.txt
 data/raw/lookit/gift_cards.csv
+
+#ignore new raw webm videos and processed icatcher mp4 files
+preprocessing/2_run_icatcher/*.mp4
+data/raw/raw_videos/*.webm
+
 
 # excluding all figures by default
 figures/**/**png
