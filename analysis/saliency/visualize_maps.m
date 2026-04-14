@@ -147,7 +147,7 @@ saliency_metrics = table('Size', [height(image_pairs), 8], ...
     'VariableNames', [metrics, {'MeanSaliencyDiff'}]);
 
 for i = 1:height(image_pairs)
-    img_pair = strcat(image_pairs.Word1{i}, '-', image_pairs.Word2{i});
+    img_pair = strcat(image_pairs.text1{i}, '-', image_pairs.text2{i});
     disp(img_pair)
     img = imread(fullfile(PROJECT_PATH, 'experiment', 'frames', strcat(img_pair, '.png')));
     [~, saliency_data] = compare_saliency(img);

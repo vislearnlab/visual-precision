@@ -10,21 +10,19 @@ DEST_DIR = Path(SERVER_PATH) / "data" / "raw"/ "original_videos" / "webm"
 
 WORKERS = 64  # high for network I/O — tune down if server struggles
 
-
 def move_file(src: Path, dest_dir: Path, existing: set) -> str:
     if src.name in existing:
         return f"{src.name} (skipped)"
     dest = dest_dir / src.name
-    # copy2 + unlink is faster than shutil.move across filesystems:
+    # copy + unlink is faster than shutil.move across filesystems:
     # shutil.move always tries os.rename first (fails cross-device), then falls back
-    shutil.copy2(src, dest)
+    shutil.copy(src, dest)
     src.unlink()
     return src.name
 
 
 def main():
     DEST_DIR.mkdir(parents=True, exist_ok=True)
-
     webm_files = list(SOURCE_DIR.glob("*.webm"))
     if not webm_files:
         print(f"No .webm files found in {SOURCE_DIR}")
