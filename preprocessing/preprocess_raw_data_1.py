@@ -4,6 +4,7 @@ import re
 import json
 import csv
 from datetime import datetime
+import shutil
 import pandas as pd
 from config import PROJECT_PATH, SERVER_PATH, CONSENT_PATH, PROJECT_VERSION
 ids = {}
@@ -176,12 +177,18 @@ def preprocess_raw_data():
 
     # Clean each section's JSON, tag with section name, and build the hashed_ids map
     for section in sections_to_process:
-        input_lookit_responses_path = os.path.join(raw_server_dir, "lookit", section, "input_lookit_study.json")
+        input_lookit_responses_path = os.path.join(raw_project_dir, "lookit", section, "input_lookit_study.json")
+        input_lookit_responses_path_server = input_lookit_responses_path.replace(raw_project_dir, raw_server_dir)
         lookit_responses_path = os.path.join(raw_project_dir, "lookit", section, "lookit_study.json")
+        lookit_responses_path_server = lookit_responses_path.replace(raw_project_dir, raw_server_dir)
         os.makedirs(os.path.dirname(lookit_responses_path), exist_ok=True)
 
         clean_lookit_json(input_lookit_responses_path, lookit_responses_path, identifiable_data_path, current_id, section=section)
-
+        
+        # making sure the same versions of the lookit jsons are stored locally and on the server
+        shutil.copy(input_lookit_responses_path, input_lookit_responses_path_server)
+        shutil.copy(lookit_responses_path, lookit_responses_path_server)
+        
         # Update current_id so the next section continues numbering from where this one left off
         if os.path.exists(identifiable_data_path):
             df = pd.read_csv(identifiable_data_path)
