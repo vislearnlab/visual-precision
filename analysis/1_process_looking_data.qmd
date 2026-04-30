@@ -24,11 +24,12 @@ if (file.exists(env_file)) {
 VALID_SECTIONS <- c("sample1", "sample2")
 DATA_FOLDER   <- if (PROJECT_VERSION %in% c(VALID_SECTIONS, "main")) "main" else PROJECT_VERSION
 CURRENT_SECTION <- if (PROJECT_VERSION %in% VALID_SECTIONS) PROJECT_VERSION else NULL
+SERVER_PATH = Sys.getenv("SERVER_PATH")
 ```
 
 ```{r constants}
 METADATA_PATH = here("data", "metadata")
-DATA_TO_ANALYZE_PATH = here("data", DATA_FOLDER, "data_to_analyze")
+DATA_TO_ANALYZE_PATH = file.path(SERVER_PATH, "data", DATA_FOLDER, "data_to_analyze")
 PROCESSED_DATA_PATH  = here("data", DATA_FOLDER, "processed_data")
 
 # Helper: upsert trial_metadata rows for CURRENT_SECTION (keyed by section, not participant).
@@ -52,6 +53,62 @@ trial_timing_info = if (!is.null(CURRENT_SECTION)) {
 stimuli_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_data.csv"))
 saliency_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_added-saliency_data.csv"))
 similarities <- read.csv(here("data", "embeddings", "similarities-clip_data.csv"))
+```
+
+Participant rate
+```{r}
+SUBJECT_DATA <- read.csv(file.path(SERVER_PATH, "data", "raw", "lookit", "subject_data.csv"))
+fix_date <- function(x) {
+  d <- rep(as.Date(NA), length(x))
+  
+  # Bogus year (≤ 2010) with slashes: remap month from year digits
+  needs_fix <- str_detect(x, "^\\d{4}/") & as.integer(str_extract(x, "^\\d{4}")) <= 2010
+  fix_idx <- which(needs_fix)
+  if (length(fix_idx) > 0) {
+    parts <- str_split_fixed(x[fix_idx], "/", 3)
+    d[fix_idx] <- mdy(paste0(str_sub(parts[,1], 3, 4), "/", parts[,2], "/", parts[,3]))
+  }
+  
+  # Valid YYYY/M/D with slashes (year > 2010)
+  ymd_slash_idx <- which(str_detect(x, "^\\d{4}/") & !needs_fix)
+  if (length(ymd_slash_idx) > 0) d[ymd_slash_idx] <- ymd(x[ymd_slash_idx])
+  
+  # ISO YYYY-MM-DD with dashes
+  ymd_dash_idx <- which(str_detect(x, "^\\d{4}-"))
+  if (length(ymd_dash_idx) > 0) d[ymd_dash_idx] <- ymd(x[ymd_dash_idx])
+  
+  # Standard M/D/YY or M/D/YYYY
+  mdy_idx <- which(!str_detect(x, "^\\d{4}"))
+  if (length(mdy_idx) > 0) d[mdy_idx] <- mdy(x[mdy_idx])
+  
+  d
+}
+
+
+plot_data <- SUBJECT_DATA %>%
+  filter(section %in% c("sample1", "sample2")) %>%
+  mutate(date = fix_date(date_created)) %>%
+  arrange(date) %>%
+  group_by(section) %>%
+  mutate(
+    cumulative_n = row_number(),
+    study_day = as.numeric(date - min(date))
+  ) %>%
+  ungroup()
+
+ggplot(plot_data, aes(x = study_day, y = cumulative_n, color = section)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 1.5, alpha = 0.6) +
+  labs(
+    title = "Cumulative participant enrollment",
+    x = "Days since first participant",
+    y = "Cumulative participants",
+    color = "Section"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "top") +
+  scale_x_continuous(n.breaks = 10) +
+  scale_y_continuous(n.breaks = 10)
 ```
 
 Importing looking time data after initial preprocessing of iCatcher data in Python
@@ -191,7 +248,7 @@ trial_metadata <- summarize_subj_trials |>
 
 
 trial_metadata <- trial_metadata |>
-  left_join(similarities, by = c("Trials.distractorImage"="distractor", "Trials.targetImage"="target")) |>
+  left_join(similarities, by = c("Trials.distractorImage"="word2", "Trials.targetImage"="word1")) |>
   distinct(Trials.trialID, .keep_all=TRUE) |>
   left_join(saliency_metadata |> select(matches("Mean"), "ImagePair"), by = c("Trials.imagePair"="ImagePair")) |>
   mutate(
