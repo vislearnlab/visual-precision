@@ -1,0 +1,117 @@
+---
+title: "CDI data"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+SERVER_PATH <- "/Volumes/vislearnlab"
+```
+
+```{r}
+cdi_level1 <- read.csv("/Volumes/vislearnlab/experiments/visual-precision/data/raw/lookit/cdi/cdi_level1.csv")
+cdi_level2a <- read.csv("/Volumes/vislearnlab/experiments/visual-precision/data/raw/lookit/cdi/cdi_level2a.csv")
+df1 <- cdi_level1
+df2 <- cdi_level2a
+view(df1)
+view(df2)
+names(df1)
+names(df2)
+```
+
+```{r}
+#delete unnecessary columns
+df1 <- df1 %>% select(ChildID, starts_with("Q"))
+df2 <- df2 %>% select(ChildID, starts_with("Q"))
+```
+
+```{r}
+#get a mapping table
+words <- df1[1,]
+words <- pivot_longer(words, cols = !ChildID)
+words$ChildID <- NULL
+words <- words %>% separate(value, into=c('WordType', 'Words'), sep='-')
+words <- words %>% mutate(WordType = trimws(WordType), Words = trimws(Words))
+view(words)
+```
+
+```{r}
+#delete metadata
+df1 <- df1[-c(1, 2), ]
+df2 <- df2[-c(1, 2), ]
+```
+
+```{r}
+# transform to pivot long for df1
+df1_long <- df1 %>% pivot_longer(cols=!ChildID, names_to = "Question", values_to = 'Response')
+
+df1_long <- df1_long %>% mutate(Response = trimws(Response), Response = na_if(Response, ""), Response = as.numeric(Response))
+
+#add survey type and value
+df1_long$SurveyType = '1'
+df1_long$Value = ifelse(is.na(df1_long$Response), 0, 1)
+```
+
+```{r}
+#check before merge words to df1_long
+setdiff(df1_long$Question, words$name)
+
+#merge
+df1_long <- df1_long %>% left_join(words, c('Question' = 'name'))
+df1_long %>% filter(is.na(Words)) %>% distinct(Question)
+
+#map into condition
+ability <- tibble::tibble(Response = c(NA, 1, 2), Type = c(NA, 'Understands', 'Understands and Says'))
+df1_long <- df1_long %>% left_join(ability, 'Response')
+```
+
+```{r}
+#process df2
+df2_long <- df2 %>% pivot_longer(c(Q1, Q2), names_to = 'Question_group', values_to = 'Response') %>% separate_rows(Response, sep=',')
+df2_long <- df2_long %>% mutate(Response = trimws(Response), Response = na_if(Response, ""), Response = as.numeric(Response), Q3 = na_if(Q3, ''), Q3 = trimws(Q3), Q3 = as.numeric(Q3))
+```
+
+```{r}
+#get the label for df2
+cdi_level2a_label <- read.csv("/Volumes/vislearnlab/experiments/visual-precision/data/raw/lookit/cdi/cdi_level2a_label.csv")
+df2_label <- cdi_level2a_label
+df2_label <- df2_label %>% select(ChildID, starts_with("Q"))
+df2_label <- df2_label[-c(1, 2), ]
+
+#separate choices
+df2_label <- df2_label %>% pivot_longer(c(Q1, Q2), names_to = 'Question_group', values_to = 'Words') %>% separate_rows(Words, sep=',')
+colnames(df2_label)[2] <- 'combine_words'
+df2_label <- df2_label %>% mutate(Words = trimws(Words), Words = na_if(Words, ""), combine_words = trimws(combine_words), combine_words = na_if(combine_words, ""))
+```
+
+```{r}
+#create order index
+nrow(df2_long) == nrow(df2_label)
+
+num <- nrow(df2_long)
+ID <- c(1:num)
+
+df2_long <- cbind(ID, df2_long)
+df2_label <- cbind(ID, df2_label)
+
+#merge
+df2_long <- df2_long %>% merge(df2_label, by='ID')
+```
+
+```{r}
+#clean df2_long
+df2_long$Question_group.y = NULL
+df2_long$ChildID.y = NULL
+
+colnames(df2_long)[2] <- 'ChildID'
+colnames(df2_long)[4] <- 'Question_group'
+
+#add type and value column
+df2_long$SurveyType = '2A'
+df2_long$Value = ifelse(is.na(df2_long$Words), 0, 1)
+```
