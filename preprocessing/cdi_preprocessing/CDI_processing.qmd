@@ -10,12 +10,12 @@ library(dplyr)
 ```
 
 ```{r}
-SERVER_PATH <- "/Volumes/vislearnlab"
+SERVER_PATH <- "/Volumes/vislearnlab/experiments/visual-precision"
 ```
 
 ```{r}
-cdi_level1 <- read.csv("/Volumes/vislearnlab/experiments/visual-precision/data/raw/lookit/cdi/cdi_level1.csv")
-cdi_level2a <- read.csv("/Volumes/vislearnlab/experiments/visual-precision/data/raw/lookit/cdi/cdi_level2a.csv")
+cdi_level1 <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/cdi/cdi_level1.csv"))
+cdi_level2a <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/cdi/cdi_level2a.csv"))
 df1 <- cdi_level1
 df2 <- cdi_level2a
 view(df1)
@@ -72,8 +72,8 @@ df1_long <- df1_long %>% left_join(ability, 'Response')
 
 ```{r}
 #process df2
-df2_long <- df2 %>% pivot_longer(c(Q1, Q2), names_to = 'Question_group', values_to = 'Response') %>% separate_rows(Response, sep=',')
-df2_long <- df2_long %>% mutate(Response = trimws(Response), Response = na_if(Response, ""), Response = as.numeric(Response), Q3 = na_if(Q3, ''), Q3 = trimws(Q3), Q3 = as.numeric(Q3))
+df2_long <- df2 %>% pivot_longer(c(Q1, Q2, Q3), names_to = 'Question_group', values_to = 'Response') %>% separate_rows(Response, sep=',')
+df2_long <- df2_long %>% mutate(Response = trimws(Response), Response = na_if(Response, ""), Response = as.numeric(Response))
 ```
 
 ```{r}
@@ -84,9 +84,9 @@ df2_label <- df2_label %>% select(ChildID, starts_with("Q"))
 df2_label <- df2_label[-c(1, 2), ]
 
 #separate choices
-df2_label <- df2_label %>% pivot_longer(c(Q1, Q2), names_to = 'Question_group', values_to = 'Words') %>% separate_rows(Words, sep=',')
-colnames(df2_label)[2] <- 'combine_words'
-df2_label <- df2_label %>% mutate(Words = trimws(Words), Words = na_if(Words, ""), combine_words = trimws(combine_words), combine_words = na_if(combine_words, ""))
+df2_label <- df2_label %>% pivot_longer(c(Q1, Q2, Q3), names_to = 'Question_group', values_to = 'Words') %>% separate_rows(Words, sep=',')
+#colnames(df2_label)[2] <- 'combine_words'
+df2_label <- df2_label %>% mutate(Words = trimws(Words), Words = na_if(Words, ""))
 ```
 
 ```{r}
@@ -109,7 +109,7 @@ df2_long$Question_group.y = NULL
 df2_long$ChildID.y = NULL
 
 colnames(df2_long)[2] <- 'ChildID'
-colnames(df2_long)[4] <- 'Question_group'
+colnames(df2_long)[3] <- 'Question_group'
 
 #add type and value column
 df2_long$SurveyType = '2A'
