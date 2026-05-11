@@ -31,7 +31,8 @@ Since the videos we collected are inherently identifiable (and large) we cannot 
 
 1. Downloading the video ZIP and trial JSON files from Children Helping Science.
  - unzip the videos and store them in `data/raw/raw_videos` locally 
- - Place the trial JSON file as `data/lookit/<sample>/input_lookit_study_data.json` on the server, where sample is either 'sample1' or 'sample2' depending on which sample you are processing. 
+ - Install `ffmpeg` to be able to convert webm to mp4
+ - Place the trial JSON file as `data/lookit/<sample>/input_lookit_study_data.json` on the **server**, where sample is either 'sample1' or 'sample2' depending on which sample you are processing. 
  - Connect to VPN and Polygon
  - Copy over the `.env_template` file into a `.env` file, filling out the rows as required. 
  - Run `preprocess.py` (which calls `preprocessing/utils/move_to_polygon.py` and `preprocessing/1_preprocess_raw_data.py`) to move the videos to the server and then format the raw videos and clean the Lookit JSON file. 
@@ -42,7 +43,6 @@ Since the videos we collected are inherently identifiable (and large) we cannot 
 - Navigate to `preprocessing/2_run_icatcher`
 - Activate the conda environment `conda activate visualprecision`
 - Install the requirements `pip install -r requirements.txt`
-- Install `ffmpeg` to be able to convert webm to mp4
 - Run `python run_icatcher_local.py --gpu_id 0` on a server with a GPU like Tversky. 
 - See `preprocessing/2_run_icatcher/README.md` for a more detailed setup instruction and troubleshooting if needed.
 
