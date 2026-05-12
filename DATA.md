@@ -19,10 +19,10 @@ SERVER_DIR/data/raw/original_videos/mp4_converted/*
 Level 2 · Lookit JSON → trials CSV:
 
 ```
-SERVER_DIR/data/raw/lookit/sample#/input_lookit_study_data.json
+LOCAL_DIR/data/raw/lookit/sample#/input_lookit_study.json
         │ clean & format
         ▼
-SERVER_DIR/data/main/data_to_analyze/lookit_study_data.json
+SERVER_DIR/data/main/data_to_analyze/lookit_study.json
 ```
 
 ## Part 2 — Run iCatcher+ over converted videos
@@ -51,6 +51,7 @@ SERVER_DIR/data/main/data_to_analyze/level-looks_source-icatcher_data.csv
 
 
 ### Local Repo Structure
+```
 visual-precision/
 ├── analysis/             # Part 4 analysis and model similarities
 ├── data/
@@ -70,8 +71,10 @@ visual-precision/
 ├── preprocess.py         # Part 1
 ├── README.md
 └── requirements.txt
+```
 
 ### Server Repo Structure
+```
 visual-precision/
 ├── analysis/                       # R scripts and results
 ├── data/
@@ -94,3 +97,4 @@ visual-precision/
 ├── preprocess.py
 ├── README.md
 └── requirements.txt
+```
