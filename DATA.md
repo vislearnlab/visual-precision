@@ -19,10 +19,10 @@ SERVER_DIR/data/raw/original_videos/mp4_converted/*
 Level 2 · Lookit JSON → trials CSV:
 
 ```
-SERVER_DIR/data/raw/lookit/sample#/input_lookit.json
+SERVER_DIR/data/raw/lookit/sample#/input_lookit_study_data.json
         │ clean & format
         ▼
-SERVER_DIR/data/main/data_to_analyze/level-trials_source-lookit_data.csv
+SERVER_DIR/data/main/data_to_analyze/lookit_study_data.json
 ```
 
 ## Part 2 — Run iCatcher+ over converted videos
@@ -33,6 +33,9 @@ SERVER_DIR/data/raw/original_videos/mp4_converted/*
         ├──────►  SERVER_DIR/data/raw/icatcher_videos/*
         │
         └──────►  SERVER_DIR/data/raw/icatcher_annotations/*
+        │
+        └──────►  SERVER_DIR/data/main/data_to_analyze/level-looks_source-lookit_data.csv
+
 ```
 
 ## Part 3 — Process iCatcher output into looks CSV
