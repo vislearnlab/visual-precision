@@ -2,6 +2,10 @@
 
 Paths are abbreviated: `LOCAL_DIR` is your local machine, `SERVER_DIR` is the polygon server
 
+Example:
+LOCAL_DIR= '/Users/<user>/code/vll/visual-precision'
+server_DIR= '/Volumes/vislearnlab/experiments/visual-precision'
+
 ## Part 1 — Move raw videos and process Lookit JSON
 
 Level 1 · Move raw video and conversion:
@@ -59,13 +63,13 @@ visual-precision/
 │   ├── main/             # local copies of processed iCatcher and Lookit data
 │   ├── metadata/
 │   ├── pilot/            # pilot data
-│   └── raw/              # videos placed in part 1
-├── experiment/           # image pairs used
+│   └── raw/              # videos placed in part 1 of pre..
+├── experiment/           # image pairs used and raw js
 ├── figures/              # final-stage graphs for publication
 ├── models/               # model information
 ├── preprocessing/        # primary preprocessing scripts
 ├── stimuli/
-├── writing/
+├── writing/              # drafts and writing
 ├── .env_template
 ├── .gitignore
 ├── preprocess.py         # Part 1
@@ -91,10 +95,10 @@ visual-precision/
 ├── models/                         # model information
 ├── preprocessing/                  # backup copy of preprocessing scripts
 ├── stimuli/                        # images used for testing
-├── writing/                        # drafts
-├── config.py
-├── dataset_description.json
-├── preprocess.py
+├── .env_template
+├── .gitignore
+├── preprocess.py                   # Part 1
 ├── README.md
 └── requirements.txt
 ```
+````
