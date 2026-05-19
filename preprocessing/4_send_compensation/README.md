@@ -1,11 +1,11 @@
 # Instruction on sending out gift cards
 
-## Update cdi data in polygon server
-Subject data and response are stored in polygon server.
+## Update cdi data on the server
+Subject data and response are stored on our server (for example, Polygon).
 
-1. Navigate to polygon server for storing cdi data
-- Connect to the lab polygon server using your own username and password
-- Navigate to `/Volumes/vislearnlab/experiments/visual-precision/data/raw/lookit/cdi` where the subject response is stored
+1. Navigate to the server for storing cdi data
+- Connect to the server using your own username and password
+- Navigate to `data/raw/lookit/cdi` where the subject response is stored
 
 2. Download newest cdi data
 - Open https://www.qualtrics.com in your browser and login using lab email and password
@@ -14,8 +14,8 @@ Subject data and response are stored in polygon server.
 - Click **Export & Import** and select **Export Data...**
 - Download csv format using **Export values**
 
-3. Update cdi data in polygon server
--  Drag the downloaded level1 and level2a data into `/Volumes/vislearnlab/experiments/visual-precision/data/raw/lookit/cdi`
+3. Update cdi data on the server
+-  Drag the downloaded level1 and level2a data into `data/raw/lookit/cdi`
 - Delete the previous **cdi_level1.csv** and **cdi_level2a.csv**
 - Change the corresponding file names into **cdi_level1.csv** and **cdi_level2a.csv**
 
@@ -26,7 +26,7 @@ Subject data and response are stored in polygon server.
 - Run the script
 
 2. Check the generated emails
-- Navigate to `/Volumes/vislearnlab/experiments/visual-precision/data/raw/lookit` 
+- Navigate to `data/raw/lookit` 
 - Open `matched_gift_cards.txt`, which contains the formatted emails ready to be sent
 
 ## Send out emails
