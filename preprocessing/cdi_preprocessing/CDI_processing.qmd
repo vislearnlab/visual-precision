@@ -26,8 +26,8 @@ names(df2)
 
 ```{r}
 #delete unnecessary columns
-df1 <- df1 %>% select(ChildID, starts_with("Q"))
-df2 <- df2 %>% select(ChildID, starts_with("Q"))
+df1 <- df1 %>% select(StartDate, ChildID, starts_with("Q"))
+df2 <- df2 %>% select(StartDate, ChildID, starts_with("Q"))
 ```
 
 ```{r}
@@ -41,9 +41,9 @@ view(words)
 ```
 
 ```{r}
-#delete metadata
-df1 <- df1[-c(1, 2), ]
-df2 <- df2[-c(1, 2), ]
+#delete metadata and testing rows
+df1 <- df1[-(1:11), ]
+df2 <- df2[-(1:8), ]
 ```
 
 ```{r}
