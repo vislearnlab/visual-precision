@@ -7,78 +7,90 @@ editor: visual
 ```{r}
 library(tidyverse)
 library(dplyr)
+library(dotenv)
+
+env_file = here(".env")
 ```
 
 ```{r}
-SERVER_PATH <- "/Volumes/vislearnlab/experiments/visual-precision"
+SERVER_PATH <- Sys.getenv("SERVER_PATH")
 ```
 
 ```{r}
 cdi_level1 <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/cdi/cdi_level1.csv"))
 cdi_level2a <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/cdi/cdi_level2a.csv"))
-df1 <- cdi_level1
-df2 <- cdi_level2a
-view(df1)
-view(df2)
-names(df1)
-names(df2)
-```
-
-```{r}
+words_row <- cdi_level1[1,]
 #delete unnecessary columns
-df1 <- df1 %>% select(StartDate, ChildID, starts_with("Q"))
-df2 <- df2 %>% select(StartDate, ChildID, starts_with("Q"))
+cdi1_cleaned <- cdi_level1 |> filter(Finished == 1) |> rename(duration_in_seconds = Duration..in.seconds.) |> select(ChildID, starts_with("Q"))
+cdi2_cleaned <- cdi_level2a |> filter(Finished == 1)  |> rename(duration_in_seconds = Duration..in.seconds.) |> select(ChildID, starts_with("Q"))
 ```
 
 ```{r}
 #get a mapping table
-words <- df1[1,]
-words <- pivot_longer(words, cols = !ChildID)
-words$ChildID <- NULL
-words <- words %>% separate(value, into=c('WordType', 'Words'), sep='-')
-words <- words %>% mutate(WordType = trimws(WordType), Words = trimws(Words))
-view(words)
-```
-
-```{r}
-#delete metadata and testing rows
-df1 <- df1[-(1:11), ]
-df2 <- df2[-(1:8), ]
+words <- words_row |> select(starts_with("Q")) |> pivot_longer(cols = starts_with("Q")) |> separate(value, into=c('WordType', 'Words'), sep='-') |> mutate(WordType = trimws(WordType), Words = trimws(Words))
 ```
 
 ```{r}
 # transform to pivot long for df1
-df1_long <- df1 %>% pivot_longer(cols=!ChildID, names_to = "Question", values_to = 'Response')
-
-df1_long <- df1_long %>% mutate(Response = trimws(Response), Response = na_if(Response, ""), Response = as.numeric(Response))
-
-#add survey type and value
-df1_long$SurveyType = '1'
-df1_long$Value = ifelse(is.na(df1_long$Response), 0, 1)
+cdi1_long <- cdi1_cleaned |> pivot_longer(cols=!ChildID, names_to = "Question", values_to = 'Response') |> mutate(Response = trimws(Response), Response = na_if(Response, ""), Response = as.numeric(Response)) |>
+  #add survey type and value
+  mutate(SurveyType = 1,
+         Value = ifelse(is.na(Response), 0, 1))
 ```
 
 ```{r}
 #check before merge words to df1_long
-setdiff(df1_long$Question, words$name)
-
-#merge
-df1_long <- df1_long %>% left_join(words, c('Question' = 'name'))
-df1_long %>% filter(is.na(Words)) %>% distinct(Question)
+setdiff(cdi1_long$Question, words$name)
 
 #map into condition
-ability <- tibble::tibble(Response = c(NA, 1, 2), Type = c(NA, 'Understands', 'Understands and Says'))
-df1_long <- df1_long %>% left_join(ability, 'Response')
+ability <- tibble::tibble(Response = c(NA, 1, 2), Type = c(NA, 'understands', 'produc'))
+
+#merge conditions and words
+cdi1_merged <- cdi1_long %>% left_join(words, c('Question' = 'name')) |> left_join(ability, 'Response') 
+
+# if type = produces; add type = understands row with value = 1
+# if type = understands; add type = produces row with value = 0
+# if type = NA ; update type = produces row with value = 0 AND type = understands row with value = 0
+# maybe use fill function in R?
 ```
 
 ```{r}
-#process df2
+cdi1_complete <- cdi1_merged |>
+  # keep both ability types for every item
+  complete(
+    nesting(Question,ChildID, Words, WordType, SurveyType),
+    Type = c("understands", "produces")
+  ) %>%
+  # fill missing values
+  mutate(
+    Value = case_when(
+      Type == "understands" & is.na(Value) ~ 0,
+      Type == "produces" & is.na(Value) ~ 0,
+      TRUE ~ Value
+    )
+  ) %>%
+  # if produces == 1, understands should also == 1
+  group_by(Question, ChildID) %>%
+  mutate(
+    Value = ifelse(
+      Type == "understands" &
+      any(Type == "produces" & Value == 1),
+      1,
+      Value
+    )
+  ) %>%
+  ungroup()
+```
+
+```{r}
+#process df2 similar to df 1 -- TODO: fix naming etc.
 df2_long <- df2 %>% pivot_longer(c(Q1, Q2, Q3), names_to = 'Question_group', values_to = 'Response') %>% separate_rows(Response, sep=',')
 df2_long <- df2_long %>% mutate(Response = trimws(Response), Response = na_if(Response, ""), Response = as.numeric(Response))
 ```
 
 ```{r}
 #get the label for df2
-cdi_level2a_label <- read.csv("/Volumes/vislearnlab/experiments/visual-precision/data/raw/lookit/cdi/cdi_level2a_label.csv")
+cdi_level2a_label <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/cdi/cdi_level2a_label.csv"))
 df2_label <- cdi_level2a_label
 df2_label <- df2_label %>% select(ChildID, starts_with("Q"))
 df2_label <- df2_label[-c(1, 2), ]
@@ -114,4 +126,16 @@ colnames(df2_long)[3] <- 'Question_group'
 #add type and value column
 df2_long$SurveyType = '2A'
 df2_long$Value = ifelse(is.na(df2_long$Words), 0, 1)
+```
+
+TODO: add in subject data to get age and subject id 
+```{r}
+```
+
+TODO: load in csv files for 1 and 2a 'production' and calculate percentile score for each child based on 'cdi_words' only and not 'extra_words'  
+```{r}
+```
+
+TODO: save CSV file
+```{r}
 ```
