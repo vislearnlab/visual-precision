@@ -8,8 +8,11 @@ editor: visual
 library(tidyverse)
 library(dplyr)
 library(dotenv)
+library(here)
+library(tibble)
 
 env_file = here(".env")
+load_dot_env(file = env_file)
 ```
 
 ```{r}
@@ -21,8 +24,14 @@ cdi_level1 <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/cdi/cdi_level1.cs
 cdi_level2a <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/cdi/cdi_level2a.csv"))
 words_row <- cdi_level1[1,]
 #delete unnecessary columns
-cdi1_cleaned <- cdi_level1 |> filter(Finished == 1) |> rename(duration_in_seconds = Duration..in.seconds.) |> select(ChildID, starts_with("Q"))
-cdi2_cleaned <- cdi_level2a |> filter(Finished == 1)  |> rename(duration_in_seconds = Duration..in.seconds.) |> select(ChildID, starts_with("Q"))
+cdi1_cleaned <- cdi_level1 |> slice(-(1:11)) |> filter(Finished == 1) |> rename(duration_in_seconds = Duration..in.seconds.) |> select(ChildID, starts_with("Q"))
+cdi2a_cleaned <- cdi_level2a |> slice(-(1:8)) |> filter(Finished == 1)  |> rename(duration_in_seconds = Duration..in.seconds.) |> select(ChildID, starts_with("Q"))
+```
+
+```{r}
+# It seems like the forth row in cdi2a should be excluded because it is impossible for a children that often combine words to say so little words
+# A function to filter out such impossible combination should be written
+cdi2a_cleaned <- cdi2a_cleaned |> slice(-4)
 ```
 
 ```{r}
@@ -43,7 +52,7 @@ cdi1_long <- cdi1_cleaned |> pivot_longer(cols=!ChildID, names_to = "Question", 
 setdiff(cdi1_long$Question, words$name)
 
 #map into condition
-ability <- tibble::tibble(Response = c(NA, 1, 2), Type = c(NA, 'understands', 'produc'))
+ability <- tibble::tibble(Response = c(NA, 1, 2), Type = c(NA, 'understands', 'produces'))
 
 #merge conditions and words
 cdi1_merged <- cdi1_long %>% left_join(words, c('Question' = 'name')) |> left_join(ability, 'Response') 
@@ -83,59 +92,206 @@ cdi1_complete <- cdi1_merged |>
 ```
 
 ```{r}
-#process df2 similar to df 1 -- TODO: fix naming etc.
-df2_long <- df2 %>% pivot_longer(c(Q1, Q2, Q3), names_to = 'Question_group', values_to = 'Response') %>% separate_rows(Response, sep=',')
-df2_long <- df2_long %>% mutate(Response = trimws(Response), Response = na_if(Response, ""), Response = as.numeric(Response))
+#process df2 similar to df1
+cdi2a_long <- cdi2a_cleaned |> 
+  pivot_longer(c(Q1, Q2), names_to = 'Question_group', values_to = 'Response') |>
+  separate_rows(Response, sep=',') |> 
+  mutate(
+    Response = trimws(Response), 
+    Response = na_if(Response, ""), 
+    Response = as.numeric(Response), 
+    Says = 1L
+    ) |>
+  select("ChildID", "Question_group", "Response", "Says")
 ```
 
 ```{r}
-#get the label for df2
-cdi_level2a_label <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/cdi/cdi_level2a_label.csv"))
-df2_label <- cdi_level2a_label
-df2_label <- df2_label %>% select(ChildID, starts_with("Q"))
-df2_label <- df2_label[-c(1, 2), ]
+# make a mapping table
+words2a <- tibble::tribble(
+  ~Question_group, ~Response, ~Response_label,
+  "Q1", 1, "sock",
+  "Q1", 103, "bathtub",
+  "Q1", 126, "shower",
+  "Q1", 127, "balloon",
+  "Q1", 128, "dresser",
+  "Q1", 129, "kite",
+  "Q1", 130, "camel",
+  "Q1", 131, "elephant",
+  "Q1", 132, "ladybug",
+  "Q1", 133, "cloud",
+  "Q1", 134, "tree",
+  "Q1", 135, "zipper",
+  "Q1", 136, "crow",
+  "Q1", 137, "penguin",
+  "Q1", 138, "seahorse",
+  "Q1", 139, "duck",
+  "Q1", 140, "chicken",
+  "Q1", 141, "butterfly",
+  "Q1", 142, "lizard",
+  "Q1", 143, "walrus",
+  "Q1", 144, "snake",
+  "Q1", 145, "truck",
+  "Q1", 146, "car",
+  "Q1", 147, "airplane",
 
-#separate choices
-df2_label <- df2_label %>% pivot_longer(c(Q1, Q2, Q3), names_to = 'Question_group', values_to = 'Words') %>% separate_rows(Words, sep=',')
-#colnames(df2_label)[2] <- 'combine_words'
-df2_label <- df2_label %>% mutate(Words = trimws(Words), Words = na_if(Words, ""))
+  "Q2", 1, "baa baa",
+  "Q2", 2, "meow",
+  "Q2", 3, "ouch",
+  "Q2", 4, "uh oh",
+  "Q2", 5, "woof woof",
+  "Q2", 6, "bear",
+  "Q2", 7, "bird",
+  "Q2", 8, "cat",
+  "Q2", 9, "dog",
+  "Q2", 10, "duck",
+  "Q2", 11, "horse",
+  "Q2", 12, "airplane",
+  "Q2", 13, "boat",
+  "Q2", 14, "car",
+  "Q2", 15, "ball",
+  "Q2", 16, "book",
+  "Q2", 17, "game",
+  "Q2", 18, "applesauce",
+  "Q2", 19, "candy",
+  "Q2", 20, "coke",
+  "Q2", 21, "cracker",
+  "Q2", 22, "juice",
+  "Q2", 23, "meat",
+  "Q2", 24, "milk",
+  "Q2", 25, "peas",
+  "Q2", 26, "hat",
+  "Q2", 27, "necklace",
+  "Q2", 28, "shoe",
+  "Q2", 29, "sock",
+  "Q2", 30, "chin",
+  "Q2", 31, "ear",
+  "Q2", 32, "hand",
+  "Q2", 33, "leg",
+  "Q2", 34, "broom",
+  "Q2", 35, "comb",
+  "Q2", 36, "mop",
+  "Q2", 37, "plate",
+  "Q2", 38, "trash",
+  "Q2", 39, "tray",
+  "Q2", 40, "towel",
+  "Q2", 41, "bed",
+  "Q2", 42, "bedroom",
+  "Q2", 43, "bench",
+  "Q2", 44, "oven",
+  "Q2", 45, "stairs",
+  "Q2", 46, "flag",
+  "Q2", 47, "rain",
+  "Q2", 48, "star",
+  "Q2", 49, "swing",
+  "Q2", 50, "school",
+  "Q2", 51, "sky",
+  "Q2", 52, "party",
+  "Q2", 53, "friend",
+  "Q2", 54, "mommy",
+  "Q2", 55, "person",
+  "Q2", 56, "bye",
+  "Q2", 57, "hi",
+  "Q2", 58, "no",
+  "Q2", 59, "shopping",
+  "Q2", 60, "thank you",
+  "Q2", 61, "carry",
+  "Q2", 62, "chase",
+  "Q2", 63, "dump",
+  "Q2", 64, "finish",
+  "Q2", 65, "fit",
+  "Q2", 66, "hug",
+  "Q2", 67, "listen",
+  "Q2", 68, "like",
+  "Q2", 69, "pretend",
+  "Q2", 70, "rip",
+  "Q2", 71, "shake",
+  "Q2", 72, "taste",
+  "Q2", 73, "gentle",
+  "Q2", 74, "think",
+  "Q2", 75, "wish",
+  "Q2", 76, "all gone",
+  "Q2", 77, "cold",
+  "Q2", 78, "fast",
+  "Q2", 79, "happy",
+  "Q2", 80, "hot",
+  "Q2", 81, "last",
+  "Q2", 82, "tiny",
+  "Q2", 83, "wet",
+  "Q2", 84, "after",
+  "Q2", 85, "day",
+  "Q2", 86, "tonight",
+  "Q2", 87, "our",
+  "Q2", 88, "them",
+  "Q2", 89, "this",
+  "Q2", 90, "us",
+  "Q2", 91, "where",
+  "Q2", 92, "beside",
+  "Q2", 93, "down",
+  "Q2", 94, "under",
+  "Q2", 95, "all",
+  "Q2", 96, "much",
+  "Q2", 97, "could",
+  "Q2", 98, "need",
+  "Q2", 99, "would",
+  "Q2", 100, "if",
+)
 ```
 
 ```{r}
-#create order index
-nrow(df2_long) == nrow(df2_label)
+# Let df2 contain both selected and non-selected entries
+cdi2a_all <- cdi2a_long |> distinct(ChildID) |> crossing(words2a)
 
-num <- nrow(df2_long)
-ID <- c(1:num)
-
-df2_long <- cbind(ID, df2_long)
-df2_label <- cbind(ID, df2_label)
-
-#merge
-df2_long <- df2_long %>% merge(df2_label, by='ID')
+# Make complete cdi2a dataframe
+cdi2a_complete <- cdi2a_all |> left_join(cdi2a_long, by=c('ChildID', 'Question_group', 'Response')) |>
+  mutate(Says = coalesce(Says, 0L)) |> distinct()
 ```
 
 ```{r}
-#clean df2_long
-df2_long$Question_group.y = NULL
-df2_long$ChildID.y = NULL
+# add Q3
+Q3_mapping <- tibble::tribble(
+  ~Question_group, ~Response, ~Response_label,
+  'Q3', 1, "Not Yet",
+  'Q3', 2, "Sometimes",
+  'Q3', 3, "Often"
+)
 
-colnames(df2_long)[2] <- 'ChildID'
-colnames(df2_long)[3] <- 'Question_group'
+cdi2a_Q3 <- cdi2a_cleaned |>
+  select(ChildID, Q3) |> 
+  pivot_longer(Q3, names_to = 'Question_group', values_to = 'Response') |>
+  mutate("Response" = as.numeric(Response)) |>
+  left_join(Q3_mapping, by=c('Question_group', 'Response'))
+  
+cdi2a_complete <- bind_rows(cdi2a_complete, cdi2a_Q3)
 
-#add type and value column
-df2_long$SurveyType = '2A'
-df2_long$Value = ifelse(is.na(df2_long$Words), 0, 1)
+#add survey type, word type, and value column
+cdi2a_complete$SurveyType = '2A'
+cdi2a_complete$Value = 
+  ifelse(
+    cdi2a_complete$Question_group=="Q3", 
+    ifelse(is.na(cdi2a_complete$Response), 0, 1), 
+    cdi2a_complete$Says
+    ) 
+cdi2a_complete$WordType = 
+  ifelse(
+    cdi2a_complete$Question_group != "Q3",
+    ifelse(cdi2a_complete$Question_group=="Q1", "extra_words", "cdi_words"),
+    NA
+)
 ```
 
-TODO: add in subject data to get age and subject id 
+TODO: add in subject data to get age and subject id
+
 ```{r}
+# Load subject data
+subject_data <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/subject_data.csv"))
 ```
 
-TODO: load in csv files for 1 and 2a 'production' and calculate percentile score for each child based on 'cdi_words' only and not 'extra_words'  
+TODO: load in csv files for 1 and 2a 'production' and calculate percentile score for each child based on 'cdi_words' only and not 'extra_words'
+
 ```{r}
 ```
 
 TODO: save CSV file
+
 ```{r}
 ```
