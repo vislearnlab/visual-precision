@@ -22,40 +22,57 @@ SERVER_PATH <- Sys.getenv("SERVER_PATH")
 ```{r}
 cdi_level1 <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/cdi/cdi_level1.csv"))
 cdi_level2a <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/cdi/cdi_level2a.csv"))
+subject_data <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/subject_data.csv"))
 words_row <- cdi_level1[1,]
 #delete unnecessary columns
-cdi1_cleaned <- cdi_level1 |> slice(-(1:11)) |> filter(Finished == 1) |> rename(duration_in_seconds = Duration..in.seconds.) |> select(ChildID, starts_with("Q"))
-cdi2a_cleaned <- cdi_level2a |> slice(-(1:8)) |> filter(Finished == 1)  |> rename(duration_in_seconds = Duration..in.seconds.) |> select(ChildID, starts_with("Q"))
+cdi1_cleaned_rows <- cdi_level1 |>
+  # removing participants who did not finish and removing test participants
+  slice(-(1:11)) |> filter(Finished == 1) |>
+  # only select first instance of participation
+  group_by(ChildID) |>
+  arrange(StartDate) |>
+  slice(1) |> 
+  ungroup() |> 
+rename(duration_in_seconds = Duration..in.seconds.) 
+cdi1_cleaned <- cdi1_cleaned_rows |> select(ChildID, starts_with("Q"))
+
+cdi2a_cleaned_rows <- cdi_level2a |> slice(-(1:8)) |> filter(Finished == 1)  |> rename(duration_in_seconds = Duration..in.seconds.) |>
+    # only select first instance of participation
+  group_by(ChildID) |>
+  arrange(StartDate) |>
+  slice(1) |> 
+  ungroup() 
+cdi2a_cleaned <- cdi2a_cleaned_rows |> select(ChildID, starts_with("Q"))
 ```
 
 ```{r}
-# It seems like the forth row in cdi2a should be excluded because it is impossible for a children that often combine words to say so little words
-# A function to filter out such impossible combination should be written
-cdi2a_cleaned <- cdi2a_cleaned |> slice(-4)
+# It seems like in cdi2a, we should exlcude rows where Q3 > 1 becayse it is impossible for children to often combine words if they can't say any words
+cdi2a_cleaned <- cdi2a_cleaned |> filter(Q1 != "" | Q2 != "" | Q3 == 1)
 ```
 
 ```{r}
 #get a mapping table
-words <- words_row |> select(starts_with("Q")) |> pivot_longer(cols = starts_with("Q")) |> separate(value, into=c('WordType', 'Words'), sep='-') |> mutate(WordType = trimws(WordType), Words = trimws(Words))
+words <- words_row |> select(starts_with("Q")) |> pivot_longer(cols = starts_with("Q")) |> separate(value, into=c('word_type', 'word'), sep='-') |> mutate(word_type = trimws(word_type), word = trimws(word))
 ```
 
 ```{r}
 # transform to pivot long for df1
-cdi1_long <- cdi1_cleaned |> pivot_longer(cols=!ChildID, names_to = "Question", values_to = 'Response') |> mutate(Response = trimws(Response), Response = na_if(Response, ""), Response = as.numeric(Response)) |>
+cdi1_long <- cdi1_cleaned |> pivot_longer(cols=!ChildID, names_to = "question", values_to = 'value') |> mutate(value = trimws(value), value = na_if(value, ""), value = as.numeric(value)) |> 
+  rename(child_id = ChildID) |>
   #add survey type and value
-  mutate(SurveyType = 1,
-         Value = ifelse(is.na(Response), 0, 1))
+  mutate(survey_type = 1,
+         responded = ifelse(is.na(value), 0, 1)) 
 ```
 
 ```{r}
 #check before merge words to df1_long
-setdiff(cdi1_long$Question, words$name)
+setdiff(cdi1_long$question, words$name)
 
 #map into condition
-ability <- tibble::tibble(Response = c(NA, 1, 2), Type = c(NA, 'understands', 'produces'))
+ability <- tibble::tibble(value = c(NA, 1, 2), type = c(NA, 'understands', 'produces'))
 
 #merge conditions and words
-cdi1_merged <- cdi1_long %>% left_join(words, c('Question' = 'name')) |> left_join(ability, 'Response') 
+cdi1_merged <- cdi1_long %>% left_join(words, c('question' = 'name')) |> left_join(ability, 'value') 
 
 # if type = produces; add type = understands row with value = 1
 # if type = understands; add type = produces row with value = 0
@@ -65,50 +82,69 @@ cdi1_merged <- cdi1_long %>% left_join(words, c('Question' = 'name')) |> left_jo
 
 ```{r}
 cdi1_complete <- cdi1_merged |>
-  # keep both ability types for every item
+  # ensure every word has both an "understands" and a "produces" row
   complete(
-    nesting(Question,ChildID, Words, WordType, SurveyType),
-    Type = c("understands", "produces")
-  ) %>%
-  # fill missing values
+    nesting(question, child_id, word, word_type, survey_type),
+    type = c("understands", "produces")
+  ) |>
+  # Remove previous rows that had completely unanswered questions
+  filter(!is.na(type)) |>
+  # treat missing responses as 0 (not responded)
   mutate(
-    Value = case_when(
-      Type == "understands" & is.na(Value) ~ 0,
-      Type == "produces" & is.na(Value) ~ 0,
-      TRUE ~ Value
+    responded = case_when(
+      is.na(value) ~ 0,
+      TRUE ~ 1
     )
-  ) %>%
-  # if produces == 1, understands should also == 1
-  group_by(Question, ChildID) %>%
+  ) |>
+  # within each child-word combination
+  group_by(question, child_id, word) |>
   mutate(
-    Value = ifelse(
-      Type == "understands" &
-      any(Type == "produces" & Value == 1),
-      1,
-      Value
-    )
-  ) %>%
+  produced = any(type == "produces" & responded == 1),
+  # producting a word implies understanding it
+  value = if_else(
+    type == "understands" & produced,
+    2,
+    value
+  ),
+
+  responded = if_else(
+    type == "understands" & produced,
+    1,
+    responded
+  )
+  ) |>
+  select(-produced) |>
   ungroup()
+```
+
+```{r}
+stopifnot(
+  cdi1_complete |>
+    count(child_id) |>
+    pull(n) |>
+    n_distinct() == 1
+)
 ```
 
 ```{r}
 #process df2 similar to df1
 cdi2a_long <- cdi2a_cleaned |> 
-  pivot_longer(c(Q1, Q2), names_to = 'Question_group', values_to = 'Response') |>
-  separate_rows(Response, sep=',') |> 
+  pivot_longer(c(Q1, Q2), names_to = 'question_group', values_to = 'label_code') |>
+  separate_rows(label_code, sep=',') |> 
   mutate(
-    Response = trimws(Response), 
-    Response = na_if(Response, ""), 
-    Response = as.numeric(Response), 
-    Says = 1L
+    label_code = trimws(label_code), 
+    label_code = na_if(label_code, ""), 
+    label_code = as.numeric(label_code), 
+    value = 1L
     ) |>
-  select("ChildID", "Question_group", "Response", "Says")
+  select("ChildID", "question_group", "label_code", "value") |> rename(child_id = ChildID)
 ```
 
 ```{r}
 # make a mapping table
+# TODO: make CSV instead
 words2a <- tibble::tribble(
-  ~Question_group, ~Response, ~Response_label,
+  ~question_group, ~label_code, ~response_label,
   "Q1", 1, "sock",
   "Q1", 103, "bathtub",
   "Q1", 126, "shower",
@@ -239,17 +275,17 @@ words2a <- tibble::tribble(
 
 ```{r}
 # Let df2 contain both selected and non-selected entries
-cdi2a_all <- cdi2a_long |> distinct(ChildID) |> crossing(words2a)
+cdi2a_all <- cdi2a_long |> distinct(child_id) |> crossing(words2a)
 
 # Make complete cdi2a dataframe
-cdi2a_complete <- cdi2a_all |> left_join(cdi2a_long, by=c('ChildID', 'Question_group', 'Response')) |>
-  mutate(Says = coalesce(Says, 0L)) |> distinct()
+cdi2a_complete <- cdi2a_all |> left_join(cdi2a_long, by=c('child_id', 'question_group', 'label_code')) |>
+  mutate(value = coalesce(value, NA)) |> distinct()
 ```
 
 ```{r}
 # add Q3
 Q3_mapping <- tibble::tribble(
-  ~Question_group, ~Response, ~Response_label,
+  ~question_group, ~value, ~response_label,
   'Q3', 1, "Not Yet",
   'Q3', 2, "Sometimes",
   'Q3', 3, "Often"
@@ -257,25 +293,31 @@ Q3_mapping <- tibble::tribble(
 
 cdi2a_Q3 <- cdi2a_cleaned |>
   select(ChildID, Q3) |> 
-  pivot_longer(Q3, names_to = 'Question_group', values_to = 'Response') |>
-  mutate("Response" = as.numeric(Response)) |>
-  left_join(Q3_mapping, by=c('Question_group', 'Response'))
+  pivot_longer(Q3, names_to = 'question_group', values_to = 'value') |>
+  mutate("value" = as.numeric(value)) |>
+  left_join(Q3_mapping, by=c('question_group', 'value')) |>
+  rename(child_id = ChildID)
   
 cdi2a_complete <- bind_rows(cdi2a_complete, cdi2a_Q3)
 
 #add survey type, word type, and value column
-cdi2a_complete$SurveyType = '2A'
-cdi2a_complete$Value = 
-  ifelse(
-    cdi2a_complete$Question_group=="Q3", 
-    ifelse(is.na(cdi2a_complete$Response), 0, 1), 
-    cdi2a_complete$Says
-    ) 
-cdi2a_complete$WordType = 
-  ifelse(
-    cdi2a_complete$Question_group != "Q3",
-    ifelse(cdi2a_complete$Question_group=="Q1", "extra_words", "cdi_words"),
-    NA
+cdi2a_complete$survey_type = '2A'
+
+cdi2a_complete <- cdi2a_complete |>
+  mutate(responded = ifelse(is.na(value), 0, 1),
+         word_type = case_when(
+           question_group == "Q1" ~ "extra_words",
+           question_group == "Q2" ~ "cdi_words",
+           question_group == "Q3" ~ "combine"
+         ))
+```
+
+```{r}
+stopifnot(
+  cdi2a_complete |>
+    count(child_id) |>
+    pull(n) |>
+    n_distinct() == 1
 )
 ```
 
@@ -289,9 +331,16 @@ subject_data <- read.csv(file.path(SERVER_PATH, "data/raw/lookit/subject_data.cs
 TODO: load in csv files for 1 and 2a 'production' and calculate percentile score for each child based on 'cdi_words' only and not 'extra_words'
 
 ```{r}
+cdi1_processed <- cdi1_complete |> select(-question) |> left_join(cdi1_cleaned_rows |> select(ChildID, duration_in_seconds, StartDate), by=c("child_id"="ChildID"))
+
+cdi2a_processed <- cdi2a_complete |> select(-question_group, -label_code) |> rename(word = response_label) |> left_join(cdi2a_cleaned_rows |>              select(ChildID, duration_in_seconds, StartDate), by=c("child_id"="ChildID")) |> mutate(type = ifelse(word_type == "combine", word_type, "produces"))
+
+all_cdi_data <- cdi1_processed |> rbind(cdi2a_processed)
+
+cdi_with_subject_data <- all_cdi_data |> left_join(subject_data |> filter(Comments != "Already participated") |> select(local_id, age_rounded, gender, date_created, global_id), by=c("child_id"="global_id")) |> select(-child_id)
 ```
 
-TODO: save CSV file
 
 ```{r}
+write.csv(cdi_with_subject_data, here("data/main/data_to_analyze/level-participant_source-cdi_data.csv"))
 ```
