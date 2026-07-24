@@ -212,7 +212,6 @@ all_cdi_data <- cdi1_processed |> rbind(cdi2a_processed)
 cdi_with_subject_data <- all_cdi_data |> left_join(subject_data |> filter(Comments != "Already participated") |> select(local_id, age_rounded, gender, date_created, global_id), by=c("child_id"="global_id")) |> select(-child_id)
 ```
 
-
 ```{r}
-write.csv(cdi_with_subject_data, here("data/main/data_to_analyze/level-participant_source-cdi_data.csv"))
+write.csv(cdi_with_subject_data, here("data/main/data_to_analyze/level-words_source-cdi_data.csv"))
 ```

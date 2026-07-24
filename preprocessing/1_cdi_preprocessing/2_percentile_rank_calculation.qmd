@@ -24,7 +24,7 @@ cdi1_girl <- read_csv(here("data/metadata/cdi/fitted_percentile_scores_words_pro
 cdi1_boy <- read_csv(here("data/metadata/cdi/fitted_percentile_scores_words_produced_boys_weighted.csv"))
 cdi2a_girl <- read_csv(here("data/metadata/cdi/fitted_percentile_scores_words_produced_level_iia_girls_weighted.csv"))
 cdi2a_boy <- read_csv(here("data/metadata/cdi/fitted_percentile_scores_words_produced_level_iia_boys_weighted.csv"))
-cdi_with_subject_data <- read_csv(here("data/main/data_to_analyze/level-participant_source-cdi_data.csv"))
+cdi_with_subject_data <- read_csv(here("data/main/data_to_analyze/level-words_source-cdi_data.csv"))
 ```
 
 ```{r}
@@ -42,70 +42,45 @@ find_percentile <- function(age, score, table){
   }
   result
 }
-```
 
-```{r}
-# cdi1 girl
-cdi1_girl_score <- cdi_with_subject_data |> 
-  filter(survey_type == "1" & gender == "f" & word_type == "cdi_words" & type == "produces") |>
-  mutate(age_rounded = paste0("Age_", age_rounded / 30, "_months")) |>
-  group_by(local_id, age_rounded) |>
-  summarise(n =  sum(responded, na.rm = TRUE), .groups = "drop")
-
-cdi1_girl_percentile <- cdi1_girl_score |> 
-  rowwise() |>
-  mutate(percentile_rank = find_percentile(age_rounded, n, cdi1_girl))
-```
-
-```{r}
-# cdi1 boy
-cdi1_boy_score <- cdi_with_subject_data |>
-  filter(survey_type == "1" & gender == "m" & word_type == "cdi_words" & type == "produces") |>
-  mutate(age_rounded = paste0("Age_", age_rounded / 30, "_months")) |>
-  group_by(local_id, age_rounded) |>
-  summarise(n =  sum(responded, na.rm = TRUE), .groups = "drop")
-
-cdi1_boy_percentile <- cdi1_boy_score |> 
-  rowwise() |>
-  mutate(percentile_rank = find_percentile(age_rounded, n, cdi1_boy))
-```
-
-```{r}
-# cdi2a girl
-cdi2a_girl_score <- cdi_with_subject_data |>
-  filter(survey_type == "2A" & gender == "f" & word_type == "cdi_words" & type == "produces")|>   mutate(age_rounded = paste0("Age_", age_rounded / 30, "_months")) |>
-  group_by(local_id, age_rounded) |>
-  summarise(n =  sum(responded, na.rm = TRUE), .groups = "drop")
-
-cdi2a_girl_percentile <- cdi2a_girl_score |>
-  rowwise() |>
-  mutate(percentile_rank = find_percentile(age_rounded, n, cdi2a_girl))
-```
-
-```{r}
-# cdi2a boy
-cdi2a_boy_score <- cdi_with_subject_data |>
-  filter(survey_type == "2A" & gender == "m" & word_type == "cdi_words" & type == "produces")|>
+#function to create the participant corresponding percentile dataframe
+create_percentile_df <- function(sur_type, sex, percentile_table){
+  score <- cdi_with_subject_data |> 
+  filter(survey_type == sur_type & gender == sex & word_type == "cdi_words" & type == "produces") |>
   mutate(age_rounded = paste0("Age_", age_rounded / 30, "_months")) |>
   group_by(local_id, age_rounded) |>
   summarise(n =  sum(responded, na.rm = TRUE), .groups = "drop")
   
-cdi2a_boy_percentile <- cdi2a_boy_score |>
-  rowwise() |>
-  mutate(percentile_rank = find_percentile(age_rounded, n, cdi2a_boy))
+  result <- score |>
+    rowwise() |>
+    mutate(survey_type = sur_type, percentile_rank = find_percentile(age_rounded, n, percentile_table))
+  
+  result
+}
+```
+
+```{r}
+# cdi1 girl
+cdi1_girl_percentile <- create_percentile_df("1", "f", cdi1_girl)
+
+# cdi1 boy
+cdi1_boy_percentile <- create_percentile_df("1", "m", cdi1_boy)
+
+# cdi2a girl
+cdi2a_girl_percentile <- create_percentile_df("2A", "f", cdi2a_girl)
+
+# cdi2a boy
+cdi2a_boy_percentile <- create_percentile_df("2A", "m", cdi2a_boy)
 ```
 
 ```{r}
 # combine tables
 all_percentile <- bind_rows(cdi1_girl_percentile, cdi1_boy_percentile, cdi2a_girl_percentile, cdi2a_boy_percentile) |> mutate(vocabulary_score = n, n = NULL, age_rounded = NULL)
-
-# merge back to subject data
-result <- cdi_with_subject_data |> left_join(all_percentile, by= 'local_id')
 ```
 
 ```{r}
 # calculate duration of time between completion of study and survey
-template <- cdi_with_subject_data |>
+duration_df <- cdi_with_subject_data |>
   distinct(local_id, date_created, StartDate)
 
 alter_date_formate <- function(x){
@@ -123,26 +98,26 @@ alter_date_formate <- function(x){
   final
 }
 
-template <- template |>
+duration_df <- duration_df |>
   mutate(date_created = alter_date_formate(date_created), StartDate = str_split_fixed(StartDate, " ", 2)[, 1])
 ```
 
 ```{r}
 # calculate duration
-template <- template |>
+duration_df <- duration_df |>
   mutate(
     date_created = ymd(date_created),
     StartDate = ymd(StartDate),
-    duration_days = as.integer(StartDate - date_created),
+    duration_days = pmax(as.integer(StartDate - date_created), 0),
     duration_weeks = round(duration_days / 7, 0.2)
   ) |>
   select(c(local_id, duration_days, duration_weeks))
 
 # store results
-result <- cdi_with_subject_data |> left_join(template, by= 'local_id')
+result <- all_percentile |> left_join(duration_df, by= 'local_id')
 ```
 
 ```{r}
 # store result
-write.csv(result, here("data/main/data_to_analyze/level-participant_source-cdi_data_with_percentile.csv"))
+write.csv(result, here("data/main/data_to_analyze/level-participant_source-cdi_added-percentile_data.csv"))
 ```
