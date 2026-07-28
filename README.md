@@ -53,7 +53,7 @@ Since the videos we collected are inherently identifiable (and large) we cannot 
 
 
 4. Run the following to generate model inputs *(optional if these values have already been calculated)*:
-- Run `models/main.py` to generate embedding similarities
+- Navigate to `models`, `pip install -r requirements.txt` and `python generate_similarities.py` to generate embedding similarities
 - Run `analysis/saliency/visualize_maps.m` to generate saliency differences
 
 5. Run the Quarto files in `analysis` in the order that they are numbered.

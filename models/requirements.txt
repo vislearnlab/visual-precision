@@ -1,0 +1,2 @@
+vislearnlabpy>=0.0.4.6
+open-clip-torch>=3.3.0

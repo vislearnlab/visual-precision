@@ -11,6 +11,8 @@
 .Rhistory
 analysis/**html**
 **/**_files
+._*
+.*
 
 #ignore virtual environments
 .venv/
@@ -29,6 +31,7 @@ peekbank/*
 data/raw/icatcher_annotations/
 data/raw/original_videos/
 data/raw/lookit/**/input_lookit_study.json
+data/raw/lookit/cdi/cdi_level*.csv
 data/raw/lookit/**/lookit_study.json
 data/raw/lookit/**/subject_data.csv
 data/raw/lookit/matched_gift_cards.txt
@@ -49,3 +52,5 @@ stimuli/lookit/audio/**
 models/openclip/checkpoints/
 models/multimodal/
 models/silicon_menagerie/
+models/output/*
+
