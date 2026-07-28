@@ -33,10 +33,10 @@ DATA_TO_ANALYZE_PATH = file.path(SERVER_PATH, "data", DATA_FOLDER, "data_to_anal
 PROCESSED_DATA_PATH  = here("data", DATA_FOLDER, "processed_data")
 
 # Helper: upsert trial_metadata rows for CURRENT_SECTION (keyed by section, not participant).
-write_section_csv <- function(df, path) {
-  if (!is.null(CURRENT_SECTION) && file.exists(path)) {
+write_section_csv <- function(df, path, curr_section=CURRENT_SECTION) {
+  if (!is.null(curr_section) && file.exists(path)) {
     existing <- read_csv(path, show_col_types = FALSE)
-    existing <- existing |> filter(section != CURRENT_SECTION)
+    existing <- existing |> filter(section != curr_section)
     df <- bind_rows(existing, df)
   }
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
@@ -60,30 +60,69 @@ Participant rate
 SUBJECT_DATA <- read.csv(file.path(SERVER_PATH, "data", "raw", "lookit", "subject_data.csv"))
 fix_date <- function(x) {
   d <- rep(as.Date(NA), length(x))
-  
-  # Bogus year (≤ 2010) with slashes: remap month from year digits
-  needs_fix <- str_detect(x, "^\\d{4}/") & as.integer(str_extract(x, "^\\d{4}")) <= 2010
-  fix_idx <- which(needs_fix)
-  if (length(fix_idx) > 0) {
-    parts <- str_split_fixed(x[fix_idx], "/", 3)
-    d[fix_idx] <- mdy(paste0(str_sub(parts[,1], 3, 4), "/", parts[,2], "/", parts[,3]))
-  }
-  
-  # Valid YYYY/M/D with slashes (year > 2010)
-  ymd_slash_idx <- which(str_detect(x, "^\\d{4}/") & !needs_fix)
-  if (length(ymd_slash_idx) > 0) d[ymd_slash_idx] <- ymd(x[ymd_slash_idx])
-  
-  # ISO YYYY-MM-DD with dashes
-  ymd_dash_idx <- which(str_detect(x, "^\\d{4}-"))
-  if (length(ymd_dash_idx) > 0) d[ymd_dash_idx] <- ymd(x[ymd_dash_idx])
-  
-  # Standard M/D/YY or M/D/YYYY
-  mdy_idx <- which(!str_detect(x, "^\\d{4}"))
-  if (length(mdy_idx) > 0) d[mdy_idx] <- mdy(x[mdy_idx])
-  
-  d
-}
 
+  # ISO dates first
+  iso_idx <- str_detect(x, "^\\d{4}-")
+  if (any(iso_idx)) {
+    d[iso_idx] <- ymd(x[iso_idx])
+  }
+
+  # Slash dates
+  slash_idx <- str_detect(x, "/")
+
+  if (any(slash_idx)) {
+
+    idx <- which(slash_idx)
+
+    parts <- str_split_fixed(x[idx], "/", 3)
+
+    a <- suppressWarnings(as.integer(parts[,1]))
+    b <- suppressWarnings(as.integer(parts[,2]))
+    c <- suppressWarnings(as.integer(parts[,3]))
+
+    # Case 1: YYYY/MM/DD
+    ymd_case <- a > 2010
+
+    d[idx[ymd_case]] <- ymd(
+      sprintf("%04d-%02d-%02d",
+              a[ymd_case],
+              b[ymd_case],
+              c[ymd_case])
+    )
+
+    # Case 2: malformed DD/YY/MM that can be converted to YYYY/MM/DD
+    shifted_case <- (
+      a <= 12 &
+      b > 24 &
+      c < 25
+    )
+
+    d[idx[shifted_case]] <- make_date(
+      year  = 2000 + b[shifted_case],
+      month = c[shifted_case],
+      day   = a[shifted_case]
+    )
+
+    # Remaining slash dates treated normally
+    normal_case <- !(ymd_case | shifted_case)
+
+    if (any(normal_case)) {
+    
+      year <- c[normal_case]
+    
+      # Convert 2-digit years to 2000s
+      year <- ifelse(year < 100, 2000 + year, year)
+    
+      d[idx[normal_case]] <- make_date(
+        year = year,
+        month = a[normal_case],
+        day = b[normal_case]
+      )
+    }
+
+  d
+  }
+}
 
 plot_data <- SUBJECT_DATA %>%
   filter(section %in% c("sample1", "sample2")) %>%
@@ -662,5 +701,7 @@ trial_metadata <- trial_metadata |>
   mutate(section = if (!is.null(CURRENT_SECTION)) CURRENT_SECTION else
            if ("section" %in% names(trial_metadata)) section else NA_character_)
 trialtype_path <- here("data", "metadata", "level-trialtype_data.csv")
-write_section_csv(trial_metadata, trialtype_path)
+for (section in trial_metadata |> distinct(section) |> pull(section)) {
+  write_section_csv(trial_metadata, trialtype_path, section)
+}
 ```

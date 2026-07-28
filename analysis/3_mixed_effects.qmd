@@ -1,3 +1,11 @@
+---
+title: "Main visual precision statistics"
+format:
+  html:
+    toc: true
+    toc-expand: 2
+    toc-depth: 3
+---
 ```{r message=FALSE}
 library(tidyverse)
 library(here)
@@ -29,6 +37,8 @@ source("lmer_helpers.R")
 ```{r}
 trial_metadata <- read.csv(here("data","metadata","level-trialtype_data.csv"))
 trial_summary_data <- read.csv(here("data", DATA_FOLDER, "processed_data", "level-trials_data.csv"))
+bv_dino_similarities <- read.csv(here("data", "embeddings", "similarities-dinobv_data.csv"))
+dinov3_similarities <- read.csv(here("data", "embeddings", "similarities-dino_data.csv"))
 
 usable_trials <- trial_summary_data |>
   # excluding possible scam participant
@@ -37,7 +47,10 @@ usable_trials <- trial_summary_data |>
 # Merging with similarity information and mean-centering main effects
 trials_with_effect_vars <- usable_trials |>
   left_join(trial_metadata) |>
-  mutate(age_in_months = SubjectInfo.testAge/30)
+  mutate(age_in_months = SubjectInfo.testAge/30) |>
+  left_join(bv_dino_similarities |> transmute(Trials.imagePair = paste0(word1, "-", word2), image_similarity_bv =  image_similarity)) |>
+  left_join(dinov3_similarities |> transmute(Trials.imagePair = paste0(word1, "-", word2), image_similarity_dinov3 =  image_similarity))
+  
 
 # Filter by section if PROJECT_VERSION specifies a particular sample
 if (!is.null(SECTION_FILTER)) {
@@ -79,82 +92,117 @@ tidy_model <- function(main_effect){
   return(table_data)
 }
 ```
-# Run mixed-effects model
-## Model 1: This is the model we said we'd run in our pre-reg
-```{r}
-prereg_main_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity)*scale(age_in_months)
-                    + (scale(text_similarity) | SubjectInfo.subjID)
-                    + (1|Trials.targetImage) 
-                    + (1|Trials.imagePair),
-                    data = trials_with_effect_vars)
 
-summary(prereg_main_effect)
-```
-
-## Singular fit debugs for image similarity
-Swapping text similarity with image similarity:
+# Main mixed-effects models
+## Model 1 and 2: These are the models we said we'd run in our pre-reg
 ```{r}
-image_similarity_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
-                    + (scale(image_similarity) | SubjectInfo.subjID)
-                    + (1|Trials.targetImage) 
+prereg_text_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity) + scale(age_in_months) + scale(AoA_Est_target)
+                    + scale(MeanSaliencyDiff)
+                    + (scale(text_similarity) | SubjectInfo.subjID)  
+                    + (1|Trials.targetImage)
                     + (1|Trials.imagePair), 
                     data = trials_with_effect_vars)
+
+summary(prereg_text_effect)
+
+#Swapping text similarity with image similarity:
+prereg_image_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity) * scale(age_in_months) + scale(AoA_Est_target)
+                    + scale(MeanSaliencyDiff)
+                    + (scale(image_similarity) | SubjectInfo.subjID)  
+                    + (1|Trials.targetImage)
+                    + + (1|Trials.imagePair), 
+                    data = trials_with_effect_vars)
+summary(prereg_image_effect)
+```
+## Models from 1st prereg
+```{r}
+text_similarity_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity) * scale(age_in_months) +
+                    + (scale(text_similarity) | SubjectInfo.subjID) 
+                    
+                    + (1 | Trials.imagePair)
+                    + (1 | Trials.targetImage), 
+                    data = trials_with_effect_vars)
+image_similarity_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity) * scale(age_in_months) +
+                    + (scale(image_similarity) | SubjectInfo.subjID) 
+                    
+                    + (1 | Trials.imagePair)
+                    + (1 | Trials.targetImage), 
+                    data = trials_with_effect_vars)
+summary(text_similarity_effect)
 summary(image_similarity_effect)
 ```
-running into a singular fit, I tried removing each of the random effects but only removing the random slope of image_similarity and the random intercept for image pair fixed this. This is okay for now since we see a similar effect with the singular model and this model. (although the effect below is stronger)
+
+What about this similarity effect per section?
 ```{r}
-image_similarity_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
+image_similarity_effect_sample1 <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
                      + (1 | SubjectInfo.subjID)
                      + (1|Trials.targetImage), 
-                    data = trials_with_effect_vars)
-summary(image_similarity_effect)
+                    data = trials_with_effect_vars |> filter(section=="sample1"))
+summary(image_similarity_effect_sample1)
+
+image_similarity_effect_sample2 <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
+                     + (1 | SubjectInfo.subjID)
+                     + (1|Trials.targetImage), 
+                    data = trials_with_effect_vars |> filter(section=="sample2"))
+summary(image_similarity_effect_sample2)
 ```
 
-## Adding in covariates
-Now for the fun stuff: adding in our covariates using our original model -- only doing this for text similarity for now because of the singular effects
+
+## BV-image model
+Trying out image only models
 ```{r}
-main_image_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity) * scale(age_in_months) * scale(AoA_Est_target)
-                    + (1 | SubjectInfo.subjID) 
+bv_image_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity_bv) * scale(age_in_months) + scale(AoA_Est_target)
+                    + scale(MeanSaliencyDiff)
+                     + (scale(image_similarity_bv) | SubjectInfo.subjID) 
+                    + (1|Trials.imagePair)
                     + (1|Trials.targetImage), 
                     data = trials_with_effect_vars)
-
-main_text_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity) + scale(age_in_months) + scale(AoA_Est_target)
+dinov3_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity_dinov3) * scale(age_in_months) 
+                      + scale(AoA_Est_target)
+                    + scale(MeanSaliencyDiff)
                     + (1 | SubjectInfo.subjID) 
+                    
+                    + (1|Trials.imagePair)
                     + (1|Trials.targetImage), 
                     data = trials_with_effect_vars)
-summary(main_image_effect)
-summary(main_text_effect)
-r.squaredGLMM(main_image_effect)
-r.squaredGLMM(main_text_effect)
+summary(bv_image_effect)
+summary(dinov3_effect)
 
+r.squaredGLMM(prereg_image_effect)
+r.squaredGLMM(prereg_text_effect)
+r.squaredGLMM(bv_image_effect)
 ```
-Text similarity is still on the verge of significance
+Image similarity is trending towards significance.
+
+
 
 Checking if text similarity and image similarity are differently correlated with AoA
 ```{r}
+trials_with_effect_vars_metadata <- trials_with_effect_vars |> distinct(Trials.imagePair, text_similarity, image_similarity, image_similarity_bv)
 cor.test(trial_metadata$AoA_Est_target, trial_metadata$text_similarity)
 cor.test(trial_metadata$AoA_Est_target, trial_metadata$image_similarity)
+cor.test(trials_with_effect_vars_metadata$image_similarity, trials_with_effect_vars_metadata$image_similarity_bv)
+cor.test(trials_with_effect_vars_metadata$text_similarity, trials_with_effect_vars_metadata$image_similarity_bv)
+cor.test(trial_metadata$MeanSaliencyDiff, trial_metadata$image_similarity, method="pearson")
 ```
 Well image similarity has a higher r but both are still insignificant.
 
-
-```{r}
-image_model <- summary(main_image_effect)
-image_model
-```
-
+## visual saliency without AoA
 ```{r}
 vs_image_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
                     + scale(MeanSaliencyDiff)
                     + (1 | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage), 
+                    + (1|Trials.targetImage)
+                    + (1|Trials.imagePair)
+                    , 
                     data = trials_with_effect_vars)
 
 vs_text_effect <- lmer(scale(corrected_target_looking) ~ scale(text_similarity)*scale(age_in_months)
                     + scale(MeanSaliencyDiff)
                     + (scale(text_similarity) | SubjectInfo.subjID) 
                     + (1|Trials.targetImage)
-                    + (1|Trials.imagePair), 
+                    + (1|Trials.imagePair)
+                    , 
                     data = trials_with_effect_vars)
 summary(vs_image_effect)
 summary(vs_text_effect)
@@ -177,6 +225,9 @@ second_instance_target <- trials_with_effect_vars |>
   arrange(Trials.ordinal, .by_group = TRUE) |>
   slice(2) |>
   ungroup()
+
+primary_targets <- trials_with_effect_vars |>
+  filter(Trials.trialType %in% c("easy", "hard"))
   
 first_instance_primary_target <- first_instance_target |>
   filter(Trials.trialType %in% c("easy", "hard"))
@@ -192,33 +243,46 @@ first_instance_effect <- lmer(scale(corrected_target_looking) ~ scale(image_simi
                     + scale(MeanSaliencyDiff)
                     + (1 | Trials.ordinal)
                     + (1 | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage), 
+                    + (1|Trials.targetImage)
+                    , 
                     data = first_instance_target)
 
 second_instance_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
                     + scale(MeanSaliencyDiff)
                     + (1 | Trials.ordinal)
                     + (1 | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage), 
+                    + (1|Trials.targetImage)
+                    , 
                     data = second_instance_target)
 
 first_instance_pt_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
                     + scale(MeanSaliencyDiff)
                     + (1 | Trials.ordinal)
                     + (1 | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage), 
+                    + (1|Trials.targetImage)
+                    , 
                     data = first_instance_primary_target)
+
+pt_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity) + scale(age_in_months)
+                    + scale(MeanSaliencyDiff)
+                    + (1 | Trials.ordinal)
+                    + (1 | SubjectInfo.subjID) 
+                    + (1|Trials.targetImage)
+                    , 
+                    data = primary_targets)
 
 first_instance_image_pair_effect <- lmer(scale(corrected_target_looking) ~ scale(image_similarity)*scale(age_in_months)
                     + scale(MeanSaliencyDiff)
                     + (1 | Trials.ordinal)
                     + (1 | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage), 
+                    + (1|Trials.targetImage)
+                    , 
                     data = first_instance_image_pair)
 
 summary(first_instance_effect)
 summary(second_instance_effect)
 summary(first_instance_pt_effect)
+summary(pt_effect)
 summary(first_instance_image_pair_effect)
 ```
 ## Random order effects
@@ -228,7 +292,8 @@ main_image_effect_ordinal <- lmer(scale(corrected_target_looking) ~ scale(image_
                     + scale(MeanSaliencyDiff)
                     + (1 | Trials.ordinal)
                     + (1 | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage), 
+                    + (1|Trials.targetImage)
+                    , 
                     data = trials_with_effect_vars)
 summary(main_image_effect_ordinal)
 ```
@@ -252,22 +317,24 @@ main_image_effect_ranked <- lmer(scale(corrected_target_looking) ~ scale(image_s
                     + scale(AoA_Est_target)
                     + scale(age_in_months)
                     + (1 | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage), 
+                    + (1|Trials.targetImage)
+                    , 
                     data = ranked_trials)
 # |> filter(Trials.trialType %in% c("easy", "hard")
 summary(main_image_effect_ranked)
 ```
 
 ## Z-scoring embeddings
-Z-scoring embeddings leads to significant image similarity even with AoA as a covariate
+Z-scoring embeddings led to significant image similarity even with AoA as a covariate in section 1 -- todo to include section 2!
 ```{r}
-main_image_effect_zscored <- lmer(scale(corrected_target_looking) ~ scale(image_sim_zscore)*scale(age_in_months)
-                    + scale(AoA_Est_target)
-                    + scale(MeanSaliencyDiff)
-                    + (1 | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage), 
-                    data = trials_with_effect_vars)
-summary(main_image_effect_zscored)
+#main_image_effect_zscored <- lmer(scale(corrected_target_looking) ~ scale(image_sim_zscore)*scale(age_in_months)
+#                    + scale(AoA_Est_target)
+#                    + scale(MeanSaliencyDiff)
+#                    + (1 | SubjectInfo.subjID) 
+#                    + (1|Trials.targetImage)
+#                    + ( 1 | section), 
+#                    data = trials_with_effect_vars)
+#summary(main_image_effect_zscored)
 ```
 ## Baseline window as a covariate
 ```{r}
@@ -276,6 +343,8 @@ baseline_covariate_looking_text <- lmer(scale(mean_target_looking_critical_windo
                     + scale(MeanSaliencyDiff)
                     + scale(mean_target_looking_baseline_window)
                     + (scale(text_similarity) || SubjectInfo.subjID) 
+                    
+                    + (1|Trials.imagePair)
                     + (1|Trials.targetImage), 
                     data = trials_with_effect_vars)
 
@@ -283,12 +352,53 @@ baseline_covariate_looking_image <- lmer(scale(mean_target_looking_critical_wind
                     + scale(AoA_Est_target)
                     + scale(MeanSaliencyDiff)
                     + scale(mean_target_looking_baseline_window)
-                    + (1 | SubjectInfo.subjID) 
+                    + (scale(image_similarity) || SubjectInfo.subjID) 
+                    
+                     + (1|Trials.imagePair)
                     + (1|Trials.targetImage), 
                     data = trials_with_effect_vars)
 
 summary(baseline_covariate_looking_text)
 summary(baseline_covariate_looking_image)
+```
+We're seeing some interesting effects. although these models are still singular fits. 
+
+## Predicting critical window looking
+```{r}
+critical_looking_text <- lmer(scale(mean_target_looking_critical_window) ~ scale(age_in_months)
+                    + scale(text_similarity)
+                    + scale(image_similarity)
+                    + scale(AoA_Est_target)
+                    + scale(MeanSaliencyDiff)
+                    + (scale(text_similarity) | SubjectInfo.subjID) 
+                    + (1|Trials.targetImage)
+                    + (1|Trials.imagePair)
+                    , 
+                    data = trials_with_effect_vars)
+
+critical_looking_image <- lmer(scale(mean_target_looking_critical_window) ~ scale(age_in_months)*scale(image_similarity)
+                    + scale(AoA_Est_target)
+                    + scale(MeanSaliencyDiff)
+                    + (scale(image_similarity) | SubjectInfo.subjID) 
+                    
+                     + (1|Trials.imagePair)
+                    + (1|Trials.targetImage), 
+                    data = trials_with_effect_vars)
+
+critical_looking_bvimage <- lmer(scale(mean_target_looking_critical_window) ~ scale(age_in_months)*scale(image_similarity_bv)
+                    + scale(AoA_Est_target)
+                    + scale(MeanSaliencyDiff)
+                    + (scale(image_similarity) | SubjectInfo.subjID) 
+                    
+                     + (1|Trials.imagePair)
+                    + (1|Trials.targetImage), 
+                    data = trials_with_effect_vars)
+
+summary(critical_looking_text)
+summary(critical_looking_image)
+summary(critical_looking_bvimage)
+r.squaredGLMM(critical_looking_image)
+r.squaredGLMM(critical_looking_text)
 ```
 Similar predictions to our original model.
 
@@ -305,18 +415,20 @@ window_type_looking_text <- lmer(scale(target_looking) ~ scale(age_in_months)*tr
                     + scale(AoA_Est_target)
                     + scale(MeanSaliencyDiff)
                     + (scale(text_similarity) | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage), 
+                    + (1|Trials.imagePair)
+                    + (1|Trials.targetImage) , 
                     data = trials_window_type_separated)
 
 window_type_looking_image <- lmer(scale(target_looking) ~ scale(age_in_months)*trial_window_c*scale(image_similarity)
                     + scale(AoA_Est_target)
                     + scale(MeanSaliencyDiff)
                     + (scale(image_similarity) | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage), 
+                    + (1 | Trials.imagePair)
+                    + (1|Trials.targetImage) , 
                     data = trials_window_type_separated)
 
 summary(window_type_looking_image)
-tidy_model(window_type_looking_text)
+summary(window_type_looking_text)
 ```
 
 The interaction makes sense, plotting the predictions here to try to understand what's going on
@@ -339,7 +451,7 @@ This is also making me wonder whether we see any signal in how infants look at i
 ```{r}
 baseline_looking_image <- lmer(scale(mean_target_looking_baseline_window) ~ scale(AoA_Est_target)
                     + scale(MeanSaliencyDiff)
-                    + (1 | SubjectInfo.subjID), 
+                    + (1 | SubjectInfo.subjID)  + (1 | Trials.targetImage), 
                     data = trials_with_effect_vars)
 summary(baseline_looking_image)
 ```
@@ -351,13 +463,15 @@ short_image_effect <- lmer(scale(corrected_target_looking_short) ~ scale(image_s
                     + scale(AoA_Est_target)
                     + scale(MeanSaliencyDiff)
                     + (1 | SubjectInfo.subjID) 
-                    + (1|Trials.targetImage), 
+                    + (1|Trials.targetImage)
+                    , 
                     data = trials_with_effect_vars)
 
 short_text_effect <- lmer(scale(corrected_target_looking_short) ~ scale(text_similarity)*scale(age_in_months)
                     + scale(AoA_Est_target)
                     + (1 | SubjectInfo.subjID)
-                    + (1 | Trials.targetImage), 
+                    + (1 | Trials.targetImage)
+                    , 
                     data = trials_with_effect_vars)
 summary(short_text_effect)
 summary(short_image_effect)

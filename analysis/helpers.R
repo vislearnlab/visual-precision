@@ -288,17 +288,15 @@ multiple_similarity_effects_plot <- function(data, x_var, y_var="mean_value", gr
     facetted_pos_scales(
       x = list(
         image_similarity = scale_x_continuous(
-          breaks = seq(0.5, 0.9, by = 0.1),
-           limits = c(0.43, 0.85)
-          #breaks = seq(-0.5, 0.5, by = 0.1),
-          #limits = c(-0.3, 0.6)
+          breaks = seq(0.4, 0.9, by = 0.1),
+          limits = c(0.38, 0.9)
         ),
-        text_similarity = scale_x_continuous(
-          breaks = seq(0.7, 0.9, by = 0.05),
-          limits = c(0.7, 0.91)
+          text_similarity = scale_x_continuous(
+            breaks = seq(0.65, 0.9, by = 0.05),
+            limits = c(0.62, 0.93)
+          )
           #breaks = seq(-0.4, 0.6, by = 0.1),
           #limits = c(-0.42, 0.61)
-        )
       )
     )
 }
@@ -495,8 +493,9 @@ create_model_plots <- function(input_similarities, median_age, name="CVCL") {
     add_age_split() |>
     summarize_similarity_data(extra_fields = c("age_half"))
   
-  generate_multimodal_plots(data_summarized, name)
-  generate_multimodal_age_effect_plots(age_half_summarized, median_age=median_age, model_type=name)
+  p1 <- generate_multimodal_plots(data_summarized, name)
+  p2 <- generate_multimodal_age_effect_plots(age_half_summarized, median_age=median_age, model_type=name)
+  p1 | p2
 }
 
 generate_aoa_facet_plots <- function(data, model_type, median_age, age_grouping = "age_half", 

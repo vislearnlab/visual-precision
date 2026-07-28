@@ -21,6 +21,7 @@ library(cowplot)
 library(ggtext)
 library(scales)
 library(glue)
+library(patchwork)
 
 source("helpers.R")
 
@@ -48,9 +49,11 @@ trial_metadata <- read.csv(here("data","metadata","level-trialtype_data.csv"))
 trial_summary_data <- read.csv(file.path(PROCESSED_DATA_PATH,"level-trials_data.csv"))
 # TODO: move similarity correlations to single file
 cvcl_similarities <- read.csv(here("data", "embeddings", "similarities-cvcl_data.csv"))
+clip_similarities <- read.csv(here("data", "embeddings", "similarities-clip_data.csv"))
 openclip_similarities <- read.csv(here("data", "embeddings", "similarities-openclip_data.csv"))
 saycamvit_similarities <- read.csv(here("data", "embeddings", "similarities-saycamvit_data.csv"))
 imagenetvit_similarities <- read.csv(here("data", "embeddings", "similarities-imagenetvit_data.csv"))
+bv_dino_similarities <- read.csv(here("data", "embeddings", "similarities-dinobv_data.csv"))
 # Filter by section if PROJECT_VERSION specifies a particular sample
 if (!is.null(SECTION_FILTER)) {
   section_trials <- trial_metadata |> filter(section == SECTION_FILTER) |> distinct(Trials.trialID)
@@ -62,7 +65,7 @@ if (!is.null(SECTION_FILTER)) {
 looking_data_summarized <- trial_summary_data |>
   filter(trial_exclusion == 0 & exclude_participant == 0 & exclude_participant_insufficient_data == 0 & SubjectInfo.subjID != "VVI128") |> select(-section) |>
   left_join(trial_metadata) |>
-  arrange(AoA_Est_target)
+  arrange(AoA_Est_target) 
 
 median_age <- looking_data_summarized %>%
   distinct(SubjectInfo.subjID, .keep_all = TRUE) %>%  # Keep only distinct subjects
@@ -86,7 +89,7 @@ total_counts <- trial_summary_data %>%
 # Filtered counts per section
 filtered_counts <- looking_data_summarized %>%
   distinct(SubjectInfo.subjID, section) %>%
-  count(section, name = "filtered")
+  count(section, name = "filtered") 
 
 # Combine and compute percentage
 summary_table <- total_counts %>%
@@ -139,14 +142,14 @@ looking_times <- ggplot(summarize_across_subj,aes(time_normalized_corrected,accu
   geom_vline(xintercept=300,linetype="dotted")+
   ylim(0,1)+
   xlab("Time (normalized to target word onset) in ms")+
-  ylab("Proportion Target Looking")
+  ylab("Proportion Target Looking") 
 looking_times
 ggsave(here("figures",PROJECT_VERSION,"prop_looking_across_time.png"),looking_times,width=9,height=6,bg = "white")
 ```
 
 ## Descriptive plots
 #### Usable trial stats
-```{r}
+```{r fig.width=40, fig.height=8}
 #Overall baseline-corrected proportion target looking by condition
 looking_data_exclusions <- trial_summary_data |>
   mutate(trial_exclusion_reason = as.factor(ifelse(is.na(trial_exclusion_reason), "included", trial_exclusion_reason))) |>
@@ -189,7 +192,7 @@ ggplot(exclusions_by_subject, aes(x = SubjectInfo.subjID, y = N, fill = trial_ex
   scale_x_discrete(labels = exclusions_color_labels$colored_labels) +  # Apply colored labels
     theme(
     axis.text.x = ggtext::element_markdown(angle = 45, hjust = 1),  # Enable HTML-styled labels
-    strip.text = element_text(size = 8)
+    strip.text = element_text(size = 5)
   ) +
   scale_fill_brewer(palette = "Set3")
 
@@ -217,7 +220,7 @@ target_looking_subject_level <- summarized_data(looking_data_summarized, "Subjec
 ```{r fig.width=15, fig.height=10}
 item_performances <- ggplot(target_looking_item_level, aes(reorder(Trials.targetImage, mean_value), mean_value)) +
    geom_hline(yintercept=0,linetype="dashed")+
-  geom_errorbar(aes(ymin=lower_ci,ymax=upper_ci),width=0, alpha=0.2)+
+  geom_errorbar(aes(ymin=lower_ci,ymax=upper_ci),width=0, alpha=0.6)+
   (geom_point(aes(aoa_size=AoA_Est_target)) |> rename_geom_aes(new_aes = c("size" = "aoa_size")))+
   (geom_jitter(data=target_looking_item_subject_level, aes(x=Trials.targetImage, y=mean_value, color=SubjectInfo.subjID, age_size = SubjectInfo.testAge/30), alpha=0.3, width=0.2) |> rename_geom_aes(new_aes = c("size" = "age_size"))) +
   xlab("Target image")+
@@ -537,11 +540,51 @@ high_accuracy_subjects <- avg_corrected_target_looking_by_condition |>
 
 overall_condition_plot <- half_violins_plot(looking_data_summarized |> group_by(SubjectInfo.subjID, Trials.targetImage) |>
   arrange(Trials.ordinal, .by_group = TRUE) |>
-  slice(2) |>
+  #slice(2) |>
   ungroup() |> mutate(
   Trials.trialType = ifelse(Trials.trialType == "easy-distractor", "easy", Trials.trialType),
-  Trials.trialType = ifelse(Trials.trialType == "hard-distractor", "hard", Trials.trialType)) |> filter(Trials.trialType == "easy" | Trials.trialType == "hard"), "Trials.trialType", "corrected_target_looking", "SubjectInfo.subjID", c("easy", "hard"))
+  Trials.trialType = ifelse(Trials.trialType == "hard-distractor", "hard", Trials.trialType)), "Trials.trialType", "corrected_target_looking", "SubjectInfo.subjID", c("easy", "hard"))
 overall_condition_plot
+```
+
+### timecourse
+```{r}
+summarize_trial_difficulty <- looking_time_resampled_clean %>%
+  mutate(
+  Trials.trialType = ifelse(Trials.trialType == "easy-distractor", "easy", Trials.trialType),
+  Trials.trialType = ifelse(Trials.trialType == "hard-distractor", "hard", Trials.trialType)) |>
+  filter(trial_exclusion == 0 & exclude_participant ==0 & exclude_participant_insufficient_data == 0) %>%
+  filter(!is.na(accuracy_transformed)) %>%
+  group_by(SubjectInfo.subjID, time_normalized_corrected, SubjectInfo.testAge) %>%
+  summarized_data(., "Trials.trialID", "accuracy_transformed", c("Trials.trialType", "time_normalized_corrected")) %>%
+  rename(mean_accuracy = mean_value) 
+
+summarize_across_trial_type <- summarize_trial_difficulty |>
+  group_by(time_normalized_corrected, Trials.trialType) |>
+  dplyr::summarize(n=n(),
+            non_na_n = sum(!is.na(mean_accuracy)),
+            mean_value=mean(mean_accuracy,na.rm=TRUE),
+            sd_accuracy=sd(mean_accuracy,na.rm=TRUE),
+            se_accuracy=sd_accuracy/sqrt(n),
+            ci = ifelse(n > 1, qt(0.975, n - 1) * sd_accuracy / sqrt(n), NA)) 
+
+looking_times_trial_type <- ggplot(summarize_across_trial_type,aes(time_normalized_corrected,mean_value,color=Trials.trialType))+
+  xlim(-2000,4000)+
+  geom_errorbar(aes(ymin=mean_value-ci,ymax=mean_value+ci),width=0, alpha=0.2)+
+  #geom_point(alpha=0.2)+
+    geom_smooth(method="gam")+
+  geom_vline(xintercept=0,size=1.5)+
+  geom_hline(yintercept=0.5,size=1.2,linetype="dashed")+
+  geom_vline(xintercept=300,linetype="dotted")+
+  ylim(0,1)+
+  xlab("Time (normalized to target word onset) in ms")+
+  ylab("Proportion Target Looking") +
+ # labs(title="Proportion of looking time across time, split at mean age-of-acquisition") +
+  scale_color_manual(values=c("forestgreen", "#4292C6"), name="Trial type", labels=c( "easy", "hard"))+
+   guides(color = guide_legend(reverse = TRUE))
+
+looking_times_trial_type
+
 ```
 
 #### Target image difficulty
@@ -628,9 +671,12 @@ clip_age_plots
 create_model_plots(cvcl_similarities, name="CVCL", median_age=input_median_age)
 create_model_plots(imagenetvit_similarities, name="ImageNetVIT", median_age=input_median_age)
 create_model_plots(saycamvit_similarities, name="SayCamVIT",median_age=input_median_age)
+create_model_plots(bv_dino_similarities, name="BV-DINO", median_age=input_median_age)
+create_model_plots(clip_similarities, name="CLIP", median_age=input_median_age)
+
 ```
 Create CLIP model plot with all three similarities
-```{r}
+```{r, fig.width=20, fig.height=10}
 clip_data_long <- clip_data_summarized |>
   pivot_longer(cols = c("text_similarity", "image_similarity"), names_to = "sim_type", values_to = "similarity")
 all_clip_plot <- multiple_similarity_effects_plot(clip_data_long, "similarity", group_var="sim_type", input_title="Looking time and CLIP embedding correlations")
@@ -693,12 +739,12 @@ openclip_age_half_summarized <- looking_data_w_openclip |>
   summarize_similarity_data(extra_fields = c("age_half", "epoch")) |> filter(!is.na(image_similarity))
 
 # Function to calculate Pearson's correlation per epoch
-calculate_correlations <- function(data, x_var, y_var, group_var = c("epoch"), conf_level = 0.95) {
+calculate_correlations <- function(data, x_var, y_var, group_var = c("epoch"), conf_level = 0.95, method="pearson") {
   data |>
     group_by(across(all_of(group_var))) |>
     summarize(
       {
-        cor_test <- cor.test(.data[[x_var]], .data[[y_var]], method = "pearson", conf.level = conf_level)
+        cor_test <- cor.test(.data[[x_var]], .data[[y_var]], method = method, conf.level = conf_level)
         tibble(
           pearson_cor = cor_test$estimate,
           p_value = cor_test$p.value,
@@ -918,4 +964,114 @@ cor.test(trial_metadata$AoA_Est_target, trial_metadata$image_similarity)
 cor.test(trial_metadata$MeanSaliencyDiff, trial_metadata$AoA_Est_target)
 ```
 
+
+# layer-wise
+```{r}
+layerwise <- read.csv(here("data/embeddings/layerwise_similarities.csv"))
+layerwise_long <- layerwise |>
+  pivot_longer(
+    cols = starts_with("layer"),
+    names_to = "layer",
+    values_to = "image_similarity"
+  ) |>
+  mutate(layer = as.integer(str_extract(layer, "\\d+")))
+
+layerwise_combined <- layerwise_long |>
+  bind_rows(
+    layerwise_long |>
+      rename(text1 = text2, text2 = text1)
+  )
+
+looking_data_w_layerwise <- looking_data_summarized |>
+  select(-image_similarity) |>
+  left_join(layerwise_combined, by = c("Trials.distractorImage" = "text1", "Trials.targetImage" = "text2"), relationship="many-to-many")
+
+layerwise_data_summarized <- summarize_similarity_data(looking_data_w_layerwise, extra_fields = c("layer"))
+
+image_correlation_results_layerwise <- calculate_correlations(
+  layerwise_data_summarized, "image_similarity", "mean_value", group_var = "layer", method="pearson"
+)
+
+ggplot(image_correlation_results_layerwise, aes(x = layer, y = pearson_cor)) +
+  geom_point(aes(color = p_value < 0.05), size = 3) +
+  geom_line() +
+  geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper), alpha = 0.15) +
+  scale_x_continuous(breaks = 0:12) +
+  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +
+  labs(
+    title = "Image similarity correlation across ViT layers",
+    x = "Layer",
+    y = "Pearson Correlation"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+```{r}
+layerwise_combined <- layerwise_long |>
+  bind_rows(
+    layerwise_long |>
+      rename(text1 = text2, text2 = text1)
+  )
+layerwise_models <- layerwise_combined |>
+  group_by(layer) |>
+  group_split() |>
+  map(function(layer_data) {
+    layer_num <- unique(layer_data$layer)
+    
+    d <- trials_with_effect_vars |>
+  select(-any_of("image_similarity")) |>
+  left_join(layer_data, by = c("Trials.distractorImage" = "text1", "Trials.targetImage" = "text2"),
+            relationship = "many-to-many")
+    
+    m <- lmer(scale(corrected_target_looking) ~ scale(image_similarity) * scale(age_in_months) 
+              + scale(AoA_Est_target)
+              + scale(MeanSaliencyDiff)
+              + (scale(image_similarity) | SubjectInfo.subjID)
+              + (1 | Trials.targetImage)
+              + (1 | Trials.imagePair),
+              data = d)
+    
+    coefs <- summary(m)$coefficients
+    
+    tibble(
+      layer = layer_num,
+      image_estimate = coefs["scale(image_similarity)", "Estimate"],
+      image_se = coefs["scale(image_similarity)", "Std. Error"],
+      image_p = coefs["scale(image_similarity)", "Pr(>|t|)"],
+      interaction_estimate = coefs["scale(image_similarity):scale(age_in_months)", "Estimate"],
+      interaction_se = coefs["scale(image_similarity):scale(age_in_months)", "Std. Error"],
+      interaction_p = coefs["scale(image_similarity):scale(age_in_months)", "Pr(>|t|)"]
+    )
+  }) |>
+  bind_rows()
+
+# Plot: image_similarity main effect
+p1 <- ggplot(layerwise_models, aes(x = layer, y = image_estimate)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_ribbon(aes(ymin = image_estimate - 1.96 * image_se,
+                  ymax = image_estimate + 1.96 * image_se), alpha = 0.15) +
+  geom_line() +
+  geom_point(aes(color = image_p < 0.05), size = 3) +
+  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +
+  scale_x_continuous(breaks = 0:12) +
+  labs(title = "Image similarity effect across ViT layers",
+       x = "Layer", y = "β (scaled)") +
+  theme_minimal() + theme(legend.position = "none")
+
+# Plot: interaction with age
+p2 <- ggplot(layerwise_models, aes(x = layer, y = interaction_estimate)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_ribbon(aes(ymin = interaction_estimate - 1.96 * interaction_se,
+                  ymax = interaction_estimate + 1.96 * interaction_se), alpha = 0.15) +
+  geom_line() +
+  geom_point(aes(color = interaction_p < 0.05), size = 3) +
+  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +
+  scale_x_continuous(breaks = 0:12) +
+  labs(title = "Image similarity × age interaction across ViT layers",
+       x = "Layer", y = "β (scaled)") +
+  theme_minimal() + theme(legend.position = "none")
+
+p1 / p2
+```
 
