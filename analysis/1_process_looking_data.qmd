@@ -52,7 +52,7 @@ trial_timing_info = if (!is.null(CURRENT_SECTION)) {
 }
 stimuli_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_data.csv"))
 saliency_metadata = read.csv(file.path(METADATA_PATH, "level-imagepair_added-saliency_data.csv"))
-similarities <- read.csv(here("data", "embeddings", "similarities-clip_data.csv"))
+similarities <- read.csv(here("data", "embeddings", "similarities-all_data.csv"))
 ```
 
 Participant rate
@@ -282,12 +282,21 @@ summarize_subj_trials <- all_looking_times %>%
 
 ### Creating trial metadata set with similarity and stimuli metadata 
 ```{r}
-trial_metadata <- summarize_subj_trials |>
-  distinct(Trials.trialID, Trials.targetImage, Trials.distractorImage, Trials.imagePair) 
+trial_metadata <- trial_timing_info_all |>
+  distinct(Trials.trialID, Trials.targetImage) |>
+  rowwise() |>
+  mutate(
+    Trials.imagePair = gsub("(easy-|hard-|-distractor)", "", Trials.trialID),
+    Trials.distractorImage = setdiff(
+      strsplit(Trials.trialID, "-")[[1]],
+      c("easy", "hard", "distractor", Trials.targetImage)
+    )[1]
+  ) |>
+  ungroup()
 
 
 trial_metadata <- trial_metadata |>
-  left_join(similarities, by = c("Trials.distractorImage"="word2", "Trials.targetImage"="word1")) |>
+  left_join(similarities |> transmute(text1, text2, image_similarity=clip_image_similarity, text_similarity=clip_text_similarity, multimodal_similarity=clip_multimodal_similarity), by = c("Trials.distractorImage"="text2", "Trials.targetImage"="text1")) |>
   distinct(Trials.trialID, .keep_all=TRUE) |>
   left_join(saliency_metadata |> select(matches("Mean"), "ImagePair"), by = c("Trials.imagePair"="ImagePair")) |>
   mutate(

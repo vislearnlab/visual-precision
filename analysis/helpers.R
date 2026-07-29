@@ -430,6 +430,122 @@ summarize_similarity_data <- function(data, extra_fields=NULL) {
   ))
 }
 
+multiple_similarity_effects_plot_refactored <- function(
+    data, 
+    x_var, 
+    y_var = "mean_value", 
+    group_var, 
+    input_title,
+    label_filter = NULL,       # quoted expr string, e.g. "Trials.targetImage == 'acorn'"
+    nudge_target_col = NULL,   # column name to base nudge_y on
+    nudge_target_val = NULL,   # value in that column that gets nudge down
+    facet_labels = NULL,       # named vector for labeller, NULL = use values as-is
+    facet_scales_x = NULL,     # named list of scale_x_continuous() per facet level
+    ylim = c(-0.12, 0.22),
+    color = "#215D89",
+    color_map = NULL,       # named vector, e.g. c("Text Similarity" = "#C76D48"),
+    facet_dir = "h",
+    n_col = 3,
+    SECTION_ALPHA = FALSE # whether dots in each section get their own alphas
+) {
+  
+  # Label data
+  if (!is.null(label_filter)) {
+    label_data <- data %>% filter(eval(parse(text = label_filter)))
+  } else {
+    label_data <- data
+  }
+  label_data <- label_data %>%
+    mutate(label = paste("Target:", Trials.targetImage, "\nDistractor:", Trials.distractorImage))
+  
+  # nudge_y
+  if (!is.null(nudge_target_col) && !is.null(nudge_target_val)) {
+    nudge_vals <- ifelse(label_data[[nudge_target_col]] == nudge_target_val, -0.02, 0.02)
+  } else {
+    nudge_vals <- 0.02
+  }
+  
+  # Labeller
+  labeller_fn <- if (!is.null(facet_labels)) as_labeller(facet_labels) else "label_value"
+  
+  # Build per-row color vector based on group_var
+  get_color <- function(df) {
+    if (is.null(color_map)) return(rep(color, nrow(df)))
+    mapped <- color_map[as.character(df[[group_var]])]
+    ifelse(is.na(mapped), color, mapped)
+  }
+  
+  p <- ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]])) +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    geom_point(
+      size = 8, alpha=0.7,
+      aes(
+        color = .data[[group_var]]
+        #,alpha = section
+      )
+    ) +
+    geom_smooth(aes(color = .data[[group_var]]), alpha = 0.3, size = 0, method = "lm", show.legend = FALSE) +
+    stat_smooth(aes(color = .data[[group_var]]), geom = "line", alpha = 0.9, size = 1.5, method = "lm", show.legend = FALSE) +
+    scale_color_manual(
+      values = setNames(
+        sapply(levels(data[[group_var]]), function(g) if (!is.null(color_map) && g %in% names(color_map)) color_map[[g]] else color),
+        levels(data[[group_var]])
+      )
+    ) +
+    coord_cartesian(ylim = ylim) +
+    geom_label_repel(
+      data = label_data,
+      aes(label = label),
+      segment.alpha = 0.7,
+      nudge_y = nudge_vals,
+      force = 10, force_pull = 0.2, size = 4,
+      segment.size = 1.2,
+      point.padding = unit(1, "lines"),
+      min.segment.length = 0,
+      box.padding = unit(0.5, "lines"),
+      max.overlaps = Inf,
+      label.padding = unit(0.25, "lines"),
+      label.r = unit(0.5, "lines"),
+      show.legend = FALSE
+    ) +
+    ylab("Baseline-corrected\nproportion target looking") +
+    xlab("Target-distractor embedding similarity") +
+    scale_y_continuous(breaks = seq(-0.1, 0.2, by = 0.1)) +
+    facet_wrap(
+      facets = ~ .data[[group_var]],
+      dir = facet_dir, strip.position = "top",
+      labeller = labeller_fn,
+      ncol = n_col, scales = "free"
+    ) +
+    guides(shape="none", color="none", alpha="none")+
+    theme_classic() +
+    theme(
+      text = element_text(size = 16, face = "bold"),
+      axis.title.x = element_text(face = "bold", size = 27, margin = margin(t = 15)),
+      axis.title.y = element_text(face = "bold", size = 27, margin = margin(r = 20)),
+      axis.text = element_text(size = 24, face = "bold"),
+      legend.title = element_text(size = 22, face = "bold"),
+      legend.text = element_text(size = 22, face = "bold"),
+      legend.position = "bottom",
+      legend.key = element_blank(),
+      strip.text = element_text(size = 28, face = "bold"),
+      strip.background = element_rect(fill = "gray90", color = NA),
+      strip.text.x = element_text(margin = margin(t = 8, b = 8)),
+      panel.spacing = unit(0.5, "cm")
+    )
+  
+  if (!is.null(facet_scales_x)) {
+    p <- p + facetted_pos_scales(x = facet_scales_x)
+  }
+  
+  if (SECTION_ALPHA) {
+    p <- p + scale_alpha_manual(values = c(sample1 = 0.8, sample2 = 0.3)) 
+  }
+  
+  return(p)
+}
+
+
 # To add a title to the top of a cowplot arrangement
 cowplot_title <- function(title_text) {
   title <- ggdraw() + 
@@ -476,16 +592,9 @@ generate_multimodal_plots <- function(data, model_type, suffix = "") {
 
 # Create correlational and age-split plots for a model 
 create_model_plots <- function(input_similarities, median_age, name="CVCL") {
-  similarities_combined <- input_similarities |>
-    rename(word_a = word1, word_b = word2) |>
-    bind_rows(
-      input_similarities |>
-        rename(word_a = word2, word_b = word1)
-    )
-  
   looking_data_w_model <- looking_data_summarized |>
     select(-text_similarity, -multimodal_similarity, -image_similarity) |>
-    left_join(similarities_combined, by = c("Trials.distractorImage"="word_a", "Trials.targetImage"="word_b"))
+    left_join(input_similarities, by = c("Trials.distractorImage"="text2", "Trials.targetImage"="text1"))
   
   data_summarized <- summarize_similarity_data(looking_data_w_model)
   

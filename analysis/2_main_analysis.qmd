@@ -47,13 +47,11 @@ PROCESSED_DATA_PATH = here("data", DATA_FOLDER, "processed_data")
 looking_time_resampled_clean <- read.csv(file.path(PROCESSED_DATA_PATH, "level-looks_data.csv"))
 trial_metadata <- read.csv(here("data","metadata","level-trialtype_data.csv"))
 trial_summary_data <- read.csv(file.path(PROCESSED_DATA_PATH,"level-trials_data.csv"))
-# TODO: move similarity correlations to single file
-cvcl_similarities <- read.csv(here("data", "embeddings", "similarities-cvcl_data.csv"))
-clip_similarities <- read.csv(here("data", "embeddings", "similarities-clip_data.csv"))
+all_similarities <- read.csv(here("data", "embeddings", "similarities-all_data.csv"))
 openclip_similarities <- read.csv(here("data", "embeddings", "similarities-openclip_data.csv"))
-saycamvit_similarities <- read.csv(here("data", "embeddings", "similarities-saycamvit_data.csv"))
-imagenetvit_similarities <- read.csv(here("data", "embeddings", "similarities-imagenetvit_data.csv"))
-bv_dino_similarities <- read.csv(here("data", "embeddings", "similarities-dinobv_data.csv"))
+layerwise <- read.csv(here("data/embeddings/similarities-layerwise_data.csv"))
+all_sims <- trial_metadata |> left_join(layerwise, by=c("Trials.targetImage"="text1", "Trials.distractorImage"="text2")) |> left_join(all_similarities, by=c("Trials.targetImage"="text1", "Trials.distractorImage"="text2"))
+
 # Filter by section if PROJECT_VERSION specifies a particular sample
 if (!is.null(SECTION_FILTER)) {
   section_trials <- trial_metadata |> filter(section == SECTION_FILTER) |> distinct(Trials.trialID)
@@ -271,7 +269,7 @@ trial_performances <- ggplot(summarized_data(looking_data_summarized, "Trials.tr
 trial_performances
 ```
 ####Item-level timecourses
-```{r}
+```{r, fig.width=8.5, fig.height=5.3}
 # First, let's make sure we have the correct data
 summarize_target <- looking_time_resampled_clean %>%
   filter(trial_exclusion == 0 & exclude_participant == 0 & exclude_participant_insufficient_data == 0) %>%
@@ -458,6 +456,43 @@ age_continuous <- ggplot(participant_age_jittered, aes(x = x_jittered, y = mean_
 age_continuous
 ```
 
+```{r, fig.width=9, fig.height=6}
+participant_age_jittered <- participant_age_halves %>%
+  rowwise() %>%
+  mutate(x_jittered = SubjectInfo.testAge/30 + runif(n(), -0.25, 0.25))
+jitterer <- position_jitter(width = .5,seed=1)
+age_continuous_formatted <- ggplot(participant_age_jittered, aes(x = x_jittered, y = mean_value)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_point(size = 4, alpha = 0.4, color="#2171B5") +
+  geom_smooth(method="lm",color="#2171B5") +
+  geom_linerange(aes(ymin = mean_value - ci, ymax = mean_value + ci), alpha = 0.1) + 
+  scale_y_continuous(breaks = seq(-0.4, 0.3, by = 0.1), limits = c(-0.3, 0.3)) +
+  labs(x = "Age in months", y = "Baseline-corrected\nproportion target looking") +
+  #ggtitle("Corrected proportion of target looking by age") +
+  theme(
+    text = element_text(size=10,face = "bold"),              # All text bold
+    # Increase space between x-axis and its title
+    axis.title.x = element_text(
+      face = "bold", 
+      size = 18,
+      margin = margin(t = 10, r = 0, b = 0, l = 0)
+    ),
+    
+    # Increase space between y-axis and its title
+    axis.title.y = element_text(
+      face = "bold", 
+      size= 18,
+      margin = margin(t=0,r = 5, b = 0, l = 0)
+    ),      
+    axis.text = element_text(size=14,face = "bold"),         # Axis text bold
+    legend.title = element_text(size = 14, face = "bold"),  # Small bold legend title
+    legend.text = element_text(size = 14, face = "bold")    # Small bold legend text
+  )
+age_continuous_formatted
+ggsave(here("figures",PROJECT_VERSION,"age_continuous_formatted.png"),age_continuous_formatted,width=9,height=6,bg = "white")
+```
+
+
 younger group mean
 ```{r}
 younger_mean <- participant_age_halves |>
@@ -525,7 +560,6 @@ looking_times_section <- ggplot(summarize_across_sections,aes(time_normalized_co
   scale_color_brewer(palette = "Set2", name="Section")
 
 looking_times_section
-
 ```
 
 ## Easy vs hard trial plots
@@ -646,6 +680,7 @@ saliency_effects <- looking_data_summarized |>
  summarize(mean_baseline_looking = mean(original_target_looking_baseline_window),
            mean_critical_looking = mean(original_target_looking_critical_window),
            .by = c(Trials.imagePair, age_half))
+saliency_effects
 ```
 
 ## CLIP similarity plots
@@ -668,24 +703,201 @@ clip_plots
 clip_age_plots
 
 # CVCL
-create_model_plots(cvcl_similarities, name="CVCL", median_age=input_median_age)
-create_model_plots(imagenetvit_similarities, name="ImageNetVIT", median_age=input_median_age)
-create_model_plots(saycamvit_similarities, name="SayCamVIT",median_age=input_median_age)
-create_model_plots(bv_dino_similarities, name="BV-DINO", median_age=input_median_age)
-create_model_plots(clip_similarities, name="CLIP", median_age=input_median_age)
-
+create_model_plots(all_similarities |> transmute(image_similarity=cvcl_image_similarity, text_similarity=cvcl_text_similarity, multimodal_similarity=cvcl_multimodal_similarity, text1, text2), name="CVCL", median_age=input_median_age)
+create_model_plots(all_similarities |> transmute(image_similarity=dino_imagenet100_vitb14_image_similarity, text1, text2), name="ImageNetVIT", median_age=input_median_age)
+create_model_plots(all_similarities |> transmute(image_similarity=dino_say_vitb14_image_similarity, text1, text2), name="SayCamVIT", median_age=input_median_age)
+create_model_plots(all_similarities |> transmute(image_similarity=dinov3.babyview_image_similarity, text1, text2), name="BV-DINO", median_age=input_median_age)
+create_model_plots(all_similarities |> transmute(image_similarity=clip_image_similarity, text_similarity=clip_text_similarity, multimodal_similarity=clip_multimodal_similarity,text1, text2), name="CLIP", median_age=input_median_age)
 ```
-Create CLIP model plot with all three similarities
+
+
+#### combined
 ```{r, fig.width=20, fig.height=10}
-clip_data_long <- clip_data_summarized |>
-  pivot_longer(cols = c("text_similarity", "image_similarity"), names_to = "sim_type", values_to = "similarity")
-all_clip_plot <- multiple_similarity_effects_plot(clip_data_long, "similarity", group_var="sim_type", input_title="Looking time and CLIP embedding correlations")
-all_clip_plot
-ggsave(here("figures",PROJECT_VERSION,"clip_plot.svg"),all_clip_plot,width=10, height=10.5,bg = "white",device="pdf")
-ggsave(here("figures",PROJECT_VERSION,"clip_plot.png"),all_clip_plot,width=20, height=10.5,bg = "white")
+bv_dino_data <- looking_data_summarized |> left_join(all_similarities, by=c("Trials.targetImage"="text1", "Trials.distractorImage"="text2")) |> rename("BabyView Similarity"="dinov3.babyview_image_similarity")
+group_vars = c("Trials.trialID", "Trials.targetImage", "Trials.distractorImage",  "image_similarity", "text_similarity", "multimodal_similarity", "BabyView Similarity", "section")
+dino_data_summarized <- (summarized_data(
+  bv_dino_data,
+  "Trials.trialID", 
+  "corrected_target_looking", 
+  group_vars
+))
+dino_data_long <- dino_data_summarized |>
+  rename(
+    `Text Similarity` = text_similarity,
+    `Image Similarity` = image_similarity,
+    `Multimodal Similarity` = multimodal_similarity
+  ) |>
+  pivot_longer(
+    cols = c("Text Similarity", "Image Similarity", "Multimodal Similarity", "BabyView Similarity"),
+    names_to = "sim_type",
+    values_to = "similarity"
+  ) |>
+  mutate(
+    sim_type = factor(
+      sim_type,
+      levels = c("Text Similarity", "Image Similarity", "Multimodal Similarity", "BabyView Similarity")
+    )
+  )
+
+all_sections_plot <- multiple_similarity_effects_plot_refactored(
+  dino_data_long,
+  x_var = "similarity",
+  group_var = "sim_type",
+  input_title = "Looking time and embedding correlations",
+  label_filter = "Trials.targetImage == 'acorn'",
+  facet_scales_x = list(
+    `Text Similarity` = scale_x_continuous(
+      breaks = seq(0.7, 0.9, by = 0.1),
+      limits = c(0.62, 0.93)
+    ),
+    `Image Similarity` = scale_x_continuous(
+      breaks = seq(0.4, 0.8, by = 0.1),
+      limits = c(0.38, 0.86)
+    ),
+    `Multimodal Similarity` = scale_x_continuous(
+      breaks = seq(0.1, 0.4, by=0.1),
+      limits = c(0.05, 0.45)
+    ),
+        `Babyview Similarity` = scale_x_continuous(breaks = seq(0, 0.4, by = 0.2), limits = c(-0.1, 0.5))
+  ),
+  color_map = c("Text Similarity" = "#C76D48", "Multimodal Similarity" = "#749B69"),
+  n_col = 4
+)
+all_sections_plot
+ggsave(here("figures",PROJECT_VERSION,"clip_plot_all.svg"),all_sections_plot,width=20, height=10,bg = "white",device="pdf")
+ggsave(here("figures",PROJECT_VERSION,"clip_plot_all.png"),all_sections_plot,width=20, height=10,bg = "white")
 ```
 
-### Some exploratory age effects with three age bins
+#### scaled axes.
+```{r, fig.width=30, fig.height=10}
+dino_data_long_scaled <- dino_data_summarized |>
+  transmute(
+    `Text Similarity` = scale(text_similarity),
+    `Image Similarity` = scale(image_similarity),
+    `Multimodal Similarity` = scale(multimodal_similarity),
+    `BabyView Similarity` = scale(`BabyView Similarity`),
+    mean_value = mean_value,
+    Trials.targetImage = Trials.targetImage,
+    Trials.distractorImage = Trials.distractorImage
+  ) |>
+  pivot_longer(
+    cols = c("Text Similarity", "Image Similarity", "Multimodal Similarity", "BabyView Similarity"),
+    names_to = "sim_type",
+    values_to = "similarity"
+  ) |>
+  mutate(
+    sim_type = factor(
+      sim_type,
+      levels = c("Text Similarity", "Image Similarity", "Multimodal Similarity", "BabyView Similarity")
+    )
+  )
+
+all_sections_plot <- multiple_similarity_effects_plot_refactored(
+  dino_data_long_scaled,
+  x_var = "similarity",
+  group_var = "sim_type",
+  input_title = "Looking time and embedding correlations",
+  label_filter = "Trials.targetImage == 'acorn'",
+  facet_scales_x = list(
+    `Text Similarity` = scale_x_continuous(
+      breaks = seq(-2, 2, by = 0.5),
+      limits = c(-2, 2)
+    ),
+    `Image Similarity` = scale_x_continuous(
+      breaks = seq(-2, 2, by = 0.5),
+      limits = c(-2, 2)
+    ),
+    `Multimodal Similarity` = scale_x_continuous(
+      breaks = seq(-2, 2, by = 0.5),
+      limits = c(-2, 2)
+    ),
+        `Babyview Similarity` = scale_x_continuous(
+      breaks = seq(-2, 2, by = 0.5),
+      limits = c(-2, 2)
+          )
+  ),
+  color_map = c("Text Similarity" = "#C76D48", "Multimodal Similarity" = "#749B69"),
+  n_col = 4
+)
+all_sections_plot
+```
+#### section 1 plot
+```{r, fig.width=15, fig.height=10}
+section_1_plot <- multiple_similarity_effects_plot_refactored(
+  dino_data_long |> filter(section == "sample1" & sim_type %in% c("Image Similarity", "Text Similarity")) |> mutate(
+    sim_type = factor(
+      sim_type,
+      levels = c("Text Similarity", "Image Similarity")
+    )
+  ),
+  x_var = "similarity",
+  group_var = "sim_type",
+  input_title = "Looking time and embedding correlations",
+  label_filter = "Trials.targetImage == 'acorn' | Trials.distractorImage == 'acorn'",
+  facet_scales_x = list(
+    `Text Similarity` = scale_x_continuous(
+      breaks = seq(0.75, 0.9, by = 0.05),
+      limits = c(0.7, 0.91)
+    ),
+    `Image Similarity` = scale_x_continuous(
+      breaks = seq(0.5, 0.9, by = 0.1),
+      limits = c(0.45, 0.9)
+    )
+  ),
+  color_map = c("Text Similarity" = "#C76D48")
+)
+section_1_plot
+ggsave(here("figures",PROJECT_VERSION,"clip_plot_section11.svg"),section_1_plot,width=15, height=10,bg = "white",device="pdf")
+ggsave(here("figures",PROJECT_VERSION,"clip_plot_section1.png"),section_1_plot,width=15, height=10,bg = "white")
+```
+
+#### correlation between bv and CLIP models
+```{r, fig.width=6.67, fig.height=6.67, fig.units="in"}
+clip_bv_df <- all_sims |>
+  mutate(
+    fitted = predict(lm(image_similarity ~ dinov3.babyview_image_similarity, data = all_sims)),
+    residual = abs(image_similarity - fitted),
+    is_outlier = residual > (mean(residual) + 0.2*sd(residual))
+  ) 
+
+clip_bv <- ggplot(clip_bv_df, aes(x=dinov3.babyview_image_similarity, y=image_similarity)) +
+  geom_smooth(method="lm", color="#215D89", alpha=0.5, se=FALSE) +
+  geom_smooth(method="lm", color="#215D89", se=TRUE, alpha=0.2) +
+  geom_point(size=8, alpha=0.8, color="#215D89") +
+  scale_y_continuous(breaks = seq(0.4, 0.8, by = 0.2)) +
+  geom_label_repel(
+    data = clip_bv_df |> filter(is_outlier),
+    aes(label=Trials.imagePair),
+    color="black",
+    fill="white",
+    alpha=0.8,
+    segment.alpha=0.7,
+    nudge_y=0.02,
+    force=10,
+    force_pull=0.1,
+    segment.size=1.2,
+    size=6
+  ) +
+  ylab("CLIP image similarity") +
+  xlab("BabyView model similarity") +
+  theme_classic() +
+  theme(
+    text = element_text(size=14, face="bold"),
+    axis.title.x = element_text(face="bold", size=20, margin=margin(t=15, r=0, b=0, l=0)),
+    axis.title.y = element_text(face="bold", size=20, margin=margin(t=0, r=10, b=0, l=0)),
+    axis.text = element_text(size=16, face="bold"),
+    legend.key = element_blank(),
+    legend.title = element_text(size=22, face="bold"),
+    legend.text = element_text(size=22, face="bold"),
+    legend.position = "bottom",
+    panel.spacing = unit(0.5, "cm")
+  )
+clip_bv
+ggsave(here("figures", PROJECT_VERSION,"clip_bv.svg"),clip_bv,width=6.67, height=6.67,units="in", bg = "white",device="pdf")
+ggsave(here("figures", PROJECT_VERSION,"clip_bv.png"),clip_bv,width=6.67, height=6.67,units="in", bg = "white")
+```
+
+#### Some exploratory age effects with three age bins
 ```{r}
 clip_age_bins_summarized <- looking_data_summarized |>
   mutate(age_bin = case_when(
@@ -697,7 +909,34 @@ clip_age_bins_summarized <- looking_data_summarized |>
 similarity_age_plot(clip_age_bins_summarized, "image_similarity", age_grouping="age_bin", model_type="CLIP", median_age=median_age)
 ```
 
-### AoA effects
+
+```{r}
+ggplot(clip_age_half_summarized |> left_join(all_similarities |> select(text1, text2, dinov3.babyview_image_similarity), by=c("Trials.targetImage"="text1", "Trials.distractorImage"="text2")), aes(x = dinov3.babyview_image_similarity, y = mean_value, 
+                   color = age_half)) +
+    geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.7) +
+    geom_point(size = 3, alpha = 0.7) +
+    geom_smooth(method = "lm", se = TRUE, alpha = 0.3) +
+    
+    # Improved styling
+    scale_color_brewer(palette = "Set1", name="Age half") +
+    theme_minimal() +
+    theme(
+      legend.position = "bottom",
+      axis.title = element_text(size = 11),
+      legend.title = element_text(size = 10),
+      plot.title = element_text(size = 12)
+    ) +
+    
+    # Clear labels
+    labs(
+      title = "BabyView DINO correlation across age",
+      x = paste("Target-Distractor", "Image Similarity"),
+      y = "Baseline-corrected Proportion\nTarget Looking",
+      caption = paste0("Median age: ", median_age, " months")
+    ) 
+```
+
+#### AoA effects
 ```{r}
 input_median_age = median_age
 facet_plot <- generate_aoa_facet_plots(
@@ -723,15 +962,9 @@ facet_plot
 ### OpenCLIP training  
 
 ```{r}
-openclip_similarities_combined <- openclip_similarities |>
-  rename(word_a = word1, word_b = word2) |>
-  bind_rows(
-    openclip_similarities |>
-      rename(word_a = word2, word_b = word1)
-  )
 looking_data_w_openclip <- looking_data_summarized |>
   select(-text_similarity, -multimodal_similarity, -image_similarity) |>
-  left_join(openclip_similarities_combined, by = c("Trials.distractorImage"="word_a", "Trials.targetImage"="word_b"))
+  left_join(openclip_similarities, by = c("Trials.distractorImage"="text2", "Trials.targetImage"="text1"))
 
 openclip_data_summarized <- summarize_similarity_data(looking_data_w_openclip, extra_fields=c("epoch")) |> filter(!is.na(image_similarity))
 openclip_age_half_summarized <- looking_data_w_openclip |>
@@ -760,22 +993,33 @@ image_correlation_results_age_split <- calculate_correlations(openclip_age_half_
 
 text_correlation_results <- calculate_correlations(openclip_data_summarized, "text_similarity", "mean_value")
 image_correlation_results <- calculate_correlations(openclip_data_summarized, "image_similarity", "mean_value")
+multimodal_correlation_results <- calculate_correlations(openclip_data_summarized, "multimodal_similarity", "mean_value")
 
-ggplot(image_correlation_results, aes(x = epoch, y = pearson_cor)) +
+ggplot(image_correlation_results, aes(x = log(epoch), y = pearson_cor)) +
   geom_point(aes(color = p_value < 0.05), size = 3) + 
   geom_smooth(span = 2) +
   labs(title = "Image similarity correlation across Open-CLIP training",
-       x = "Epoch",
+       x = "log(Epoch)",
        y = "Pearson Correlation") +
   scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +  # Set color for significance
   theme_minimal() +
   theme(legend.position = "none")
 
-ggplot(text_correlation_results, aes(x = epoch, y = pearson_cor)) +
+ggplot(text_correlation_results, aes(x = log(epoch), y = pearson_cor)) +
   geom_point(aes(color = p_value < 0.05), size = 3) + 
   geom_smooth(span = 2) +
   labs(title = "Word similarity correlation across Open-CLIP training",
-       x = "Epoch",
+       x = "log (Epoch)",
+       y = "Pearson Correlation") +
+  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +  # Set color for significance
+  theme_minimal() +
+  theme(legend.position = "none")
+
+ggplot(multimodal_correlation_results, aes(x = log(epoch), y = pearson_cor)) +
+  geom_point(aes(color = p_value < 0.05), size = 3) + 
+  geom_smooth(span = 2) +
+  labs(title = "Multimodal similarity correlation across Open-CLIP training",
+       x = "log (Epoch)",
        y = "Pearson Correlation") +
   scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +  # Set color for significance
   theme_minimal() +
@@ -789,12 +1033,58 @@ text_openclip_age
 ggsave(here("figures",PROJECT_VERSION,"openclip_image_embeddings_age.png"),image_openclip_age,width=9,height=6,bg = "white")
 ``` 
 
-#### Examining linear correlation between similarity types
+```{r}
+# --- set to FALSE to drop multimodal ---
+include_multimodal <- TRUE
+
+sim_colors <- c(
+  "Image"      = "#4E79A7",  
+  "Text"       = "#C0724A",  
+  "Multimodal" = "#749B69"   
+)
+
+combined <- bind_rows(
+  image_correlation_results %>% mutate(similarity = "Image"),
+  text_correlation_results  %>% mutate(similarity = "Text"),
+  if (include_multimodal)
+    multimodal_correlation_results %>% mutate(similarity = "Multimodal")
+) %>%
+  mutate(similarity = factor(similarity, levels = names(sim_colors)))
+
+ggplot(combined, aes(log(epoch), pearson_cor, color = similarity)) +
+  geom_point(size = 3, alpha = 0.9) +
+  geom_smooth(span = 2, se = TRUE) +
+  scale_color_manual(values = sim_colors, drop = TRUE) +
+  labs(x = "log(OpenCLIP epoch)",
+       y = "Pearson's correlation (r)",
+       color = NULL) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = c(0.02, 0.98),
+        legend.justification = c(0, 1),
+        legend.background = element_rect(fill = "white", color = "grey80"))
+
+ggsave(here("figures",PROJECT_VERSION,"openclip_all_measures.png"),width=9,height=6,bg = "white")
+```
+
+### Examining linear correlation between similarity types
 ```{r}
 cor(data.frame(trial_metadata$multimodal_similarity, trial_metadata$image_similarity, trial_metadata$text_similarity, trial_metadata$cor))
 cor.test(trial_metadata$image_similarity, trial_metadata$text_similarity)
-cor.test((imagenetvit_similarities |> arrange(word1, word2))$image_similarity, (trial_metadata |> distinct(Trials.imagePair, .keep_all=TRUE) |>  filter(section=="sample1") |> arrange(Trials.imagePair))$image_similarity, method="spearman")
-# TODO: add direct similarity matrix 
+cor.test(all_sims$dino_imagenet100_vitb14_image_similarity, all_sims$image_similarity, method="spearman")
+```
+```{r}
+library(GGally)
+
+similarity_cols <- all_sims |>
+  select(matches("similarity$")) |>
+  select(-matches("^layer\\d+_"))
+
+ggpairs(
+  similarity_cols,
+  upper = list(continuous = wrap("cor", method = "spearman", size = 3)),
+  lower = list(continuous = wrap("points", alpha = 0.3, size = 0.5)),
+  diag = list(continuous = "densityDiag")
+)
 ```
 # AoA plots
 ```{r}
@@ -860,8 +1150,50 @@ ggplot(target_looking_trial_level, aes(x=AoA_Est_distractor, y=mean_value)) +
         ) +
   ggpubr::stat_cor(method = "spearman")
 hist(target_looking_item_level$AoA_Est_target)
+```
 
+```{r, fig.width=6.936, fig.height=9.437, fig.units="in"}
+aoa_jittered <- target_looking_item_level %>%
+  rowwise() %>%
+  mutate(aoa_x_jittered = AoA_Est_target + runif(n(), -0.01, 0.01))
 
+aoa_across_time <- ggplot(aoa_jittered, aes(x=aoa_x_jittered, y=mean_value))+
+  geom_hline(yintercept=0,linetype="dashed")+
+  geom_point(size=8, color="#E95454", alpha=0.6)+ #, aes(alpha=section)
+  scale_alpha_manual(values = c(sample1 = 0.8, sample2 = 0.3)) +
+  #geom_linerange(aes(ymin = mean_value - ci, ymax = mean_value + ci), alpha = 0.1) + 
+  geom_smooth(method="lm", color="#E95454", alpha=0.5, se=FALSE) +
+geom_smooth(method="lm", color="#E95454", se=TRUE, alpha=0.2) +
+  geom_label_repel(data=aoa_jittered |> filter(AoA_Est_target > 5.7 | (AoA_Est_target < 5 & AoA_Est_target > 4.5) | Trials.targetImage %in% c("airplane", "mud", "worm", "car", "butterfly", "duck", "acorn", "coconut", "key", "truck") | (mean_value > 0.1 & AoA_Est_target > 4)), size=7,aes(label=Trials.targetImage),force_pull=15,nudge_y=-0.03) +
+  xlab("Estimated target word age-of-acquisition (AoA)")+
+  ylab("Baseline-corrected\nproportion target looking")+
+  #ggtitle("Prop. of target looking by estimated AoA of target words")+
+  theme_classic()+
+  guides(shape = "none", alpha="none") +
+ theme(
+    text = element_text(size=10,face = "bold"),              # All text bold
+    # Increase space between x-axis and its title
+    axis.title.x = element_text(
+      face = "bold", 
+      size = 24,
+      margin = margin(t = 10, r = 0, b = 0, l = 0)
+    ),
+    
+    # Increase space between y-axis and its title
+    axis.title.y = element_text(
+      face = "bold", 
+      size= 24,
+      margin = margin(t = 10, r = 5, b = 0, l = 0)
+    ),      
+    axis.text = element_text(size=20),         # Axis text bold
+    #legend.title = element_text(size = 12, face = "bold"),  # Small bold legend title
+    #legend.text = element_text(size = 12, face = "bold")    # Small bold legend text
+  )+
+ scale_x_continuous(breaks = seq(3, 6, by = 0.5)) +
+   coord_cartesian(xlim = c(3.2,6.5), ylim = c(-0.16, 0.18))
+aoa_across_time
+ggsave(here("figures",PROJECT_VERSION,"aoa_plot.svg"),aoa_across_time,height=6.936,width=9.437,units="in",bg = "white", device="pdf")
+ggsave(here("figures",PROJECT_VERSION,"aoa_plot.png"),aoa_across_time,height=6.936,width=9.437,units="in",bg = "white")
 ```
 
 ```{r}
@@ -938,7 +1270,7 @@ age_half_plot(target_looking_imagepair_level, "MeanSaliencyDiff", x_label="Mean 
 ```
 
 
-## Saliency vs baseline
+#### Saliency vs baseline
 ```{r}
 baseline_looking_trial_age_level <- summarized_data(looking_data_summarized |> add_age_split(), "Trials.trialID", "mean_target_looking_baseline_window", c("age_half")) |> left_join(trial_metadata)
 
@@ -954,6 +1286,79 @@ ggplot(baseline_looking_trial_level, aes(x=MeanSaliencyDiff, y=mean_value)) +
   ggpubr::stat_cor()
 ```
 
+```{r, fig.width=15, fig.height=12}
+# Saliency plots
+# Prepare the data by combining both datasets with a grouping variable
+baseline_looking_trial_level <- summarized_data(looking_data_summarized |> rename("mean_looking"="mean_target_looking_baseline_window"), "Trials.trialID", "mean_looking", c("Trials.trialID", "section")) |> left_join(trial_metadata) 
+
+trialid_level_summary$plot_type <- "Baseline-corrected"
+baseline_looking_trial_level$plot_type <- "Baseline window"
+
+combined_data <- bind_rows(trialid_level_summary, baseline_looking_trial_level)
+
+# Create labels for trials where target is acorn and distractor is coconut
+combined_data$label_text <- ifelse(
+  combined_data$Trials.targetImage == "acorn",
+  paste("Target:", combined_data$Trials.targetImage, "\nDistractor:", combined_data$Trials.distractorImage),
+  ""
+)
+
+label_data <- subset(combined_data, label_text != "")
+
+# Per-facet dashed reference lines
+hline_data <- data.frame(
+  plot_type = c("Baseline window", "Baseline-corrected"),
+  yint      = c(0.5, 0.0)
+)
+
+combined_saliency_plot <- ggplot(combined_data, aes(x = MeanSaliencyDiff, y = mean_value)) +
+  geom_smooth(method = "lm", color = "#182B49", fill = "#182B49", alpha = 0.15) +
+  geom_hline(data = hline_data, aes(yintercept = yint),
+             linetype = "dashed", color = "gray40", linewidth = 1) +
+  geom_point(size = 8, color = "#182B49", alpha = 0.8) +
+  #scale_alpha_manual(values = c(sample1 = 0.8, sample2 = 0.3)) +
+  geom_label_repel(data = label_data,
+                   aes(label = label_text),
+                   color = "black",
+                   fill = "white",
+                   alpha = 0.8,
+                   segment.alpha = 0.7,
+                   nudge_y = 0.02,
+                   force = 10,
+                   force_pull = 0.1,
+                   segment.size = 1.2,
+                   max.overlaps = Inf,
+                   size = 8) +
+  facet_wrap(~ plot_type, scales = "free_y", ncol = 2) +
+  xlab("Target-distractor GBVS mean saliency difference") +
+  ylab("Proportion of target looking") +
+  theme_minimal() +
+  theme(
+    text = element_text(size = 16, face = "bold"),
+    axis.title.x = element_text(face = "bold", size = 29,
+                                margin = margin(t = 15, r = 0, b = 0, l = 0)),
+    legend.key = element_blank(),
+    axis.title.y = element_text(face = "bold", size = 29,
+                                margin = margin(t = 0, r = 10, b = 0, l = 0)),
+    axis.text = element_text(size = 24, face = "bold"),
+    legend.title = element_text(size = 22, face = "bold"),
+    legend.text = element_text(size = 22, face = "bold"),
+    legend.position = "bottom",
+    strip.text = element_text(size = 28, face = "bold"),
+    strip.background = element_rect(fill = "gray90", color = NA),
+    strip.text.x = element_text(margin = margin(t = 8, b = 8)),
+    panel.spacing = unit(0.5, "cm")
+  )
+
+combined_saliency_plot
+
+# Save the combined plot
+ggsave(here("figures", PROJECT_VERSION, "saliency_plot_combined.svg"), 
+       combined_saliency_plot, width = 15, height = 12, bg = "white", device = "pdf")
+ggsave(here("figures", PROJECT_VERSION, "saliency_plot_combined.png"), 
+       combined_saliency_plot, width = 15, height = 12, bg = "white")
+```
+
 # Embedding type comparisons
 
 ```{r}
@@ -967,7 +1372,6 @@ cor.test(trial_metadata$MeanSaliencyDiff, trial_metadata$AoA_Est_target)
 
 # layer-wise
 ```{r}
-layerwise <- read.csv(here("data/embeddings/layerwise_similarities.csv"))
 layerwise_long <- layerwise |>
   pivot_longer(
     cols = starts_with("layer"),
@@ -976,15 +1380,10 @@ layerwise_long <- layerwise |>
   ) |>
   mutate(layer = as.integer(str_extract(layer, "\\d+")))
 
-layerwise_combined <- layerwise_long |>
-  bind_rows(
-    layerwise_long |>
-      rename(text1 = text2, text2 = text1)
-  )
 
 looking_data_w_layerwise <- looking_data_summarized |>
   select(-image_similarity) |>
-  left_join(layerwise_combined, by = c("Trials.distractorImage" = "text1", "Trials.targetImage" = "text2"), relationship="many-to-many")
+  left_join(layerwise_long, by = c("Trials.distractorImage" = "text1", "Trials.targetImage" = "text2"), relationship="many-to-many")
 
 layerwise_data_summarized <- summarize_similarity_data(looking_data_w_layerwise, extra_fields = c("layer"))
 
@@ -998,30 +1397,28 @@ ggplot(image_correlation_results_layerwise, aes(x = layer, y = pearson_cor)) +
   geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper), alpha = 0.15) +
   scale_x_continuous(breaks = 0:12) +
   scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +
+  geom_hline(yintercept=0, linetype="dotted") +
   labs(
-    title = "Image similarity correlation across ViT layers",
+    title = "Image similarity correlation across CLIP ViT layers",
     x = "Layer",
     y = "Pearson Correlation"
   ) +
-  theme_minimal() +
+  theme_classic(base_size=16) +
   theme(legend.position = "none")
+
+ggsave(here("figures", PROJECT_VERSION, "clip_layerwise.png"), width=12, height=9, bg="white")
 ```
 
 ```{r}
-layerwise_combined <- layerwise_long |>
-  bind_rows(
-    layerwise_long |>
-      rename(text1 = text2, text2 = text1)
-  )
-layerwise_models <- layerwise_combined |>
+layerwise_models <- layerwise_long |>
   group_by(layer) |>
   group_split() |>
   map(function(layer_data) {
     layer_num <- unique(layer_data$layer)
     
-    d <- trials_with_effect_vars |>
+  d <- looking_data_summarized |> mutate(age_in_months = SubjectInfo.testAge) |>
   select(-any_of("image_similarity")) |>
-  left_join(layer_data, by = c("Trials.distractorImage" = "text1", "Trials.targetImage" = "text2"),
+  left_join(layer_data, by = c("Trials.distractorImage" = "text2", "Trials.targetImage" = "text1"),
             relationship = "many-to-many")
     
     m <- lmer(scale(corrected_target_looking) ~ scale(image_similarity) * scale(age_in_months) 
@@ -1075,3 +1472,49 @@ p2 <- ggplot(layerwise_models, aes(x = layer, y = interaction_estimate)) +
 p1 / p2
 ```
 
+```{r}
+cor.test(all_sims$layer12_image_similarity, all_sims$image_similarity)
+cor.test(all_sims$clip.hf_image_similarity, all_sims$layer12_image_similarity)
+cor.test(all_sims$clip.hf_image_similarity, all_sims$image_similarity)
+```
+
+# CDI
+```{r}
+cdi_data <- read.csv(here("data", "main", "data_to_analyze", "level-participant_source-cdi_added-percentile_data.csv"))
+looking_data_with_cdi <- looking_data_summarized |> left_join(cdi_data, by=c("SubjectInfo.subjID"="local_id"))
+# split-half percentile_rank and plot 
+# Median split on CDI percentile_rank
+pr_median <- median(looking_data_with_cdi$percentile_rank, na.rm = TRUE)
+
+clip_cdi_bins_summarized <- looking_data_with_cdi |>
+  filter(!is.na(percentile_rank)) |>
+  mutate(cdi_percentile_bin = if_else(percentile_rank < pr_median,
+                           "Low percentile", "High percentile")) |>
+  summarize_similarity_data(extra_fields = c("cdi_percentile_bin", "AoA_Est_target"))
+
+similarity_age_plot(clip_cdi_bins_summarized, "image_similarity",
+                    age_grouping = "cdi_percentile_bin", model_type = "CLIP",
+                    median_age = median_age)
+
+vocab_score_median <- median(looking_data_with_cdi$vocabulary_score, na.rm = TRUE)
+clip_cdi_bins_summarized <- looking_data_with_cdi |>
+  filter(!is.na(vocabulary_score)) |>
+  mutate(cdi_vocab_bin = if_else(percentile_rank < vocabulary_score,
+                           "Low percentile", "High percentile")) |>
+  summarize_similarity_data(extra_fields = c("cdi_vocab_bin", "AoA_Est_target"))
+
+similarity_age_plot(clip_cdi_bins_summarized, "image_similarity",
+                    age_grouping = "cdi_vocab_bin", model_type = "CLIP",
+                    median_age = median_age)
+```
+
+```{r}
+target_looking_subject_level_cdi <- target_looking_subject_level |> left_join(cdi_data, by=c("SubjectInfo.subjID"="local_id"))
+ggplot(data=target_looking_subject_level_cdi, aes(x=mean_value, y=percentile_rank)) +
+  geom_point(size=4, alpha=0.6) +
+  geom_smooth(method="lm") + theme_classic() + xlab("Baseline-corrected proportion target looking") +
+  ylab("Vocabulary percentile rank")
+```
+```{r}
+cor.test(target_looking_subject_level_cdi$percentile_rank,target_looking_subject_level_cdi$vocabulary_score)
+```
