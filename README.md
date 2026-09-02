@@ -29,10 +29,10 @@ More information on the data to be found in the dataset_description.json file th
 ## Running through the pipeline
 Since the videos we collected are inherently identifiable (and large) we cannot share them, so we recommend starting at the analysis section if you do not have a set of videos. In general, please install Python packages using the `requirements.txt` file in the main directory to get started. Then, refer to the Markdown files in the `preprocessing` and `analysis` subdirectories.
 
-1. Downloading the video ZIP and trial JSON files from Children Helping Science.
- - unzip the videos and store them in `data/raw/raw_videos` locally 
+1. Downloading the videos and trial JSON files from Children Helping Science.
+ - If this is the first time running through the pipeline and there are more than 10 participants to process, download  all the videos as a zip and unzip them and store them in `data/raw/raw_videos` locally. Otherwise, download individual videos added since the last time the pipeline was run adn add them to `data/raw/raw_videos` locally.
  - Install `ffmpeg` to be able to convert webm to mp4
- - Place the trial JSON file as `data/lookit/<sample>/input_lookit_study.json` **locally**, where sample is either 'sample1' or 'sample2' depending on which sample you are processing. 
+ - Place the trial JSON file as `data/raw/lookit/<sample>/input_lookit_study.json` **locally**, where sample is either 'sample1' or 'sample2' depending on which sample you are processing. 
  - Connect to VPN and Polygon
  - Copy over the `.env_template` file into a `.env` file, filling out the rows as required. 
  - Run `preprocess.py` (which calls `preprocessing/utils/move_to_polygon.py` and `preprocessing/1_preprocess_raw_data.py`) to move the videos to the server and then format the raw videos and clean the Lookit JSON file. 

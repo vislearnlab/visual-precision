@@ -17,7 +17,7 @@ LOCAL_DIR/raw/raw_videos/*
 SERVER_DIR/data/raw/original_videos/webm/*
         │ convert 
         ▼
-SERVER_DIR/data/raw/original_videos/mp4_converted/*
+SERVER_DIR/data/raw/original_videos/mp4/*
 ```
 
 Level 2 · Lookit JSON → trials CSV:
@@ -32,7 +32,7 @@ SERVER_DIR/data/main/data_to_analyze/lookit_study.json
 ## Part 2 — Run iCatcher+ over converted videos
 
 ```
-SERVER_DIR/data/raw/original_videos/mp4_converted/*
+SERVER_DIR/data/raw/original_videos/mp4/*
         │ iCatcher+
         ├──────►  SERVER_DIR/data/raw/icatcher_videos/*
         │
