@@ -31,18 +31,19 @@ Since the videos we collected are inherently identifiable (and large) we cannot 
 
 1. Downloading the videos and trial JSON files from Children Helping Science.
  - If this is the first time running through the pipeline and there are more than 10 participants to process, download  all the videos as a zip and unzip them and store them in `data/raw/raw_videos` locally. Otherwise, download individual videos added since the last time the pipeline was run adn add them to `data/raw/raw_videos` locally.
- - Install `ffmpeg` to be able to convert webm to mp4
+ - Install [`ffmpeg`](https://ffmpeg.org/download.html) to be able to convert webm to mp4
  - Place the trial JSON file as `data/raw/lookit/<sample>/input_lookit_study.json` **locally**, where sample is either 'sample1' or 'sample2' depending on which sample you are processing. 
  - Connect to VPN and Polygon
  - Copy over the `.env_template` file into a `.env` file, filling out the rows as required. 
- - Run `preprocess.py` (which calls `preprocessing/utils/move_to_polygon.py` and `preprocessing/1_preprocess_raw_data.py`) to move the videos to the server and then format the raw videos and clean the Lookit JSON file. 
+ - Install the base requirements `pip install -r requirements.txt`. It is recommended that you do this in a [`miniconda`](https://www.anaconda.com/docs/getting-started/installation) package environment. If you install `miniconda`, first run `conda create -n visualprecision python=3.12` and `conda activate visualprecision` before running `pip install -r requirements.txt`
+ - Run `python preprocess.py` (which calls `preprocessing/utils/move_to_polygon.py` and `preprocessing/1_preprocess_raw_data.py`) to move the videos to the server and then format the raw videos and clean the Lookit JSON file. 
  - (Optional) You can also run this first locally to move files to the server and then run it on the `tversky` server to preprocess raw data faster.
  - **Note:** in the past this has been run on the `SSRDE server` as well
 
 2. Run iCatcher+ and annotate gaze data across the formatted videos
 - Navigate to `preprocessing/2_run_icatcher`
 - Activate the conda environment `conda activate visualprecision`
-- Install the requirements `pip install -r requirements.txt`
+- Install the new requirements `pip install -r requirements.txt`
 - Run `python run_icatcher_local.py --gpu_id 0` on a server with a GPU like Tversky. 
 - See `preprocessing/2_run_icatcher/README.md` for a more detailed setup instruction and troubleshooting if needed.
 
@@ -51,9 +52,12 @@ Since the videos we collected are inherently identifiable (and large) we cannot 
 - run `preprocessing/3_process_icatcher_output/main.ipnyb` to process the iCatcher+ data into a single CSV file. 
 - **Note:** You will probably want to run this locally so that you can run downstream analysis files locally as well
 
-
-4. Run the following to generate model inputs *(optional if these values have already been calculated)*:
+4. Send compensation to participants on Children Helping Science. Follow instructions in `preprocessing/4_send_compensation` to do so.
+   
+5. Process CDI survey data to be in the right format for analyses. Follow instructions in `preprocessing/5_cdi_preprocessing`
+   
+6. Run the following to generate model inputs *(optional if these values have already been calculated)*:
 - Navigate to `models`, `pip install -r requirements.txt` and `python generate_similarities.py` to generate embedding similarities
 - Run `analysis/saliency/visualize_maps.m` to generate saliency differences
 
-5. Run the Quarto files in `analysis` in the order that they are numbered.
+7. Run the Quarto files in `analysis` in the order that they are numbered.

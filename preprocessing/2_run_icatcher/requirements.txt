@@ -1,3 +1,5 @@
+icatcher>=0.2.3
 numpy>=2.2
 pandas>=2.1
 python-dotenv>=1.0.1
+torch

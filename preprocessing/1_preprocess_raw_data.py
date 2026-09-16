@@ -145,7 +145,7 @@ def convert_webm_to_mp4(input_path, output_path, consent_path):
                 "ffmpeg",
                 "-i", input_file,
                 "-b:v", "3M", # Set video bitrate to 3 Mbps
-                "-vsync", "2",
+                "-fps_mode", "vfr",
            #     "-c:v", "libx264",
            #     "-c:a", "aac",
                 output_file

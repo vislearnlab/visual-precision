@@ -25,7 +25,7 @@ python -c "import torch; print(torch.cuda.is_available())"  # should print True
 ### Matching PyTorch to the Server's CUDA Version
 PyTorch must be compiled for the correct CUDA version or the GPU will not be detected. On **Tversky**, the driver supports CUDA 12.2, so install:
 ```bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+pip install torch torchvision 
 ```
 To check the server's CUDA version at any time: `nvidia-smi`
 
