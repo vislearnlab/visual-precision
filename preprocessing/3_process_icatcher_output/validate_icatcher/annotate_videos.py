@@ -4,15 +4,18 @@ Run on the server, view on your laptop:
     python annotate_videos.py [--port 8765]
     ssh -L 8765:localhost:8765 <server>      # on your laptop, then open http://localhost:8765
 
-Videos come from validation_selection.csv (made by select_validation_videos.py). Each frame is
-pre-filled with the iCatcher label (left / right / away) and can be changed by the annotator.
+Videos come from validation_selection.csv (made by select_validation_videos.py). Frames start unlabeled
+and the iCatcher labels are never shown, so annotators code every frame (left / right / away) blind.
 
-Multi-user use: every annotator enters a username. A video is claimed by the first user who opens it
-(video_claims.csv) and is never offered to anyone else. Annotations are written to
+Multi-user use: every annotator enters a username. Videos are claimed a participant at a time: when a user
+needs a new video they claim every selected video of the next unclaimed participant (video_claims.csv), and
+work through all of that participant's videos in a row before moving on. Claimed videos are never offered
+to anyone else. Annotations are written to
 data/main/data_to_analyze/level-looks_source-manual_data.csv; each save re-reads that file under a lock
 and only replaces the rows of the saved video, so simultaneous users (same server or separate servers)
-never overwrite each other. The `reviewed` column records which frames the annotator has stepped past,
-so a user resumes at the first unreviewed frame of their first unfinished video.
+never overwrite each other. The `reviewed` column records which frames the annotator has labeled
+(unlabeled frames have an empty lookType), so a user resumes at the first unlabeled frame of their
+first unfinished video.
 
 Requires ffmpeg on PATH (or pip install imageio-ffmpeg) and pandas. No other dependencies.
 """
@@ -82,16 +85,20 @@ def video_mask(df, subj, trial):
     return (df[SUBJ] == subj) & (df[TRIAL] == trial)
 
 
-def try_claim(username, subj, trial):
-    """Claim a video for username. Returns True if the video is (now) theirs, False if someone else has it."""
+def try_claim_participant(username, subj, trials):
+    """Claim all of a participant's videos for username. Returns the newly claimed trials, or None if
+    another user already holds any of this participant's videos."""
     with file_lock():
         claims = read_claims()
-        owned = claims[(claims.subjID == subj) & (claims.trialID == trial)]
-        if len(owned):
-            return owned.username.iloc[0] == username
-        new = pd.DataFrame([[subj, trial, username, datetime.now().isoformat(timespec='seconds')]], columns=CLAIM_COLS)
-        atomic_write_csv(pd.concat([claims, new], ignore_index=True), CLAIMS_CSV)
-        return True
+        owned = claims[claims.subjID == subj]
+        if (owned.username != username).any():
+            return None
+        new = [t for t in trials if t not in set(owned.trialID)]
+        if new:
+            now = datetime.now().isoformat(timespec='seconds')
+            rows = pd.DataFrame([[subj, t, username, now] for t in new], columns=CLAIM_COLS)
+            atomic_write_csv(pd.concat([claims, rows], ignore_index=True), CLAIMS_CSV)
+        return new
 
 
 def save_video(df):
@@ -124,7 +131,9 @@ class Annotator:
         self.ffmpeg = find_ffmpeg()
         self.selection = pd.read_csv(SELECTION_CSV)
         self.order = list(zip(self.selection.subjID, self.selection.trialID))
-        self.types = dict(zip(self.order, self.selection.selection_type))
+        self.participants = {}  # subj -> its selected trials, in selection order
+        for subj, trial in self.order:
+            self.participants.setdefault(subj, []).append(trial)
         keys = set(self.order)
         print('Loading iCatcher data...', flush=True)
         looks = pd.read_csv(ICATCHER_CSV)
@@ -163,23 +172,26 @@ class Annotator:
         return d
 
     def mine(self, user):
+        """This user's claimed videos, grouped by participant (in claim order) and in selection order within."""
         claims = read_claims()
         c = claims[claims.username == user]
-        return list(zip(c.subjID, c.trialID))
+        subjs = list(dict.fromkeys(c.subjID))
+        have = set(zip(c.subjID, c.trialID))
+        return [(s, t) for s in subjs for t in self.participants.get(s, []) if (s, t) in have]
 
     def video_payload(self, mine, pos):
         key = mine[pos]
         n_frames = len(list(self.frame_dir(key).glob('*.jpg')))
-        base = self.icatcher[key]
+        n = len(self.icatcher[key])
         manual = read_manual()
         saved = manual[video_mask(manual, *key)].reset_index(drop=True) if manual is not None else None
-        if saved is not None and len(saved):
-            labels, reviewed = list(saved.lookType), [int(x) for x in saved.reviewed]
-        else:
-            labels, reviewed = list(base.lookType), [0] * len(base)
-        return {'key': list(key), 'type': self.types[key], 'pos': pos, 'total': len(mine), 'frames': n_frames,
-                'labels': [FLIP[x] for x in labels], 'original': [FLIP[x] for x in base.lookType],
-                'reviewed': reviewed}
+        labels = [None] * n
+        if saved is not None and len(saved) == n:
+            labels = [FLIP[x] if r else None for x, r in zip(saved.lookType, saved.reviewed)]
+        subj_videos = [k for k in mine if k[0] == key[0]]
+        return {'key': list(key), 'pos': pos, 'total': len(mine), 'frames': n_frames, 'labels': labels,
+                'subj_pos': subj_videos.index(key), 'subj_total': len(self.participants[key[0]]),
+                'subjs_done': len({k[0] for k in mine[:pos]} - {key[0]}), 'last_of_subj': key == subj_videos[-1]}
 
     def open(self, user, action, pos):
         """resume: first unfinished video of this user; next/prev: neighbour in their claimed list.
@@ -203,26 +215,30 @@ class Annotator:
         return len(rows) > 0 and bool(rows.reviewed.all())
 
     def claim_next(self, user, mine):
-        have = set(mine)
-        for key in self.order:
-            if key not in have and try_claim(user, *key):
-                mine.append(key)
-                return len(mine) - 1
+        """Claim the remaining videos of the next participant (finishing a partly claimed one first).
+        Returns the position of its first newly claimed video in the user's list."""
+        have = {s for s, _ in mine}
+        subjs = sorted(self.participants, key=lambda s: s not in have)
+        for subj in subjs:
+            new = try_claim_participant(user, subj, self.participants[subj])
+            if new:
+                mine[:] = self.mine(user)
+                return mine.index((subj, new[0]))
         return None
 
-    def save(self, user, subj, trial, labels, reviewed):
+    def save(self, user, subj, trial, labels):
         key = (subj, trial)
         owner = read_claims().query('subjID == @subj and trialID == @trial').username
         if key not in self.icatcher or not len(owner) or owner.iloc[0] != user:
             return {'error': 'not your video'}
         df = self.icatcher[key].copy()
-        if len(labels) != len(df) or len(reviewed) != len(df) or not set(labels) <= LABELS:
+        if len(labels) != len(df) or not set(labels) <= LABELS | {None}:
             return {'error': 'bad payload'}
         df['original_lookType'] = df.lookType
-        df['lookType'] = [FLIP[x] for x in labels]  # UI labels -> iCatcher convention
+        df['lookType'] = [FLIP[x] if x else None for x in labels]  # UI labels -> iCatcher convention
         df['group'] = (df.lookType != df.lookType.shift()).cumsum().astype(float)
         df['annotator'] = user
-        df['reviewed'] = [int(bool(r)) for r in reviewed]
+        df['reviewed'] = [int(x is not None) for x in labels]
         save_video(df)
         return {'ok': True}
 
@@ -268,7 +284,7 @@ def make_handler(app):
                 if self.path == '/api/open':
                     return self.send_json(app.open(user, body.get('action', 'resume'), int(body.get('pos', 0))))
                 if self.path == '/api/save':
-                    return self.send_json(app.save(user, body['subj'], body['trial'], body['labels'], body['reviewed']))
+                    return self.send_json(app.save(user, body['subj'], body['trial'], body['labels']))
                 self.send_json({'error': 'unknown endpoint'}, 404)
             except Exception as e:  # noqa: BLE001
                 self.send_json({'error': str(e)}, 500)
@@ -282,7 +298,7 @@ PAGE = r"""<!doctype html>
 body{font-family:system-ui,sans-serif;margin:16px;background:#fafafa;color:#222}
 #wrap{max-width:900px;margin:auto}
 canvas{display:block;max-width:100%}
-#video{border:8px solid #888;background:#000;width:100%;box-sizing:border-box}
+#video{border:8px solid #ddd;background:#000;width:100%;box-sizing:border-box}
 #timeline{width:100%;height:48px;background:#fff;margin:8px 0;cursor:pointer}
 button{font-size:14px;padding:6px 12px;margin-right:6px;cursor:pointer}
 #info{font-weight:bold;margin-bottom:6px}
@@ -299,18 +315,21 @@ kbd{background:#eee;border:1px solid #ccc;border-radius:3px;padding:0 4px}
 <div><button id="prevv">Prev video (b)</button><button id="nextv">Next video (n)</button>
 <button id="play">Play/Pause (p)</button><button id="savebtn">Save (s)</button></div>
 <div id="status"></div>
-<div id="help"><kbd>Right</kbd>/<kbd>Space</kbd> accept &amp; next &nbsp; <kbd>Left</kbd> back &nbsp;
-<kbd>Up</kbd>/<kbd>Down</kbd> +/-10 frames<br>
+<div id="help">Every frame starts unlabeled; label each one yourself.<br>
 <b class="left"><kbd>1</kbd>/<kbd>l</kbd> LEFT</b> &nbsp; <b class="right"><kbd>2</kbd>/<kbd>r</kbd> RIGHT</b> &nbsp;
 <b class="away"><kbd>3</kbd>/<kbd>a</kbd> AWAY</b> &nbsp; (labels the frame, then advances)<br>
+<kbd>Space</kbd> same label as previous frame &amp; next &nbsp; <kbd>Right</kbd>/<kbd>Left</kbd> move without labeling &nbsp;
+<kbd>Up</kbd>/<kbd>Down</kbd> +/-10 frames<br>
+<kbd>p</kbd> play: carries the current label onto unlabeled frames; press a label key to switch while playing<br>
 <kbd>m</kbd> mark range start; the next label key labels mark..current frame &nbsp; Click the timeline to jump.
-Green strip = reviewed frames.</div></div></div>
+White = unlabeled. You get all videos of one participant in a row.</div></div></div>
 <script>
-const COLORS={left:'#1f77b4',right:'#ff7f0e',away:'#8c8c8c'};
+const COLORS={left:'#1f77b4',right:'#ff7f0e',away:'#8c8c8c'},NONE='#ddd';
 const KEYS={'1':'left','l':'left','2':'right','r':'right','3':'away','a':'away'};
 let user='',v=null,imgs=[],i=0,mark=null,dirty=0,playing=null,msg='';
 const $=id=>document.getElementById(id), vc=$('video'), tc=$('timeline');
 function say(t){msg=t;$('status').textContent=t;}
+const col=l=>l?COLORS[l]:NONE, nLabeled=()=>v.labels.filter(x=>x).length, complete=()=>v.labels.every(x=>x);
 
 async function api(path,body){
   const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,...body})});
@@ -324,51 +343,60 @@ async function openVideo(action){
   v=d;mark=null;dirty=0;
   const n=v.labels.length;
   if(v.frames!==n) alert('Frame mismatch: video has '+v.frames+' frames, csv has '+n);
-  const first=v.reviewed.indexOf(0);i=first<0?0:first;
+  const first=v.labels.indexOf(null);i=first<0?0:first;
   imgs=[];
   for(let k=0;k<v.frames;k++){const im=new Image();im.onload=()=>{if(k===i)draw()};im.src=`/frame?s=${v.key[0]}&t=${v.key[1]}&i=${k}`;imgs.push(im);}
-  say('');draw();
+  say(v.subj_pos===0&&!nLabeled()?`New participant ${v.key[0]}: ${v.subj_total} videos`:'');draw();
 }
 function draw(){
   const n=v.labels.length,lab=v.labels[i],im=imgs[Math.min(i,imgs.length-1)];
   if(im&&im.complete&&im.naturalWidth){vc.width=im.naturalWidth;vc.height=im.naturalHeight;
     const c=vc.getContext('2d');c.drawImage(im,0,0);
-    c.fillStyle=COLORS[lab];c.font='bold 40px sans-serif';c.fillText(lab.toUpperCase(),14,50);}
-  vc.style.borderColor=COLORS[lab];
+    if(lab){c.fillStyle=COLORS[lab];c.font='bold 40px sans-serif';c.fillText(lab.toUpperCase(),14,50);}}
+  vc.style.borderColor=col(lab);
   const t=tc.getContext('2d'),W=tc.width,w=W/n;t.clearRect(0,0,W,48);
-  for(let k=0;k<n;k++){t.fillStyle=COLORS[v.labels[k]];t.fillRect(k*w,0,w+1,30);
-    t.fillStyle=v.reviewed[k]?'#2ca02c':'#ddd';t.fillRect(k*w,34,w+1,8);}
-  if(mark!==null){const a=Math.min(mark,i),b=Math.max(mark,i);t.strokeStyle='#000';t.lineWidth=3;t.strokeRect(a*w,1,(b-a+1)*w,28);}
+  for(let k=0;k<n;k++){t.fillStyle=v.labels[k]?COLORS[v.labels[k]]:'#fff';t.fillRect(k*w,0,w+1,40);}
+  t.strokeStyle='#ccc';t.lineWidth=1;t.strokeRect(0,0,W,40);
+  if(mark!==null){const a=Math.min(mark,i),b=Math.max(mark,i);t.strokeStyle='#000';t.lineWidth=3;t.strokeRect(a*w,1,(b-a+1)*w,38);}
   t.fillStyle='#000';t.fillRect((i+.5)*w-1.5,0,3,48);
-  const changed=v.labels.filter((x,k)=>x!==v.original[k]).length,done=v.reviewed.reduce((a,b)=>a+b,0);
-  $('info').textContent=`${v.key[0]}  ${v.key[1]}  [${v.pos+1}/${v.total} of your videos, ${v.type}]  frame ${i+1}/${n}  iCatcher: ${v.original[i]}`;
-  $('status').textContent=msg||`reviewed ${done}/${n}   changed ${changed}`+(mark!==null?`   range mark at frame ${mark+1}`:'');
+  $('info').textContent=`Participant ${v.key[0]} (#${v.subjs_done+1} of yours)  video ${v.subj_pos+1}/${v.subj_total}: ${v.key[1]}  frame ${i+1}/${n}`;
+  $('status').textContent=msg||`labeled ${nLabeled()}/${n}`+(mark!==null?`   range mark at frame ${mark+1}`:'');
 }
 async function save(){
   if(!v||!dirty)return;dirty=0;
-  const d=await api('/api/save',{subj:v.key[0],trial:v.key[1],labels:v.labels,reviewed:v.reviewed});
+  const d=await api('/api/save',{subj:v.key[0],trial:v.key[1],labels:v.labels});
   say(d.error?'SAVE FAILED: '+d.error:'saved '+new Date().toLocaleTimeString());
 }
 function goto(k){i=Math.max(0,Math.min(v.labels.length-1,k));msg='';draw();}
-function step(){
-  v.reviewed[i]=1;dirty++;
-  if(i+1>=v.labels.length){stop();draw();if(v.reviewed.every(x=>x))save().then(()=>say('Video complete and saved - press n for next video'));return;}
-  if(dirty>=50)save();
-  goto(i+1);
+function advance(){
+  if(i+1<v.labels.length){if(dirty>=50)save();return goto(i+1);}
+  stop();draw();
+  if(complete())save().then(()=>say(v.last_of_subj?`Participant ${v.key[0]} complete and saved - press n to start the next participant`
+    :'Video complete and saved - press n for the next video of this participant'));
+  else say(`${v.labels.length-nLabeled()} frames still unlabeled (white in the timeline)`);
 }
+function setLabel(k,val){if(v.labels[k]!==val){v.labels[k]=val;dirty++;}}
 function label(val){
   let a=i,b=i;if(mark!==null){a=Math.min(mark,i);b=Math.max(mark,i);}
-  for(let k=a;k<=b;k++){v.labels[k]=val;if(mark!==null)v.reviewed[k]=1;}
+  for(let k=a;k<=b;k++)setLabel(k,val);
   if(mark!==null){i=b;mark=null;}
-  dirty++;step();
+  if(!playing)advance();else draw();
+}
+function carry(){
+  // label the current frame like the previous one; false if there is nothing to carry
+  if(v.labels[i])return true;
+  if(i===0||!v.labels[i-1]){say('Label this frame first (1/2/3)');return false;}
+  setLabel(i,v.labels[i-1]);return true;
 }
 function stop(){if(playing){clearInterval(playing);playing=null;}}
-function play(){if(playing)return stop();playing=setInterval(()=>{if(i+1>=v.labels.length)stop();else step();},33);}
-function nextVideo(){if(!v.reviewed.every(x=>x)&&!confirm('This video is not fully reviewed. Move on anyway?'))return;openVideo('next');}
+function play(){if(playing)return stop();if(!carry())return;
+  playing=setInterval(()=>{if(i+1>=v.labels.length)return advance();i++;if(!carry()){stop();draw();return;}msg='';draw();},33);}
+function nextVideo(){if(!complete()&&!confirm('This video has unlabeled frames. Move on anyway?'))return;openVideo('next');}
 document.addEventListener('keydown',e=>{
   if(!v||e.target.tagName==='INPUT'||e.ctrlKey||e.metaKey)return;
   const k=e.key;
-  if(k==='ArrowRight'||k===' '){e.preventDefault();step();}
+  if(k===' '){e.preventDefault();if(carry())advance();}
+  else if(k==='ArrowRight'){e.preventDefault();goto(i+1);}
   else if(k==='ArrowLeft'){e.preventDefault();goto(i-1);}
   else if(k==='ArrowUp'){e.preventDefault();goto(i+10);}
   else if(k==='ArrowDown'){e.preventDefault();goto(i-10);}
@@ -378,7 +406,7 @@ document.addEventListener('keydown',e=>{
 });
 tc.addEventListener('click',e=>{if(!v)return;const r=tc.getBoundingClientRect();goto(Math.floor((e.clientX-r.left)/r.width*v.labels.length));});
 $('prevv').onclick=()=>openVideo('prev');$('nextv').onclick=nextVideo;$('play').onclick=play;$('savebtn').onclick=save;
-window.addEventListener('beforeunload',()=>{if(v&&dirty)navigator.sendBeacon('/api/save',new Blob([JSON.stringify({user,subj:v.key[0],trial:v.key[1],labels:v.labels,reviewed:v.reviewed})],{type:'application/json'}));});
+window.addEventListener('beforeunload',()=>{if(v&&dirty)navigator.sendBeacon('/api/save',new Blob([JSON.stringify({user,subj:v.key[0],trial:v.key[1],labels:v.labels})],{type:'application/json'}));});
 function start(){user=$('user').value.trim().toLowerCase();if(!user)return;localStorage.setItem('icatcher_user',user);
   $('login').hidden=true;$('app').hidden=false;openVideo('resume');}
 $('go').onclick=start;$('user').addEventListener('keydown',e=>{if(e.key==='Enter')start();});
