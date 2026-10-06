@@ -27,23 +27,34 @@ import shutil
 import subprocess
 import tempfile
 import threading
+import uuid
 from contextlib import contextmanager
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+import dotenv
 import pandas as pd
 
+dotenv.load_dotenv()
+
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[2]
+ROOT = HERE.parents[2]                 # Use if on SSH
+# ROOT = Path(os.environ['SERVER_PATH']) # Use if connected to server volume
 DATA_DIR = ROOT / 'data' / 'main' / 'data_to_analyze'
 ICATCHER_CSV = DATA_DIR / 'level-looks_source-icatcher_data.csv'
 MANUAL_CSV = DATA_DIR / 'level-looks_source-manual_data.csv'
 VIDEO_DIR = ROOT / 'data' / 'raw' / 'original_videos' / 'mp4'
 SELECTION_CSV = HERE / 'validation_selection.csv'
-CLAIMS_CSV = HERE / 'video_claims.csv'
-LOCK_FILE = HERE / '.annotate.lock'
+# The claims file and lock must be the ONE copy every annotator sees. 
+# - On SSH that is HERE 
+# - from a laptop it is that same directory inside the server checkout, so that all annotators see the same file on the mounted volume.
+
+SHARED = HERE                                                                       # Use if on SSH
+# SHARED = ROOT / 'preprocessing' / '3_process_icatcher_output' / 'validate_icatcher'   # Use if connected to server volume
+CLAIMS_CSV = SHARED / 'video_claims.csv'
+LOCK_FILE = SHARED / '.annotate.lock'
 
 SUBJ, TRIAL = 'SubjectInfo.subjID', 'Trials.trialID'
 CLAIM_COLS = ['subjID', 'trialID', 'username', 'claimed_at']
@@ -66,7 +77,9 @@ def file_lock():
 
 
 def atomic_write_csv(df, path):
-    tmp = path.with_name(f'{path.name}.{os.getpid()}.tmp')
+    # uuid, not pid: pids are unique per machine, so two annotators on separate laptops writing to the
+    # mounted volume could pick the same temp name and interleave into a malformed csv.
+    tmp = path.with_name(f'{path.name}.{uuid.uuid4().hex}.tmp')
     df.to_csv(tmp, index=False)
     os.replace(tmp, path)
 
