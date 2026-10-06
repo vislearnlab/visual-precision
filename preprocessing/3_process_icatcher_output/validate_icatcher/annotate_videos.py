@@ -46,9 +46,10 @@ ICATCHER_CSV = DATA_DIR / 'level-looks_source-icatcher_data.csv'
 MANUAL_CSV = DATA_DIR / 'level-looks_source-manual_data.csv'
 VIDEO_DIR = ROOT / 'data' / 'raw' / 'original_videos' / 'mp4'
 SELECTION_CSV = HERE / 'validation_selection.csv'
-CLAIMS_CSV = HERE / 'video_claims.csv'        # Use if on SSH
-# CLAIMS_CSV = DATA_DIR / 'video_claims.csv' # Use if connected to server volume
-LOCK_FILE = HERE / '.annotate.lock'
+CLAIMS_CSV = HERE / 'video_claims.csv'          # Use if on SSH
+# CLAIMS_CSV = DATA_DIR / 'video_claims.csv'    # Use if connected to server volume
+LOCK_FILE = HERE / '.annotate.lock'             # Use if on SSH
+# LOCK_FILE = DATA_DIR / '.annotate.lock'       # Use if connected to server volume
 
 SUBJ, TRIAL = 'SubjectInfo.subjID', 'Trials.trialID'
 CLAIM_COLS = ['subjID', 'trialID', 'username', 'claimed_at']
