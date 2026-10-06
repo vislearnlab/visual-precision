@@ -54,3 +54,7 @@ models/multimodal/
 models/silicon_menagerie/
 models/output/*
 
+
+# annotator claims + lock are per-deployment state, not repo content
+preprocessing/3_process_icatcher_output/validate_icatcher/video_claims.csv
+preprocessing/3_process_icatcher_output/validate_icatcher/.annotate.lock
