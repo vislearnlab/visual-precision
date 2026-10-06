@@ -33,16 +33,21 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+import dotenv
 import pandas as pd
 
+dotenv.load_dotenv()
+
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[2]
+ROOT = HERE.parents[2]                 # Use if on SSH
+# ROOT = Path(os.environ['SERVER_PATH']) # Use if connected to server volume
 DATA_DIR = ROOT / 'data' / 'main' / 'data_to_analyze'
 ICATCHER_CSV = DATA_DIR / 'level-looks_source-icatcher_data.csv'
 MANUAL_CSV = DATA_DIR / 'level-looks_source-manual_data.csv'
 VIDEO_DIR = ROOT / 'data' / 'raw' / 'original_videos' / 'mp4'
 SELECTION_CSV = HERE / 'validation_selection.csv'
-CLAIMS_CSV = HERE / 'video_claims.csv'
+CLAIMS_CSV = HERE / 'video_claims.csv'        # Use if on SSH
+# CLAIMS_CSV = DATA_DIR / 'video_claims.csv' # Use if connected to server volume
 LOCK_FILE = HERE / '.annotate.lock'
 
 SUBJ, TRIAL = 'SubjectInfo.subjID', 'Trials.trialID'

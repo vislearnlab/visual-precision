@@ -11,13 +11,18 @@ Outputs (next to this script):
 Usage: python select_validation_videos.py [--seed 42] [--fraction 0.2] [--min-videos 16]
 """
 import argparse
+import os
 from pathlib import Path
 
+import dotenv
 import numpy as np
 import pandas as pd
 
+dotenv.load_dotenv()
+
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[2]
+ROOT = HERE.parents[2]                   # Use if on SSH
+# ROOT = Path(os.environ['SERVER_PATH']) # Use if connected to server volume
 ICATCHER_CSV = ROOT / 'data' / 'main' / 'data_to_analyze' / 'level-looks_source-icatcher_data.csv'
 VIDEO_DIR = ROOT / 'data' / 'raw' / 'original_videos' / 'mp4'
 SUBJ, TRIAL = 'SubjectInfo.subjID', 'Trials.trialID'
