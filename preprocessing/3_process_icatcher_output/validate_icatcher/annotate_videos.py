@@ -47,10 +47,14 @@ ICATCHER_CSV = DATA_DIR / 'level-looks_source-icatcher_data.csv'
 MANUAL_CSV = DATA_DIR / 'level-looks_source-manual_data.csv'
 VIDEO_DIR = ROOT / 'data' / 'raw' / 'original_videos' / 'mp4'
 SELECTION_CSV = HERE / 'validation_selection.csv'
-CLAIMS_CSV = HERE / 'video_claims.csv'          # Use if on SSH
-# CLAIMS_CSV = DATA_DIR / 'video_claims.csv'    # Use if connected to server volume
-LOCK_FILE = HERE / '.annotate.lock'             # Use if on SSH
-# LOCK_FILE = DATA_DIR / '.annotate.lock'       # Use if connected to server volume
+# The claims file and lock must be the ONE copy every annotator sees. 
+# - On SSH that is HERE 
+# - from a laptop it is that same directory inside the server checkout, so that all annotators see the same file on the mounted volume.
+
+SHARED = HERE                                                                       # Use if on SSH
+# SHARED = ROOT / 'preprocessing' / '3_process_icatcher_output' / 'validate_icatcher'   # Use if connected to server volume
+CLAIMS_CSV = SHARED / 'video_claims.csv'
+LOCK_FILE = SHARED / '.annotate.lock'
 
 SUBJ, TRIAL = 'SubjectInfo.subjID', 'Trials.trialID'
 CLAIM_COLS = ['subjID', 'trialID', 'username', 'claimed_at']

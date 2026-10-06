@@ -28,17 +28,18 @@ The scripts can read the videos and iCatcher csv either from the
 SSHed into it) 
 - b. from a volume mounted on your laptop
 
-Three paired lines near the top of `annotate_videos.py` switch between them, so uncomment one of each pair (currently defaulted to SSH):
+Two paired lines near the top of `annotate_videos.py` switch between them, so uncomment one of each pair (currently defaulted to SSH):
 
 ```python
 ROOT = HERE.parents[2]                 # Use if on SSH
 # ROOT = Path(os.environ['SERVER_PATH']) # Use if connected to server volume
 
-CLAIMS_CSV = HERE / 'video_claims.csv'          # Use if on SSH
-# CLAIMS_CSV = DATA_DIR / 'video_claims.csv'    # Use if connected to server volume
-LOCK_FILE = HERE / '.annotate.lock'             # Use if on SSH
-# LOCK_FILE = DATA_DIR / '.annotate.lock'       # Use if connected to server volume
+SHARED = HERE                                                                        # Use if on SSH
+# SHARED = ROOT / 'preprocessing' / '3_process_icatcher_output' / 'validate_icatcher'  # Use if connected to server volume
 ```
+
+`SHARED` is where `video_claims.csv` and `.annotate.lock` live. It has to be the one copy every
+annotator sees, which is why it is not simply `HERE` in volume mode.
 
 `select_validation_videos.py` has the same `ROOT` pair.
 
@@ -48,8 +49,11 @@ local disk, so ffmpeg decoding is fast. This is the mode the tool was written fo
 
 **Polygon volume mounted.** Connect to the VPN and mount the share, set `SERVER_PATH` in `.env`, and
 run on your own laptop with no tunnel. Because each laptop has its own checkout, `HERE` is **not**
-shared — the `DATA_DIR` variants put the claims file and lock on the volume so separate laptops still
-coordinate. See [Concurrency](#concurrency) for what is and isn't guaranteed here.
+shared — so `SHARED` points at the `validate_icatcher` directory inside the server checkout, which is
+the same file the SSH annotators use. Claims made from a laptop are visible on the server and vice
+versa. See [Concurrency](#concurrency).
+
+The claims file on the volume is the live one; the copy committed in git is stale and gitignored.
 
 ## Requirements
 
@@ -72,8 +76,8 @@ machine (tversky) which is connected to the volume (polygon) you are running aga
 
 In SSH mode the `flock` is genuinely shared and simultaneous annotators serialise their writes.
 
-In volume mode this holds **only if** you switched `LOCK_FILE` to the `DATA_DIR` variant, otherwise
-each laptop locks its own file while writing the same csv on the share.
+In volume mode this holds **only if** you switched `SHARED` off of `HERE`, otherwise each laptop locks
+its own file while writing the same csv on the share.
 
 ## How the selection was made
 
