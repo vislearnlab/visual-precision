@@ -27,6 +27,7 @@ import shutil
 import subprocess
 import tempfile
 import threading
+import uuid
 from contextlib import contextmanager
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -72,7 +73,9 @@ def file_lock():
 
 
 def atomic_write_csv(df, path):
-    tmp = path.with_name(f'{path.name}.{os.getpid()}.tmp')
+    # uuid, not pid: pids are unique per machine, so two annotators on separate laptops writing to the
+    # mounted volume could pick the same temp name and interleave into a malformed csv.
+    tmp = path.with_name(f'{path.name}.{uuid.uuid4().hex}.tmp')
     df.to_csv(tmp, index=False)
     os.replace(tmp, path)
 
