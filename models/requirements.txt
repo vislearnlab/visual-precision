@@ -1,2 +1,12 @@
 vislearnlabpy>=0.0.4.6
 open-clip-torch>=3.3.0
+torch>=2.0
+torchvision>=0.15
+requests>=2.31
+tqdm>=4.67.1
+numpy>=2.2
+pandas>=2.1
+python-dotenv>=1.0.1
+
+# OpenAI's CLIP, not the PyPI package that squats the name
+clip @ git+https://github.com/openai/CLIP.git
