@@ -1,8 +1,25 @@
+import argparse
 import torch
+import torch.nn as nn
+import torchvision.models.resnet as resnet
 from vislearnlabpy.models.multimodal_model import MultimodalModel
 from vislearnlabpy.embeddings import utils
 from vislearnlabpy.embeddings.generate_embeddings import EmbeddingConfig, EmbeddingGenerator
 from multimodal.multimodal_lit import MultiModalLitModel
+from multimodal.multimodal import LockedDropout, TextEncoder, VisionEncoder
+
+# PyTorch 2.6 flipped torch.load's weights_only default to True, so Lightning's
+# load_from_checkpoint refuses the CVCL checkpoint, which stores pickled modules and
+# an argparse.Namespace. Allowlist exactly the classes that checkpoint contains
+# rather than passing weights_only=False, which would re-enable arbitrary code
+# execution for the whole load.
+CVCL_CHECKPOINT_GLOBALS = [
+    VisionEncoder, TextEncoder, LockedDropout,
+    resnet.ResNet, resnet.Bottleneck,
+    nn.Conv2d, nn.BatchNorm2d, nn.ReLU, nn.MaxPool2d, nn.Sequential,
+    nn.AdaptiveAvgPool2d, nn.Linear, nn.Embedding, nn.Dropout,
+    torch.optim.AdamW, argparse.Namespace,
+]
 
 
 class CVCLGenerator(MultimodalModel):
@@ -14,6 +31,7 @@ class CVCLGenerator(MultimodalModel):
     """
 
     def __init__(self, dataloader=None, device=None):
+        torch.serialization.add_safe_globals(CVCL_CHECKPOINT_GLOBALS)
         model, preprocess = MultiModalLitModel.load_model()
         super().__init__(model, preprocess, dataloader, device)
         self.name = "cvcl"
