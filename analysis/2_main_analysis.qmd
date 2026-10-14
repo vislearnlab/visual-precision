@@ -23,7 +23,7 @@ library(scales)
 library(glue)
 library(patchwork)
 
-source("helpers.R")
+source(here("analysis/helpers.R"))
 
 env_file = here(".env")
 if (file.exists(env_file)) {
@@ -45,7 +45,7 @@ SECTION_FILTER <- if (PROJECT_VERSION %in% VALID_SECTIONS) PROJECT_VERSION else 
 ```{r}
 PROCESSED_DATA_PATH = here("data", DATA_FOLDER, "processed_data")
 looking_time_resampled_clean <- read.csv(file.path(PROCESSED_DATA_PATH, "level-looks_data.csv"))
-trial_metadata <- read.csv(here("data","metadata","level-trialtype_data.csv"))
+trial_metadata <- read.csv(here("data","metadata","level-trialtype_data.csv")) |> distinct(Trials.trialID, .keep_all=TRUE)
 trial_summary_data <- read.csv(file.path(PROCESSED_DATA_PATH,"level-trials_data.csv"))
 all_similarities <- read.csv(here("data", "embeddings", "similarities-all_data.csv"))
 openclip_similarities <- read.csv(here("data", "embeddings", "similarities-openclip_data.csv"))
@@ -61,7 +61,7 @@ if (!is.null(SECTION_FILTER)) {
 }
 
 looking_data_summarized <- trial_summary_data |>
-  filter(trial_exclusion == 0 & exclude_participant == 0 & exclude_participant_insufficient_data == 0 & SubjectInfo.subjID != "VVI128") |> select(-section) |>
+  filter(trial_exclusion == 0 & exclude_participant == 0 & exclude_participant_insufficient_data == 0 & SubjectInfo.subjID != "VVI128") |> dplyr::select(-section) |>
   left_join(trial_metadata) |>
   arrange(AoA_Est_target) 
 
@@ -107,7 +107,7 @@ order_of_trials <- function(data, subjID) {
   filter(SubjectInfo.subjID == subjID) |>
   distinct(Trials.trialID, .keep_all=TRUE) |>
   arrange(Trials.ordinal) |>
-  select(Trials.ordinal, Trials.trialID, Trials.targetImage, Trials.distractorImage, Trials.trialType, Trials.leftImage, Trials.rightImage, Trials.targetAudio)
+  dplyr::select(Trials.ordinal, Trials.trialID, Trials.targetImage, Trials.distractorImage, Trials.trialType, Trials.leftImage, Trials.rightImage, Trials.targetAudio)
   write_csv(curr_order, paste0(subjID,".csv"))
 }
 
@@ -273,7 +273,7 @@ trial_performances
 # First, let's make sure we have the correct data
 summarize_target <- looking_time_resampled_clean %>%
   filter(trial_exclusion == 0 & exclude_participant == 0 & exclude_participant_insufficient_data == 0) %>%
-  select(-section) |>
+  #dplyr::select(-section) |>
   left_join(trial_metadata) %>%
   filter(!is.na(accuracy_transformed)) %>%
   group_by(Trials.targetImage, time_normalized_corrected) %>%
@@ -283,7 +283,7 @@ summarize_target <- looking_time_resampled_clean %>%
 
 # Create a mapping of target images to their AoA values
 target_aoa_mapping <- summarize_target %>%
-  select(Trials.targetImage, AoA_Est_target) %>%
+  dplyr::select(Trials.targetImage, AoA_Est_target) %>%
   distinct() %>%
   arrange(AoA_Est_target)  # Sort by AoA
 
@@ -911,7 +911,7 @@ similarity_age_plot(clip_age_bins_summarized, "image_similarity", age_grouping="
 
 
 ```{r}
-ggplot(clip_age_half_summarized |> left_join(all_similarities |> select(text1, text2, dinov3.babyview_image_similarity), by=c("Trials.targetImage"="text1", "Trials.distractorImage"="text2")), aes(x = dinov3.babyview_image_similarity, y = mean_value, 
+ggplot(clip_age_half_summarized |> left_join(all_similarities |> dplyr::select(text1, text2, dinov3.babyview_image_similarity), by=c("Trials.targetImage"="text1", "Trials.distractorImage"="text2")), aes(x = dinov3.babyview_image_similarity, y = mean_value, 
                    color = age_half)) +
     geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.7) +
     geom_point(size = 3, alpha = 0.7) +
@@ -946,7 +946,6 @@ facet_plot <- generate_aoa_facet_plots(
   age_grouping = "age_half",
   include_multimodal = FALSE
 )
-
 # For separate plots by AoA group:
 #low_aoa_plots <- generate_multimodal_age_effect_plots(
 #  data = clip_age_half_summarized %>% filter(AoA_Est_target <= 4.44),
@@ -958,12 +957,187 @@ facet_plot <- generate_aoa_facet_plots(
 facet_plot
 ```
 
+```{r}
+aoa_target_median <- median(
+  trial_metadata$AoA_Est_target,
+  na.rm = TRUE
+)
+
+aoa_diff_median <- median(
+  trial_metadata |>
+    mutate(aoa_diff = AoA_Est_target - AoA_Est_distractor) |>
+    pull(aoa_diff),
+  na.rm = TRUE
+)
+
+# Split by target AoA
+aoa_halved <- looking_data_summarized |>
+  mutate(
+    aoa_half = case_when(
+      AoA_Est_target <= aoa_target_median ~ "lower_aoa",
+      TRUE ~ "higher_aoa"
+    )
+  ) |>
+  summarize_similarity_data(extra_fields = "aoa_half")
+
+plot_grid(
+  age_half_plot(
+    aoa_halved,
+    group_var = "aoa_half",
+    x_var = "text_similarity",
+    x_label = "text similarity"
+  ),
+  age_half_plot(
+    aoa_halved,
+    group_var = "aoa_half",
+    x_var = "image_similarity",
+    x_label = "image similarity"
+  )
+)
+
+```
+check for interactions here. hypothesis: higher-level text similarity effect for lower aoa items for older kids and lower-level image similarity effect for higher aoa items for younger kids.
+
+#### AoA Difference
+```{r}
+
+# Split by target-distractor AoA difference
+aoa_diff_halved <- looking_data_summarized |>
+  mutate(
+    aoa_diff = AoA_Est_target - AoA_Est_distractor,
+    aoa_diff_half = case_when(
+      aoa_diff <= aoa_diff_median ~ "lower_aoa_diff",
+      TRUE ~ "higher_aoa_diff"
+    )
+  ) |>
+  summarize_similarity_data(extra_fields = "aoa_diff_half")
+
+plot_grid(
+  age_half_plot(
+    aoa_diff_halved,
+    group_var = "aoa_diff_half",
+    x_var = "text_similarity",
+    x_label = "text similarity"
+  ),
+  age_half_plot(
+    aoa_diff_halved,
+    group_var = "aoa_diff_half",
+    x_var = "image_similarity",
+    x_label = "image similarity"
+  )
+)
+```
+
+was there a difference between samples? we are seeing a stronger effect in sample 1 compared to sample 2
+```{r}
+library(dplyr)
+library(ggplot2)
+
+plot_data <- trial_metadata |>
+  mutate(
+    aoa_diff = AoA_Est_target - AoA_Est_distractor
+  )
+
+summary_data <- plot_data |>
+  group_by(section) |>
+  summarise(
+    mean_aoa_diff = mean(aoa_diff, na.rm = TRUE),
+    sd_aoa_diff = sd(aoa_diff, na.rm = TRUE),
+    n = sum(!is.na(aoa_diff)),
+    se = sd_aoa_diff / sqrt(n),
+    ci_lower = mean_aoa_diff - qt(0.975, df = n - 1) * se,
+    ci_upper = mean_aoa_diff + qt(0.975, df = n - 1) * se,
+    .groups = "drop"
+  )
+
+ggplot(plot_data, aes(x = aoa_diff, y = section)) +
+
+  # Individual observations
+  geom_jitter(
+    height = 0.12,
+    width = 0,
+    alpha = 0.35,
+    size = 2
+  ) +
+
+  # 95% CI
+  geom_errorbar(
+    data = summary_data,
+    aes(
+      xmin = ci_lower,
+      xmax = ci_upper,
+      y = section
+    ),
+    width = 0.12,
+    linewidth = 1,
+    inherit.aes = FALSE
+  ) +
+
+  # Mean
+  geom_point(
+    data = summary_data,
+    aes(
+      x = mean_aoa_diff,
+      y = section
+    ),
+    size = 4,
+    inherit.aes = FALSE
+  ) +
+
+  labs(
+    x = "Target-distractor AoA difference",
+    y = NULL
+  ) +
+
+  theme_classic(base_size = 14)
+```
+so the issue might not be higher or greater but about difference from centroid. let me divide by that convention instead.
+
+```{r}
+aoa_diff_halved <- looking_data_summarized |>
+  mutate(
+    aoa_diff = AoA_Est_target - AoA_Est_distractor,
+    aoa_diff_half = case_when(
+      aoa_diff <= -0.32 ~ "high_aoa_diff",
+      aoa_diff >= 0.32 ~ "high_aoa_diff",
+      TRUE ~ "lower_aoa_diff"
+    )
+  ) |>
+  summarize_similarity_data(extra_fields = "aoa_diff_half")
+
+plot_grid(
+  age_half_plot(
+    aoa_diff_halved,
+    group_var = "aoa_diff_half",
+    x_var = "text_similarity",
+    x_label = "text similarity"
+  ),
+  age_half_plot(
+    aoa_diff_halved,
+    group_var = "aoa_diff_half",
+    x_var = "image_similarity",
+    x_label = "image similarity"
+  )
+)
+aoa_diff_halved |> count(aoa_diff_half)
+```
+High AoA difference may make image similarity effects appear. However, to be noted that there are many confounding variables. Could just be random effect of sample 1.
+
+#### section effects
+```{r}
+clip_section_summarized <- looking_data_summarized |>
+  summarize_similarity_data(extra_fields = c("section", "AoA_Est_target"))
+
+similarity_age_plot(clip_section_summarized, "image_similarity",
+                    age_grouping = "section", model_type = "CLIP",
+                    median_age = median_age)
+```
 
 ### OpenCLIP training  
 
 ```{r}
 looking_data_w_openclip <- looking_data_summarized |>
-  select(-text_similarity, -multimodal_similarity, -image_similarity) |>
+  dplyr::select(-text_similarity, -multimodal_similarity, -image_similarity) |>
   left_join(openclip_similarities, by = c("Trials.distractorImage"="text2", "Trials.targetImage"="text1"))
 
 openclip_data_summarized <- summarize_similarity_data(looking_data_w_openclip, extra_fields=c("epoch")) |> filter(!is.na(image_similarity))
@@ -1065,19 +1239,297 @@ ggplot(combined, aes(log(epoch), pearson_cor, color = similarity)) +
 
 ggsave(here("figures",PROJECT_VERSION,"openclip_all_measures.png"),width=9,height=6,bg = "white")
 ```
+## mixed-models
+
+```{r}
+# Prepare looking data with all similarity types and epochs
+looking_data_w_all_sims <- looking_data_summarized |>
+  dplyr::select(-image_similarity, -text_similarity, -multimodal_similarity) |>
+  left_join(
+    openclip_similarities, 
+    by = c("Trials.distractorImage" = "text2", "Trials.targetImage" = "text1"),
+    relationship = "many-to-many"
+  ) |>
+  rename(image_similarity_openclip = image_similarity, text_similarity_openclip = text_similarity, multimodal_similarity_openclip = multimodal_similarity)
+```
+
+```{r}
+# If you want to include text and multimodal as well in the same plot:
+# You'll need to fit separate models for each similarity type and combine them
+
+unique_epochs <- looking_data_w_all_sims |>
+  filter(!is.na(image_similarity_openclip)) |>
+  distinct(epoch) |>
+  arrange(epoch) |>
+  pull(epoch)
+
+sim_types_to_fit <- c("image_similarity_openclip", "text_similarity_openclip", "multimodal_similarity_openclip")
+
+epoch_models_all_types <- expand_grid(
+  epoch = unique_epochs,
+  sim_type = sim_types_to_fit
+) |>
+  pmap_df(function(epoch, sim_type) {
+    d <- looking_data_w_all_sims |> 
+      filter(.data$epoch == !!epoch) |>
+      mutate(age_in_months = SubjectInfo.testAge) |>
+      drop_na(all_of(c(sim_type, "corrected_target_looking", "age_in_months", 
+                        "AoA_Est_target", "MeanSaliencyDiff")))
+    
+    if (nrow(d) < 10) return(tibble())
+    
+    formula_str <- paste0(
+      "scale(corrected_target_looking) ~ scale(",
+      sim_type,
+      ") * scale(age_in_months) + scale(AoA_Est_target) + scale(MeanSaliencyDiff) + ",
+      "(scale(",
+      sim_type,
+      ") | SubjectInfo.subjID) + (1 | Trials.targetImage) + (1 | Trials.imagePair)"
+    )
+    
+    tryCatch({
+      m <- lmer(as.formula(formula_str), data = d, 
+                control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e4)))
+      
+      coefs <- summary(m)$coefficients
+      var_name <- paste0("scale(", sim_type, ")")
+      int_name <- paste0("scale(", sim_type, "):scale(age_in_months)")
+      
+      tibble(
+        epoch = epoch,
+        sim_type = case_when(
+          sim_type == "image_similarity_openclip" ~ "Image",
+          sim_type == "text_similarity_openclip" ~ "Text",
+          sim_type == "multimodal_similarity_openclip" ~ "Multimodal"
+        ),
+        main_estimate = coefs[var_name, "Estimate"],
+        main_se = coefs[var_name, "Std. Error"],
+        main_p = coefs[var_name, "Pr(>|t|)"],
+        interaction_estimate = coefs[int_name, "Estimate"],
+        interaction_se = coefs[int_name, "Std. Error"],
+        interaction_p = coefs[int_name, "Pr(>|t|)"]
+      )
+    }, error = function(e) {
+      warning(paste("Error fitting epoch", epoch, "sim_type", sim_type))
+      return(tibble())
+    })
+  })
+
+if (nrow(epoch_models_all_types) == 0) {
+  warning("No models fitted for multi-type analysis. Check data availability.")
+}
+
+# Color palette matching your combined plot
+sim_colors <- c(
+  "Image"      = "#4E79A7",  
+  "Text"       = "#C0724A",  
+  "Multimodal" = "#749B69"   
+)
+
+# Diagnostic for multi-type
+cat("\nEpoch models (all types) summary:\n")
+if (nrow(epoch_models_all_types) > 0) {
+  print(epoch_models_all_types |> count(sim_type))
+} else {
+  cat("No multi-type models fitted.\n")
+}
+
+# Plot 1: All similarity types - main effects
+if (nrow(epoch_models_all_types) > 0) {
+  p_all_main <- ggplot(epoch_models_all_types, 
+                       aes(x = log(epoch), y = main_estimate, color = sim_type)) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+      geom_ribbon(
+      aes(x = log(epoch),                          # ← explicitly added
+          ymin = main_estimate - 1.96 * main_se,
+          ymax = main_estimate + 1.96 * main_se,
+          fill = sim_type),
+      alpha = 0.15,
+      color = NA,
+      data = epoch_models_all_types
+    )+
+    geom_line(size = 1) +
+    geom_point(aes(fill = main_p < 0.05), size = 2.5, shape = 21, stroke = 1.5) +
+    scale_color_manual(values = sim_colors, guide = "none") +
+    scale_fill_manual(
+      values = c("TRUE" = "black", "FALSE" = "white"),
+      guide = "none"
+    ) +
+    facet_wrap(~sim_type) +
+    labs(
+      title = "Main Effects of Similarity Measures Across OpenCLIP Training",
+      x = "log(Epoch)",
+      y = "β (scaled)"
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      panel.border = element_rect(fill = NA, color = "grey80")
+    )
+
+  # Plot 2: All similarity types - interactions with age
+  p_all_int <- ggplot(epoch_models_all_types, 
+                      aes(x = log(epoch), y = interaction_estimate, color = sim_type)) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+        geom_ribbon(
+      aes(x = log(epoch),               
+          ymin = interaction_estimate - 1.96 * interaction_se,
+          ymax = interaction_estimate + 1.96 * interaction_se,
+          fill = sim_type),
+      alpha = 0.15,
+      color = NA,
+      data = epoch_models_all_types
+    )+
+    geom_line(size = 1) +
+    geom_point(aes(fill = interaction_p < 0.05), size = 2.5, shape = 21, stroke = 1.5) +
+    scale_color_manual(values = sim_colors, guide = "none") +
+    scale_fill_manual(
+      values = c("TRUE" = "black", "FALSE" = "white"),
+      guide = "none"
+    ) +
+    facet_wrap(~sim_type) +
+    labs(
+      title = "Similarity × Age Interactions Across OpenCLIP Training",
+      x = "log(Epoch)",
+      y = "β (scaled)"
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      panel.border = element_rect(fill = NA, color = "grey80")
+    )
+
+  p_all_main / p_all_int
+
+  ggsave(
+    here("figures", PROJECT_VERSION, "openclip_epoch_models_all_types.png"),
+    width = 12,
+    height = 10,
+    bg = "white"
+  )
+} else {
+  cat("Skipping multi-type plots - no data available\n")
+}
+```
+# layer-wise
+```{r}
+layerwise_long <- layerwise |>
+  pivot_longer(
+    cols = starts_with("layer"),
+    names_to = "layer",
+    values_to = "image_similarity"
+  ) |>
+  mutate(layer = as.integer(str_extract(layer, "\\d+")))
+
+
+looking_data_w_layerwise <- looking_data_summarized |>
+  dplyr::select(-image_similarity) |>
+  left_join(layerwise_long, by = c("Trials.distractorImage" = "text1", "Trials.targetImage" = "text2"), relationship="many-to-many")
+
+layerwise_data_summarized <- summarize_similarity_data(looking_data_w_layerwise, extra_fields = c("layer"))
+
+image_correlation_results_layerwise <- calculate_correlations(
+  layerwise_data_summarized, "image_similarity", "mean_value", group_var = "layer", method="pearson"
+)
+
+ggplot(image_correlation_results_layerwise, aes(x = layer, y = pearson_cor)) +
+  geom_point(aes(color = p_value < 0.05), size = 3) +
+  geom_line() +
+  geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper), alpha = 0.15) +
+  scale_x_continuous(breaks = 0:12) +
+  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +
+  geom_hline(yintercept=0, linetype="dotted") +
+  labs(
+    title = "Image similarity correlation across CLIP ViT layers",
+    x = "Layer",
+    y = "Pearson Correlation"
+  ) +
+  theme_classic(base_size=16) +
+  theme(legend.position = "none")
+
+ggsave(here("figures", PROJECT_VERSION, "clip_layerwise.png"), width=12, height=9, bg="white")
+```
+
+```{r}
+layerwise_models <- layerwise_long |>
+  group_by(layer) |>
+  group_split() |>
+  map(function(layer_data) {
+    layer_num <- unique(layer_data$layer)
+    
+  d <- looking_data_summarized |> mutate(age_in_months = SubjectInfo.testAge) |>
+  dplyr::select(-any_of("image_similarity")) |>
+  left_join(layer_data, by = c("Trials.distractorImage" = "text2", "Trials.targetImage" = "text1"),
+            relationship = "many-to-many")
+    
+    m <- lmer(scale(corrected_target_looking) ~ scale(image_similarity) * scale(age_in_months) 
+              + scale(AoA_Est_target)
+              + scale(MeanSaliencyDiff)
+              + (scale(image_similarity) | SubjectInfo.subjID)
+              + (1 | Trials.targetImage)
+              + (1 | Trials.imagePair),
+              data = d)
+    
+    coefs <- summary(m)$coefficients
+    
+    tibble(
+      layer = layer_num,
+      image_estimate = coefs["scale(image_similarity)", "Estimate"],
+      image_se = coefs["scale(image_similarity)", "Std. Error"],
+      image_p = coefs["scale(image_similarity)", "Pr(>|t|)"],
+      interaction_estimate = coefs["scale(image_similarity):scale(age_in_months)", "Estimate"],
+      interaction_se = coefs["scale(image_similarity):scale(age_in_months)", "Std. Error"],
+      interaction_p = coefs["scale(image_similarity):scale(age_in_months)", "Pr(>|t|)"]
+    )
+  }) |>
+  bind_rows()
+
+# Plot: image_similarity main effect
+p1 <- ggplot(layerwise_models, aes(x = layer, y = image_estimate)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_ribbon(aes(ymin = image_estimate - 1.96 * image_se,
+                  ymax = image_estimate + 1.96 * image_se), alpha = 0.15) +
+  geom_line() +
+  geom_point(aes(color = image_p < 0.05), size = 3) +
+  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +
+  scale_x_continuous(breaks = 0:12) +
+  labs(title = "Image similarity effect across ViT layers",
+       x = "Layer", y = "β (scaled)") +
+  theme_minimal() + theme(legend.position = "none")
+
+# Plot: interaction with age
+p2 <- ggplot(layerwise_models, aes(x = layer, y = interaction_estimate)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_ribbon(aes(ymin = interaction_estimate - 1.96 * interaction_se,
+                  ymax = interaction_estimate + 1.96 * interaction_se), alpha = 0.15) +
+  geom_line() +
+  geom_point(aes(color = interaction_p < 0.05), size = 3) +
+  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +
+  scale_x_continuous(breaks = 0:12) +
+  labs(title = "Image similarity × age interaction across ViT layers",
+       x = "Layer", y = "β (scaled)") +
+  theme_minimal() + theme(legend.position = "none")
+
+p1 / p2
+```
+
+```{r}
+cor.test(all_sims$layer12_image_similarity, all_sims$image_similarity)
+cor.test(all_sims$clip.hf_image_similarity, all_sims$layer12_image_similarity)
+cor.test(all_sims$clip.hf_image_similarity, all_sims$image_similarity)
+```
 
 ### Examining linear correlation between similarity types
 ```{r}
 cor(data.frame(trial_metadata$multimodal_similarity, trial_metadata$image_similarity, trial_metadata$text_similarity, trial_metadata$cor))
 cor.test(trial_metadata$image_similarity, trial_metadata$text_similarity)
+cor.test(all_sims$dinov3.babyview_image_similarity, all_sims$image_similarity)
 cor.test(all_sims$dino_imagenet100_vitb14_image_similarity, all_sims$image_similarity, method="spearman")
 ```
 ```{r}
 library(GGally)
 
 similarity_cols <- all_sims |>
-  select(matches("similarity$")) |>
-  select(-matches("^layer\\d+_"))
+  dplyr::select(matches("similarity$")) |>
+  dplyr::select(-matches("^layer\\d+_"))
 
 ggpairs(
   similarity_cols,
@@ -1291,10 +1743,13 @@ ggplot(baseline_looking_trial_level, aes(x=MeanSaliencyDiff, y=mean_value)) +
 # Prepare the data by combining both datasets with a grouping variable
 baseline_looking_trial_level <- summarized_data(looking_data_summarized |> rename("mean_looking"="mean_target_looking_baseline_window"), "Trials.trialID", "mean_looking", c("Trials.trialID", "section")) |> left_join(trial_metadata) 
 
+critical_looking_trial_level <- summarized_data(looking_data_summarized |> rename("mean_looking"="mean_target_looking_critical_window"), "Trials.trialID", "mean_looking", c("Trials.trialID", "section")) |> left_join(trial_metadata)
+
 trialid_level_summary$plot_type <- "Baseline-corrected"
 baseline_looking_trial_level$plot_type <- "Baseline window"
+critical_looking_trial_level$plot_type <- "Critical window"
 
-combined_data <- bind_rows(trialid_level_summary, baseline_looking_trial_level)
+combined_data <- bind_rows(trialid_level_summary, baseline_looking_trial_level, critical_looking_trial_level)
 
 # Create labels for trials where target is acorn and distractor is coconut
 combined_data$label_text <- ifelse(
@@ -1307,8 +1762,8 @@ label_data <- subset(combined_data, label_text != "")
 
 # Per-facet dashed reference lines
 hline_data <- data.frame(
-  plot_type = c("Baseline window", "Baseline-corrected"),
-  yint      = c(0.5, 0.0)
+  plot_type = c("Baseline window", "Critical window", "Baseline-corrected"),
+  yint      = c(0.5, 0.5, 0.0)
 )
 
 combined_saliency_plot <- ggplot(combined_data, aes(x = MeanSaliencyDiff, y = mean_value)) +
@@ -1329,7 +1784,7 @@ combined_saliency_plot <- ggplot(combined_data, aes(x = MeanSaliencyDiff, y = me
                    segment.size = 1.2,
                    max.overlaps = Inf,
                    size = 8) +
-  facet_wrap(~ plot_type, scales = "free_y", ncol = 2) +
+  facet_wrap(~ plot_type, scales = "free_y", ncol = 3) +
   xlab("Target-distractor GBVS mean saliency difference") +
   ylab("Proportion of target looking") +
   theme_minimal() +
@@ -1353,10 +1808,60 @@ combined_saliency_plot <- ggplot(combined_data, aes(x = MeanSaliencyDiff, y = me
 combined_saliency_plot
 
 # Save the combined plot
-ggsave(here("figures", PROJECT_VERSION, "saliency_plot_combined.svg"), 
+ggsave(here("figures", PROJECT_VERSION, "saliency_plot_combined_full.svg"), 
        combined_saliency_plot, width = 15, height = 12, bg = "white", device = "pdf")
-ggsave(here("figures", PROJECT_VERSION, "saliency_plot_combined.png"), 
+ggsave(here("figures", PROJECT_VERSION, "saliency_plot_combined_full.png"), 
        combined_saliency_plot, width = 15, height = 12, bg = "white")
+```
+
+
+```{r, fig.width=15, fig.height=12}
+combined_image_similarity_plot <- ggplot(combined_data, aes(x = image_similarity, y = mean_value)) +
+  geom_smooth(method = "lm", color = "#182B49", fill = "#182B49", alpha = 0.15) +
+  geom_hline(data = hline_data, aes(yintercept = yint),
+             linetype = "dashed", color = "gray40", linewidth = 1) +
+  geom_point(size = 8, color = "#182B49", alpha = 0.8) +
+  #scale_alpha_manual(values = c(sample1 = 0.8, sample2 = 0.3)) +
+  geom_label_repel(data = label_data,
+                   aes(label = label_text),
+                   color = "black",
+                   fill = "white",
+                   alpha = 0.8,
+                   segment.alpha = 0.7,
+                   nudge_y = 0.02,
+                   force = 10,
+                   force_pull = 0.1,
+                   segment.size = 1.2,
+                   max.overlaps = Inf,
+                   size = 8) +
+  facet_wrap(~ plot_type, scales = "free_y", ncol = 3) +
+  xlab("Target-distractor image similarity difference") +
+  ylab("Proportion of target looking") +
+  theme_minimal() +
+  theme(
+    text = element_text(size = 16, face = "bold"),
+    axis.title.x = element_text(face = "bold", size = 29,
+                                margin = margin(t = 15, r = 0, b = 0, l = 0)),
+    legend.key = element_blank(),
+    axis.title.y = element_text(face = "bold", size = 29,
+                                margin = margin(t = 0, r = 10, b = 0, l = 0)),
+    axis.text = element_text(size = 24, face = "bold"),
+    legend.title = element_text(size = 22, face = "bold"),
+    legend.text = element_text(size = 22, face = "bold"),
+    legend.position = "bottom",
+    strip.text = element_text(size = 28, face = "bold"),
+    strip.background = element_rect(fill = "gray90", color = NA),
+    strip.text.x = element_text(margin = margin(t = 8, b = 8)),
+    panel.spacing = unit(0.5, "cm")
+  )
+
+combined_image_similarity_plot
+
+# Save the combined plot
+ggsave(here("figures", PROJECT_VERSION, "saliency_plot_combined_full.svg"), 
+       combined_saliency_plot, width = 15, height = 12, bg = "white", device = "pdf")
+ggsave(here("figures", PROJECT_VERSION, "image_sim_plot_combined_full.png"), 
+       combined_image_similarity_plot, width = 15, height = 12, bg = "white")
 ```
 
 # Embedding type comparisons
@@ -1370,113 +1875,6 @@ cor.test(trial_metadata$MeanSaliencyDiff, trial_metadata$AoA_Est_target)
 ```
 
 
-# layer-wise
-```{r}
-layerwise_long <- layerwise |>
-  pivot_longer(
-    cols = starts_with("layer"),
-    names_to = "layer",
-    values_to = "image_similarity"
-  ) |>
-  mutate(layer = as.integer(str_extract(layer, "\\d+")))
-
-
-looking_data_w_layerwise <- looking_data_summarized |>
-  select(-image_similarity) |>
-  left_join(layerwise_long, by = c("Trials.distractorImage" = "text1", "Trials.targetImage" = "text2"), relationship="many-to-many")
-
-layerwise_data_summarized <- summarize_similarity_data(looking_data_w_layerwise, extra_fields = c("layer"))
-
-image_correlation_results_layerwise <- calculate_correlations(
-  layerwise_data_summarized, "image_similarity", "mean_value", group_var = "layer", method="pearson"
-)
-
-ggplot(image_correlation_results_layerwise, aes(x = layer, y = pearson_cor)) +
-  geom_point(aes(color = p_value < 0.05), size = 3) +
-  geom_line() +
-  geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper), alpha = 0.15) +
-  scale_x_continuous(breaks = 0:12) +
-  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +
-  geom_hline(yintercept=0, linetype="dotted") +
-  labs(
-    title = "Image similarity correlation across CLIP ViT layers",
-    x = "Layer",
-    y = "Pearson Correlation"
-  ) +
-  theme_classic(base_size=16) +
-  theme(legend.position = "none")
-
-ggsave(here("figures", PROJECT_VERSION, "clip_layerwise.png"), width=12, height=9, bg="white")
-```
-
-```{r}
-layerwise_models <- layerwise_long |>
-  group_by(layer) |>
-  group_split() |>
-  map(function(layer_data) {
-    layer_num <- unique(layer_data$layer)
-    
-  d <- looking_data_summarized |> mutate(age_in_months = SubjectInfo.testAge) |>
-  select(-any_of("image_similarity")) |>
-  left_join(layer_data, by = c("Trials.distractorImage" = "text2", "Trials.targetImage" = "text1"),
-            relationship = "many-to-many")
-    
-    m <- lmer(scale(corrected_target_looking) ~ scale(image_similarity) * scale(age_in_months) 
-              + scale(AoA_Est_target)
-              + scale(MeanSaliencyDiff)
-              + (scale(image_similarity) | SubjectInfo.subjID)
-              + (1 | Trials.targetImage)
-              + (1 | Trials.imagePair),
-              data = d)
-    
-    coefs <- summary(m)$coefficients
-    
-    tibble(
-      layer = layer_num,
-      image_estimate = coefs["scale(image_similarity)", "Estimate"],
-      image_se = coefs["scale(image_similarity)", "Std. Error"],
-      image_p = coefs["scale(image_similarity)", "Pr(>|t|)"],
-      interaction_estimate = coefs["scale(image_similarity):scale(age_in_months)", "Estimate"],
-      interaction_se = coefs["scale(image_similarity):scale(age_in_months)", "Std. Error"],
-      interaction_p = coefs["scale(image_similarity):scale(age_in_months)", "Pr(>|t|)"]
-    )
-  }) |>
-  bind_rows()
-
-# Plot: image_similarity main effect
-p1 <- ggplot(layerwise_models, aes(x = layer, y = image_estimate)) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
-  geom_ribbon(aes(ymin = image_estimate - 1.96 * image_se,
-                  ymax = image_estimate + 1.96 * image_se), alpha = 0.15) +
-  geom_line() +
-  geom_point(aes(color = image_p < 0.05), size = 3) +
-  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +
-  scale_x_continuous(breaks = 0:12) +
-  labs(title = "Image similarity effect across ViT layers",
-       x = "Layer", y = "β (scaled)") +
-  theme_minimal() + theme(legend.position = "none")
-
-# Plot: interaction with age
-p2 <- ggplot(layerwise_models, aes(x = layer, y = interaction_estimate)) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
-  geom_ribbon(aes(ymin = interaction_estimate - 1.96 * interaction_se,
-                  ymax = interaction_estimate + 1.96 * interaction_se), alpha = 0.15) +
-  geom_line() +
-  geom_point(aes(color = interaction_p < 0.05), size = 3) +
-  scale_color_manual(values = c("TRUE" = "black", "FALSE" = "gray")) +
-  scale_x_continuous(breaks = 0:12) +
-  labs(title = "Image similarity × age interaction across ViT layers",
-       x = "Layer", y = "β (scaled)") +
-  theme_minimal() + theme(legend.position = "none")
-
-p1 / p2
-```
-
-```{r}
-cor.test(all_sims$layer12_image_similarity, all_sims$image_similarity)
-cor.test(all_sims$clip.hf_image_similarity, all_sims$layer12_image_similarity)
-cor.test(all_sims$clip.hf_image_similarity, all_sims$image_similarity)
-```
 
 # CDI
 ```{r}
@@ -1517,4 +1915,19 @@ ggplot(data=target_looking_subject_level_cdi, aes(x=mean_value, y=percentile_ran
 ```
 ```{r}
 cor.test(target_looking_subject_level_cdi$percentile_rank,target_looking_subject_level_cdi$vocabulary_score)
+```
+```{r}
+all_cdi_data <- read.csv(here("data/main/data_to_analyze/level-words_source-cdi_data.csv"))
+looking_data_summarized_with_knowledge <- looking_data_summarized |>
+  left_join(all_cdi_data |> filter(type=="produces" & word_type=="extra_words") |> transmute(local_id, word, knows_target=responded), by=c("Trials.targetImage"="word", "SubjectInfo.subjID"="local_id"))
+
+clip_cdi_knowledge_summarized <- looking_data_summarized_with_knowledge |>
+  filter(!is.na(knows_target)) |>
+  mutate(cdi_knowledge_bin = if_else(knows_target == 1,
+                           "Knows", "Does not know")) |>
+  summarize_similarity_data(extra_fields = c("cdi_knowledge_bin", "AoA_Est_target"))
+
+similarity_age_plot(clip_cdi_knowledge_summarized, "image_similarity",
+                    age_grouping = "cdi_knowledge_bin", model_type = "CLIP",
+                    median_age = median_age)
 ```
