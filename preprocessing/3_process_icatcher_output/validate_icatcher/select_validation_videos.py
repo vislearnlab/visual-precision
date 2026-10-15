@@ -21,8 +21,7 @@ import pandas as pd
 dotenv.load_dotenv()
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[2]                   # Use if on SSH
-# ROOT = Path(os.environ['SERVER_PATH']) # Use if connected to server volume
+ROOT = Path(os.environ['SERVER_PATH'])  # the mounted Polygon volume
 ICATCHER_CSV = ROOT / 'data' / 'main' / 'data_to_analyze' / 'level-looks_source-icatcher_data.csv'
 VIDEO_DIR = ROOT / 'data' / 'raw' / 'original_videos' / 'mp4'
 SUBJ, TRIAL = 'SubjectInfo.subjID', 'Trials.trialID'

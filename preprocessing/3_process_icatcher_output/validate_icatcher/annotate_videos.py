@@ -1,8 +1,8 @@
 """Frame-by-frame manual annotation UI (in your browser) for validating iCatcher looks.
 
-Run on the server, view on your laptop:
+Run on your own machine with the Polygon volume mounted (SERVER_PATH in .env):
     python annotate_videos.py [--port 8765]
-    ssh -L 8765:localhost:8765 <server>      # on your laptop, then open http://localhost:8765
+    then open http://localhost:8765 in your browser
 
 Videos come from validation_selection.csv (made by select_validation_videos.py). Frames start unlabeled
 and the iCatcher labels are never shown, so annotators code every frame (left / right / away) blind.
@@ -12,7 +12,7 @@ needs a new video they claim every selected video of the next unclaimed particip
 work through all of that participant's videos in a row before moving on. Claimed videos are never offered
 to anyone else. Annotations are written to
 data/main/data_to_analyze/level-looks_source-manual_data.csv; each save re-reads that file under a lock
-and only replaces the rows of the saved video, so simultaneous users (same server or separate servers)
+and only replaces the rows of the saved video, so simultaneous users (on separate machines)
 never overwrite each other. The `reviewed` column records which frames the annotator has labeled
 (unlabeled frames have an empty lookType), so a user resumes at the first unlabeled frame of their
 first unfinished video.
@@ -40,19 +40,15 @@ import pandas as pd
 dotenv.load_dotenv()
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[2]                 # Use if on SSH
-# ROOT = Path(os.environ['SERVER_PATH']) # Use if connected to server volume
+ROOT = Path(os.environ['SERVER_PATH'])  # the mounted Polygon volume
 DATA_DIR = ROOT / 'data' / 'main' / 'data_to_analyze'
 ICATCHER_CSV = DATA_DIR / 'level-looks_source-icatcher_data.csv'
 MANUAL_CSV = DATA_DIR / 'level-looks_source-manual_data.csv'
 VIDEO_DIR = ROOT / 'data' / 'raw' / 'original_videos' / 'mp4'
 SELECTION_CSV = HERE / 'validation_selection.csv'
-# The claims file and lock must be the ONE copy every annotator sees. 
-# - On SSH that is HERE 
-# - from a laptop it is that same directory inside the server checkout, so that all annotators see the same file on the mounted volume.
-
-SHARED = HERE                                                                       # Use if on SSH
-# SHARED = ROOT / 'preprocessing' / '3_process_icatcher_output' / 'validate_icatcher'   # Use if connected to server volume
+# The claims file and lock must be the ONE copy every annotator sees: the validate_icatcher directory
+# on the mounted volume, not the one in your own checkout.
+SHARED = ROOT / 'preprocessing' / '3_process_icatcher_output' / 'validate_icatcher'
 CLAIMS_CSV = SHARED / 'video_claims.csv'
 LOCK_FILE = SHARED / '.annotate.lock'
 
@@ -447,8 +443,7 @@ def main():
     if server is None:
         raise SystemExit(f'No free port in {args.port}-{args.port + 49}')
     port = server.server_address[1]
-    print(f'\nReady. On your laptop run:\n  ssh -L {port}:localhost:{port} <this server>\n'
-          f'then open http://localhost:{port} in your browser. Ctrl+C here to stop.', flush=True)
+    print(f'\nReady. Open http://localhost:{port} in your browser. Ctrl+C here to stop.', flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

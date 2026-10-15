@@ -13,45 +13,28 @@ iCatcher+ output. Annotators code every frame `left` / `right` / `away`.
 
 1. `cd preprocessing/3_process_icatcher_output/validate_icatcher`
 2. `conda activate visualprecision`
-3. Pick your mode in `annotate_videos.py` (see [Two run modes](#two-run-modes)) — SSH to Tversky is the default
+3. Mount the Polygon volume and set `SERVER_PATH` in the repo-root `.env` (see [Where the data comes from](#where-the-data-comes-from))
 4. `python annotate_videos.py`
-5. On your laptop: `ssh -L 8765:localhost:8765 tversky`, then open <http://localhost:8765>
+5. Open <http://localhost:8765>
 6. Enter your username and start labeling. Keys are listed at the bottom of the page.
 
 ---
 
-## Two run modes
+## Where the data comes from
 
-The scripts can read the videos and iCatcher csv either from the
-
-- a. server filesystem (when you are
-SSHed into it) 
-- b. from a volume mounted on your laptop
-
-Two paired lines near the top of `annotate_videos.py` switch between them, so uncomment one of each pair (currently defaulted to SSH):
+The videos and the iCatcher csv are always read from the **mounted Polygon volume**: connect to the
+VPN, mount the share, set `SERVER_PATH` in the repo-root `.env`, and run on your own machine. Both
+scripts resolve everything from that one root:
 
 ```python
-ROOT = HERE.parents[2]                 # Use if on SSH
-# ROOT = Path(os.environ['SERVER_PATH']) # Use if connected to server volume
+ROOT = Path(os.environ['SERVER_PATH'])  # the mounted Polygon volume
 
-SHARED = HERE                                                                        # Use if on SSH
-# SHARED = ROOT / 'preprocessing' / '3_process_icatcher_output' / 'validate_icatcher'  # Use if connected to server volume
+SHARED = ROOT / 'preprocessing' / '3_process_icatcher_output' / 'validate_icatcher'
 ```
 
-`SHARED` is where `video_claims.csv` and `.annotate.lock` live. It has to be the one copy every
-annotator sees, which is why it is not simply `HERE` in volume mode.
-
-`select_validation_videos.py` has the same `ROOT` pair.
-
-**SSH to Tversky (default).** Everyone works in the one checkout on the server, so `HERE` is the same
-directory for all annotators and the claims file and lock are shared for free. Videos are read from
-local disk, so ffmpeg decoding is fast. This is the mode the tool was written for.
-
-**Polygon volume mounted.** Connect to the VPN and mount the share, set `SERVER_PATH` in `.env`, and
-run on your own laptop with no tunnel. Because each laptop has its own checkout, `HERE` is **not**
-shared — so `SHARED` points at the `validate_icatcher` directory inside the server checkout, which is
-the same file the SSH annotators use. Claims made from a laptop are visible on the server and vice
-versa. See [Concurrency](#concurrency).
+`SHARED` is where `video_claims.csv` and `.annotate.lock` live. Because each annotator has their own
+checkout it points at the `validate_icatcher` directory **on the volume**, not at the local one, so
+everyone claims against the same file. See [Concurrency](#concurrency).
 
 The claims file on the volume is the live one; the copy committed in git is stale and gitignored.
 
@@ -59,7 +42,7 @@ The claims file on the volume is the live one; the copy committed in git is stal
 
 - `pandas` and `python-dotenv`
 - `ffmpeg` on `PATH`, or `pip install imageio-ffmpeg`
-- For **volume mode only**: `SERVER_PATH` set in the repo-root `.env`
+- `SERVER_PATH` set in the repo-root `.env`, pointing at the mounted Polygon volume
 
 ## How work is handed out
 
@@ -69,15 +52,14 @@ Videos are claimed **a participant at a time**: when you need new work the tool 
 video of the next unclaimed participant, and you work through all ~32 of them in a row before moving
 on. Claims are recorded in `video_claims.csv` and claimed videos are never offered to anyone else.
 
-`video_claims.csv` is gitignored. It is a per-deployment state, not repo content. It lives only on the
-machine (tversky) which is connected to the volume (polygon) you are running against, so **don't delete it**.
+`video_claims.csv` is gitignored. It is per-deployment state, not repo content. The live one lives on
+the volume (polygon) you are running against, so **don't delete it**.
 
 ## Concurrency
 
-In SSH mode the `flock` is genuinely shared and simultaneous annotators serialise their writes.
-
-In volume mode this holds **only if** you switched `SHARED` off of `HERE`, otherwise each laptop locks
-its own file while writing the same csv on the share.
+The `flock` is taken on `.annotate.lock` on the volume, so simultaneous annotators serialise their
+writes. This holds **only** because `SHARED` is on the volume — pointing it at the local checkout
+would have each machine locking its own file while writing the same csv on the share.
 
 ## How the selection was made
 
@@ -91,15 +73,14 @@ The committed result is 1492 videos (19.9%) from 47 participants at `--seed 42`;
 ## Troubleshooting
 
 **Port already in use / stale UI.** `annotate_videos.py` scans ports 8765–8814 and prints the one it
-got. A leftover process still holding 8765 means the new instance lands on 8766 while your tunnel and
-browser still point at 8765 — you would be annotating against the old process. Check with
+got. A leftover process still holding 8765 means the new instance lands on 8766 while your browser
+still points at 8765 — you would be annotating against the old process. Check with
 `lsof -nP -iTCP:8765 -sTCP:LISTEN` and kill the stale pid before starting.
 
-**`FileNotFoundError` on `level-looks_source-icatcher_data.csv`.** Wrong mode for where you are
-running: either the `ROOT` toggle is on SSH while you are on your laptop, or the volume is not
-mounted. Confirm `/Volumes/vislearnlab` exists for volume mode.
+**`FileNotFoundError` on `level-looks_source-icatcher_data.csv`.** The volume is not mounted, or
+`SERVER_PATH` points somewhere else. Confirm `/Volumes/vislearnlab` exists.
 
-**`KeyError: 'SERVER_PATH'`.** Volume mode is selected but `SERVER_PATH` is not set in `.env`.
+**`KeyError: 'SERVER_PATH'`.** `SERVER_PATH` is not set in the repo-root `.env`.
 
 **`ffmpeg not found`.** Install it in the conda env (`conda install ffmpeg`) or `pip install imageio-ffmpeg`.
 
